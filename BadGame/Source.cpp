@@ -22,13 +22,13 @@ void updateFPS(GameVariables* gv) // функция обновления FPS.
 
 void eventHandler(sf::Event& event, GameVariables* gv) // функция обработки событий.
 {
-	switch (event.type) // проверка по типу событий.
+	switch (gv->event.type) // проверка по типу событий.
 	{
 	case sf::Event::Closed: // если событие приняло значение "Закрыто".
 		gv->window.close(); // закрываем окно.
 		break; // выходим.
 	case sf::Event::MouseButtonPressed: // если нажата кнопка мыши.
-		switch (event.mouseButton.button) // проверка по кнопке мыши.
+		switch (gv->event.mouseButton.button) // проверка по кнопке мыши.
 		{
 		case sf::Mouse::Left: // если левая кнопка мыши.
 			if (player != nullptr)
@@ -45,7 +45,7 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 		}
 		break;
 	case sf::Event::KeyReleased: // если отпустили клавишу.
-		switch (event.key.code) // проверка по клавише.
+		switch (gv->event.key.code) // проверка по клавише.
 		{
 		case sf::Keyboard::Z: // если клавиша Z.
 			if (gv->showLogs == false) { gv->showLogs = true; } // если логи не были показаны - показываем.
@@ -92,11 +92,11 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 		break;
 	case sf::Event::MouseWheelScrolled:
 	{
-		if (event.mouseWheelScroll.delta < 0)
+		if (gv->event.mouseWheelScroll.delta < 0)
 		{
 			gv->view.zoom(1.1f); // увеличиваем зум.
 		}
-		else if (event.mouseWheelScroll.delta > 0)
+		else if (gv->event.mouseWheelScroll.delta > 0)
 		{
 			gv->view.zoom(0.9f); // уменьшаем зум.
 		}
@@ -110,6 +110,7 @@ int main() // главная функция программы.
 	consoleSettings(); // вызов функции установки настроек для консоли.
 	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
 	setVariables(gv);
+	menuEventHandler(gv);
 	//authorization(gv);
 	restartGame(gv, entities, player);
 	gv->clock.restart(); // перезагружает время.
@@ -117,10 +118,10 @@ int main() // главная функция программы.
 	{
 		updateTime(gv); // вызов функции обновления времени.
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.
-		sf::Event event; // объект события.
-		while (gv->window.pollEvent(event)) // пока происходят события.
+	
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
-			eventHandler(event, gv); // вызов функции обработки событий.
+			eventHandler(gv->event, gv); // вызов функции обработки событий.
 		}
 		gv->window.setView(gv->view);
 		updateEntities(gv, entities, it, it2, player); // вызов функции обновления сущностей.

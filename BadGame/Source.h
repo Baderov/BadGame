@@ -5,6 +5,7 @@
 #include "Console.h" // подключаем заголовочный файл.
 #include "Authorization.h"
 #include "Item.h"
+#include "Menu.h"
 
 void updateTime(GameVariables* gv); // функция обновления времени.
 

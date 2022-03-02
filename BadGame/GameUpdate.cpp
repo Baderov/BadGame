@@ -193,6 +193,6 @@ void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entitie
 			gv->window.draw((*it)->getNameText());
 		}
 	}
-}
 
-// test
+
+}

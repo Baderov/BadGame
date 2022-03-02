@@ -2,6 +2,7 @@
 
 void authorization(GameVariables* gv)
 {
+	gv->playerName = "";
 	int menuNum = 0, nickSize = 0;
 	bool input = false;
 	sf::Color blackTransparent(0, 0, 0, 50);
@@ -68,15 +69,14 @@ void authorization(GameVariables* gv)
 		if (loginRS.getGlobalBounds().contains(mousePos.x, mousePos.y)) { loginRS.setFillColor(sf::Color::Yellow); menuNum = 2; }
 		if (exitRS.getGlobalBounds().contains(mousePos.x, mousePos.y)) { exitRS.setFillColor(sf::Color::Yellow); menuNum = 3; }
 
-		sf::Event event; // объект события.
-		while (gv->window.pollEvent(event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
-			authKeyboard(gv, event, nicknameText, input);
-			if (event.type == sf::Event::Closed)
+			authKeyboard(gv, gv->event, nicknameText, input);
+			if (gv->event.type == sf::Event::Closed)
 			{
 				gv->window.close();
 			}
-			if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.
 			{
 				if (menuNum == 0)
 				{
