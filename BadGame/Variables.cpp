@@ -5,6 +5,10 @@ void setColor(GameVariables* gv) // функция установки значений для цвета.
 	gv->backgroundColor.r = 204; // устанавливаем цвет.
 	gv->backgroundColor.g = 153; // устанавливаем цвет.
 	gv->backgroundColor.b = 255; // устанавливаем цвет.
+
+	gv->greyColor.r = 120;
+	gv->greyColor.g = 120;
+	gv->greyColor.b = 120;
 }
 
 void setFont(GameVariables* gv) // функция установки значений для шрифтов.
@@ -73,8 +77,8 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна и стиль окна.
 
 	//gv->window.create(sf::VideoMode(1366, 768), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.create(sf::VideoMode(1920, 1080), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
-
+	gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+	gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна.
 
 	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
@@ -124,7 +128,6 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->isFullscreen = false; // объявляем логическую переменную.
 
 	// CHAR.
-
 	gv->gameLanguage = 'e';
 
 }

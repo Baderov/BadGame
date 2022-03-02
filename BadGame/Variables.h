@@ -45,6 +45,7 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	sf::Vector2f boxStartPositions[12]; // стартовые позиции коробок.
 
 	sf::Color backgroundColor; // цвет фона.
+	sf::Color greyColor; // объ€вл€ем серый цвет.
 
 	sf::Clock clock; // часы.
 	sf::Clock fpsClock; // часы дл€ FPS.

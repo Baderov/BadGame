@@ -51,17 +51,17 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			if (gv->showLogs == false) { gv->showLogs = true; } // если логи не были показаны - показываем.
 			else { gv->showLogs = false; } // если логи были показаны - не показываем.
 			break; // выходим.
+
 		case sf::Keyboard::X: // если клавиша X.
 			if (gv->showHitbox == false) { gv->showHitbox = true; } // если хитбоксы не были показаны - показываем.
 			else { gv->showHitbox = false; } // если хитбоксы были показаны - не показываем.
 			break; // выходим.
+
 		case sf::Keyboard::C: // если клавиша C.
 			if (gv->showAimLaser == false) { gv->showAimLaser = true; } // если прицельный лазер не был показан - показываем.
 			else { gv->showAimLaser = false; } // если прицельный лазер был показан - не показываем.
 			break; // выходим.
-		case sf::Keyboard::U: // если клавиша U.
-			restartGame(gv, entities, player);
-			break; // выходим.
+
 		case sf::Keyboard::R: // если клавиша R.
 			if (player != nullptr && player->getCurrentAmmo() < 30)
 			{
@@ -70,7 +70,8 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 				player->setReloadTime(0);
 			}
 			break; // выходим.
-		case sf::Keyboard::B: // если клавиша U.
+
+		case sf::Keyboard::B: // если клавиша B.
 			//bool intersects = false;
 			//sf::Vector2f spawnPos(100 + rand() % 2600, 100 + rand() % 2600);
 			//sf::FloatRect HPBonusRect(spawnPos, (sf::Vector2f)gv->hpBonusImage.getSize());
@@ -90,18 +91,40 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			break; // выходим.
 		}
 		break;
-	case sf::Event::MouseWheelScrolled:
-	{
-		if (gv->event.mouseWheelScroll.delta < 0)
+
+	case sf::Event::KeyPressed:
+		switch (gv->event.key.code) // проверка по клавише.
 		{
-			gv->view.zoom(1.1f); // увеличиваем зум.
-		}
-		else if (gv->event.mouseWheelScroll.delta > 0)
-		{
-			gv->view.zoom(0.9f); // уменьшаем зум.
+		case sf::Keyboard::Escape: // если клавиша Esc.
+			sf::Vector2f oldViewSize(gv->view.getSize());
+			sf::Vector2f oldViewCenter(gv->view.getCenter());
+
+			gv->view.setSize(gv->window.getSize().x, gv->window.getSize().y);
+			gv->view.setCenter(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
+			gv->window.setView(gv->view);
+
+			menuEventHandler(gv);
+			gv->clock.restart(); // перезагружает время.
+
+			gv->view.setSize(oldViewSize);
+			gv->view.setCenter(oldViewCenter);
+			gv->window.setView(gv->view);
+
+			break; // выходим.
 		}
 		break;
-	}
+	//case sf::Event::MouseWheelScrolled:
+	//{
+	//	if (gv->event.mouseWheelScroll.delta < 0)
+	//	{
+	//		gv->view.zoom(1.1f); // увеличиваем зум.
+	//	}
+	//	else if (gv->event.mouseWheelScroll.delta > 0)
+	//	{
+	//		gv->view.zoom(0.9f); // уменьшаем зум.
+	//	}
+	//	break;
+	//}
 	}
 }
 
@@ -111,18 +134,24 @@ int main() // главная функция программы.
 	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
 	setVariables(gv);
 	menuEventHandler(gv);
+
 	//authorization(gv);
-	restartGame(gv, entities, player);
 	gv->clock.restart(); // перезагружает время.
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
+		if (gv->isGameStarted == false)
+		{
+			restartGame(gv, entities, player);
+			gv->isGameStarted = true;
+		}
 		updateTime(gv); // вызов функции обновления времени.
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.
-	
+
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
 			eventHandler(gv->event, gv); // вызов функции обработки событий.
 		}
+
 		gv->window.setView(gv->view);
 		updateEntities(gv, entities, it, it2, player); // вызов функции обновления сущностей.
 		gv->window.clear(gv->backgroundColor); // очистка окна.
