@@ -238,5 +238,31 @@ void authorizationUpdate(GameVariables* gv)
 
 void multiplayerMenuUpdate(GameVariables* gv)
 {
-	//sf::Keyboard::Period
+	gv->buttonsVec.clear();
+	gv->labelsVec.clear();
+	float halfWinSizeX = gv->window.getSize().x / 2.f;
+	float halfWinSizeY = gv->window.getSize().y / 2.f;
+
+	if (gv->gameLanguage == 'e')
+	{
+		gv->labelsVec.emplace_back(new Label(L"ENTER IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - 160.f), 50, "enterIPLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY - 100.f), L"", 45, "ipFieldButton", false));
+
+		gv->labelsVec.emplace_back(new Label(L"ENTER PORT", sf::Vector2f(halfWinSizeX, halfWinSizeY - 10.f), 50, "enterPortLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY + 50.f), L"", 45, "portFieldButton", false));
+
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"Connect", 30, "connectButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Back", 30, "backButton", true));
+	}
+	else if (gv->gameLanguage == 'r')
+	{
+		gv->labelsVec.emplace_back(new Label(L"¬¬≈ƒ»“≈ IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - 160.f), 50, "enterIPLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY - 100.f), L"", 45, "ipFieldButton", false));
+
+		gv->labelsVec.emplace_back(new Label(L"¬¬≈ƒ»“≈ œŒ–“", sf::Vector2f(halfWinSizeX, halfWinSizeY - 10.f), 50, "enterPortLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY + 50.f), L"", 45, "portFieldButton", false));
+
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"¬ÓÈÚË", 30, "connectButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Õ‡Á‡‰", 30, "backButton", true));
+	}
 }

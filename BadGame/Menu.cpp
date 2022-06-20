@@ -237,6 +237,7 @@ void mainMenu(GameVariables* gv, Entity*& player)
 
 void multiplayerMenu(GameVariables* gv)
 {
+	char input = ' ';
 	multiplayerMenuUpdate(gv);
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -245,22 +246,35 @@ void multiplayerMenu(GameVariables* gv)
 
 		for (auto& el : gv->buttonsVec)
 		{
-			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			if (el->getName() == "connectButton" || el->getName() == "backButton")
+			{
+				el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			}
 		}
 
 		for (auto& el : gv->buttonsVec)
 		{
 			if (el->getSprite().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y))
 			{
-				el->getSprite().setFillColor(sf::Color::Yellow);
-
+				if (el->getName() == "backButton")
+				{
+					gv->menuNum = 5;
+					el->getSprite().setFillColor(sf::Color::Yellow);
+				}
+				if (el->getName() == "ipFieldButton")
+				{
+					gv->menuNum = 18;
+					input = 'i';
+				}
+				if (el->getName() == "portFieldButton")
+				{
+					gv->menuNum = 19;
+					input = 'p';
+				}
 				if (el->getName() == "connectButton")
 				{
-					gv->menuNum = 0;
-				}
-				if (el->getName() == "cancelButton")
-				{
-					gv->menuNum = 0;
+					gv->menuNum = 20;
+					el->getSprite().setFillColor(sf::Color::Yellow);
 				}
 			}
 		}
@@ -271,15 +285,73 @@ void multiplayerMenu(GameVariables* gv)
 			{
 				gv->menuNum = 13;
 				gv->buttonsVec.clear();
+				gv->labelsVec.clear();
 				return;
 			}
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); return; } // если нажали левую кнопку мыши.	
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.	
+			{
+				switch (gv->menuNum)
+				{
+				case 0:
+					input = ' ';
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "ipFieldButton" || el->getName() == "portFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::White);
+						}
+					}
+					break;
+
+				case 5:
+					gv->buttonsVec.clear();
+					gv->labelsVec.clear();
+					return;
+					break;
+
+				case 18:
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "ipFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::Green);
+						}
+						if (el->getName() == "portFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::White);
+						}
+					}
+					break;
+
+				case 19:
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "ipFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::White);
+						}
+						if (el->getName() == "portFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::Green);
+						}
+					}
+					break;
+
+				case 20:
+
+					break;
+				}
+			}
 		}
 		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
 		for (auto& el : gv->buttonsVec)
 		{
 			gv->window.draw(el->getSprite());
+			gv->window.draw(el->getText());
+		}
+		for (auto& el : gv->labelsVec)
+		{
 			gv->window.draw(el->getText());
 		}
 		gv->window.display(); // отображаем в окне.
@@ -384,10 +456,15 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			gv->isGameStarted = true;
 			return;
 			break;
+
+
 		case 17:
 			gv->menuNum = 0;
-
+			multiplayerMenu(gv);
 			break;
+
+
+
 
 
 

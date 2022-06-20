@@ -174,18 +174,15 @@ void authorization(GameVariables* gv)
 			authKeyboard(gv, gv->event, input);
 		}
 		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
-
 		for (auto& el : gv->buttonsVec)
 		{
 			gv->window.draw(el->getSprite());
 			gv->window.draw(el->getText());
 		}
-
 		for (auto& el : gv->labelsVec)
 		{
 			gv->window.draw(el->getText());
 		}
-
 		gv->window.display(); // отображаем в окне.
 	}
 }
