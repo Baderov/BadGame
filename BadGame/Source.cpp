@@ -63,31 +63,12 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			break; // выходим.
 
 		case sf::Keyboard::R: // если клавиша R.
-			if (player != nullptr && player->getCurrentAmmo() < 30)
+			if (player != nullptr && player->getCurrentAmmo() < 30 && player->getIsReload() == false)
 			{
 				player->setIsReload(true);
 				player->getReloadClock().restart();
 				player->setReloadTime(0);
 			}
-			break; // выходим.
-
-		case sf::Keyboard::B: // если клавиша B.
-			//bool intersects = false;
-			//sf::Vector2f spawnPos(100 + rand() % 2600, 100 + rand() % 2600);
-			//sf::FloatRect HPBonusRect(spawnPos, (sf::Vector2f)gv->hpBonusImage.getSize());
-			//for (it = entities.begin(); it != entities.end(); it++) // проходимся по списку от начала до конца.
-			//{
-			//	if (HPBonusRect.intersects((*it)->rectHitbox.getGlobalBounds()))
-			//	{
-			//		std::cout << "intersects" << std::endl;
-			//		intersects = true;
-			//		break;
-			//	}
-			//}
-			//if (intersects == false)
-			//{
-			//	entities.emplace_back(new Item(gv->hpBonusImage, spawnPos, "HPBonus"));
-			//}
 			break; // выходим.
 		}
 		break;
@@ -103,39 +84,40 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			gv->view.setCenter(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
 			gv->window.setView(gv->view);
 
-			menuEventHandler(gv);
-			gv->clock.restart(); // перезагружает время.
+			menuEventHandler(gv, player);
 
 			gv->view.setSize(oldViewSize);
 			gv->view.setCenter(oldViewCenter);
 			gv->window.setView(gv->view);
 
+			gv->clock.restart(); // перезагружает время.
 			break; // выходим.
 		}
 		break;
-	//case sf::Event::MouseWheelScrolled:
-	//{
-	//	if (gv->event.mouseWheelScroll.delta < 0)
-	//	{
-	//		gv->view.zoom(1.1f); // увеличиваем зум.
-	//	}
-	//	else if (gv->event.mouseWheelScroll.delta > 0)
-	//	{
-	//		gv->view.zoom(0.9f); // уменьшаем зум.
-	//	}
-	//	break;
-	//}
+		//case sf::Event::MouseWheelScrolled:
+		//{
+		//	if (gv->event.mouseWheelScroll.delta < 0)
+		//	{
+		//		gv->view.zoom(1.1f); // увеличиваем зум.
+		//	}
+		//	else if (gv->event.mouseWheelScroll.delta > 0)
+		//	{
+		//		gv->view.zoom(0.9f); // уменьшаем зум.
+		//	}
+		//	break;
+		//}
 	}
 }
 
 int main() // главная функция программы.
 {
 	consoleSettings(); // вызов функции установки настроек для консоли.
+	//startNetwork();
 	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
 	setVariables(gv);
-	menuEventHandler(gv);
-
-	//authorization(gv);
+	authorization(gv);
+	gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
+	menuEventHandler(gv, player);
 	gv->clock.restart(); // перезагружает время.
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
@@ -146,12 +128,10 @@ int main() // главная функция программы.
 		}
 		updateTime(gv); // вызов функции обновления времени.
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.
-
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
 			eventHandler(gv->event, gv); // вызов функции обработки событий.
 		}
-
 		gv->window.setView(gv->view);
 		updateEntities(gv, entities, it, it2, player); // вызов функции обновления сущностей.
 		gv->window.clear(gv->backgroundColor); // очистка окна.
@@ -160,7 +140,6 @@ int main() // главная функция программы.
 		gv->window.display(); // отображает кадр.
 		updateFPS(gv); // вызов функции обновления FPS.
 	}
-
 	delete gv; // удаляем переменную gv.
 	std::cout << "Memory cleared!\n"; // отправляем сообщение в консоль.
 	return 0; // завершение работы функции.

@@ -5,7 +5,7 @@
 class Button
 {
 public:
-	Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, int textSize, std::string name);
+	Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, int textSize, std::string name, bool textOrigin);
 	sf::RectangleShape& getSprite();
 	sf::Text& getText();
 	std::string& getName();

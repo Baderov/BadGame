@@ -77,10 +77,10 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна и стиль окна.
 
 	//gv->window.create(sf::VideoMode(1366, 768), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
+	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна.
 
+	gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
 
 	srand(time(NULL));
@@ -109,7 +109,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
 
 	// STRING.
-	gv->playerName = "BADEROV";
+	gv->nickname = "BADEROV";
 
 	// INT.
 	gv->divisor = 800; 

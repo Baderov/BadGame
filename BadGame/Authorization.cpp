@@ -2,116 +2,190 @@
 
 void authorization(GameVariables* gv)
 {
-	gv->playerName = "";
-	int menuNum = 0, nickSize = 0;
+	authorizationUpdate(gv);
+	gv->nickname = "";
 	bool input = false;
-	sf::Color blackTransparent(0, 0, 0, 50);
-	sf::RectangleShape authRS, nicknameRS, loginRS, exitRS;
-	authRS.setFillColor(blackTransparent);
-	authRS.setSize(sf::Vector2f(450.f, 450.f));
-	authRS.setOrigin(authRS.getSize().x / 2.f, authRS.getSize().y / 2.f);
-	authRS.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
-
-	loginRS.setSize(sf::Vector2f(150.f, 50.f));
-	loginRS.setOrigin(loginRS.getSize().x / 2.f, loginRS.getSize().y / 2.f);
-	loginRS.setPosition(authRS.getPosition().x - 100.f, authRS.getPosition().y + 170.f);
-
-	exitRS.setSize(sf::Vector2f(150.f, 50.f));
-	exitRS.setOrigin(exitRS.getSize().x / 2.f, exitRS.getSize().y / 2.f);
-	exitRS.setPosition(authRS.getPosition().x + 100.f, authRS.getPosition().y + 170.f);
-
-	sf::Text enterYourNameText, nicknameText, loginText, exitText;
-	enterYourNameText.setFont(gv->consolasFont);
-	enterYourNameText.setString("ENTER YOUR NAME");
-	enterYourNameText.setStyle(sf::Text::Bold);
-	enterYourNameText.setCharacterSize(50);
-	enterYourNameText.setFillColor(sf::Color::Black);
-	enterYourNameText.setOrigin(round(enterYourNameText.getLocalBounds().left + (enterYourNameText.getLocalBounds().width / 2.f)), round(enterYourNameText.getLocalBounds().top + (enterYourNameText.getLocalBounds().height / 2.f)));
-	enterYourNameText.setPosition(authRS.getPosition().x, authRS.getPosition().y - 170.f);
-
-	loginText.setFont(gv->consolasFont);
-	loginText.setString("LOGIN");
-	loginText.setStyle(sf::Text::Bold);
-	loginText.setCharacterSize(40);
-	loginText.setFillColor(sf::Color::Black);
-	loginText.setOrigin(round(loginText.getLocalBounds().left + (loginText.getLocalBounds().width / 2.f)), round(loginText.getLocalBounds().top + (loginText.getLocalBounds().height / 2.f)));
-	loginText.setPosition(loginRS.getPosition());
-
-	exitText.setFont(gv->consolasFont);
-	exitText.setString("EXIT");
-	exitText.setStyle(sf::Text::Bold);
-	exitText.setCharacterSize(40);
-	exitText.setFillColor(sf::Color::Black);
-	exitText.setOrigin(round(exitText.getLocalBounds().left + (exitText.getLocalBounds().width / 2.f)), round(exitText.getLocalBounds().top + (exitText.getLocalBounds().height / 2.f)));
-	exitText.setPosition(exitRS.getPosition());
-
-	nicknameRS.setFillColor(sf::Color::White);
-	nicknameRS.setSize(sf::Vector2f(400.f, 50.f)); // устанавливаем размер фигуры.
-	nicknameRS.setOrigin(nicknameRS.getSize().x / 2.f, nicknameRS.getSize().y / 2.f); // устанавливаем размер фигуры.
-	nicknameRS.setPosition(enterYourNameText.getPosition().x, enterYourNameText.getPosition().y + 170.f); // устанавливаем позицию для фигуры.
-
-	nicknameText.setFont(gv->consolasFont);
-	nicknameText.setString("");
-	nicknameText.setStyle(sf::Text::Bold);
-	nicknameText.setCharacterSize(45);
-	nicknameText.setFillColor(sf::Color::Black);
-	nicknameText.setPosition((nicknameRS.getPosition().x - (nicknameRS.getSize().x / 2.f)) + 5.f, nicknameRS.getPosition().y - 83.f);
-
 
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
-		sf::Vector2f mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // переводим их в игровые (уходим от коорд окна)
-		menuNum = 0;
-		loginRS.setFillColor(sf::Color::White);
-		exitRS.setFillColor(sf::Color::White);
-
-		if (nicknameRS.getGlobalBounds().contains(mousePos.x, mousePos.y)) {  menuNum = 1; }
-		if (loginRS.getGlobalBounds().contains(mousePos.x, mousePos.y)) { loginRS.setFillColor(sf::Color::Yellow); menuNum = 2; }
-		if (exitRS.getGlobalBounds().contains(mousePos.x, mousePos.y)) { exitRS.setFillColor(sf::Color::Yellow); menuNum = 3; }
-
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
+		gv->menuNum = 0;
+		for (auto& el : gv->buttonsVec)
 		{
-			authKeyboard(gv, gv->event, nicknameText, input);
-			if (gv->event.type == sf::Event::Closed)
+			if (el->getName() == "enterButton" || el->getName() == "exitButton" || el->getName() == "engLangButton" || el->getName() == "rusLangButton")
 			{
-				gv->window.close();
+				el->getSprite().setFillColor(sf::Color::White);
 			}
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.
+		}
+		for (auto& el : gv->buttonsVec)
+		{
+			if (gv->gameLanguage == 'e' && el->getName() == "engLangButton")
 			{
-				if (menuNum == 0)
+				el->getSprite().setFillColor(gv->greyColor);
+			}
+
+			else if (gv->gameLanguage == 'r' && el->getName() == "rusLangButton")
+			{
+				el->getSprite().setFillColor(gv->greyColor);
+			}
+		}
+
+		for (auto& el : gv->buttonsVec)
+		{
+			if (el->getSprite().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y))
+			{
+				if (el->getName() == "nicknameFieldButton")
 				{
-					nicknameRS.setFillColor(sf::Color::White);
-					input = false;
+					gv->menuNum = 1;
 				}
-				if (menuNum == 1)
+
+				if (el->getName() == "enterButton")
 				{
-					nicknameRS.setFillColor(sf::Color::Green);
-					input = true;
+					gv->menuNum = 2;
+					el->getSprite().setFillColor(sf::Color::Yellow);
 				}
-				if (menuNum == 2)
+
+				if (el->getName() == "exitButton")
 				{
-					if (gv->playerName.length() >= 1)
+					gv->menuNum = 3;
+					el->getSprite().setFillColor(sf::Color::Yellow);
+				}
+
+				if (el->getSprite().getFillColor() != gv->greyColor)
+				{
+					if (el->getName() == "engLangButton")
 					{
-						nicknameRS.setFillColor(sf::Color::White);
-						menuNum = 0;
-						return;
+						gv->menuNum = 4;
+						el->getSprite().setFillColor(sf::Color::Yellow);
 					}
-				}
-				if (menuNum == 3)
-				{
-					gv->window.close();
+					if (el->getName() == "rusLangButton")
+					{
+						gv->menuNum = 5;
+						el->getSprite().setFillColor(sf::Color::Yellow);
+					}
 				}
 			}
 		}
-		gv->window.clear(sf::Color::Cyan); // очистка окна.
-		gv->window.draw(authRS); 
-		gv->window.draw(loginRS);
-		gv->window.draw(exitRS);
-		gv->window.draw(nicknameRS);
-		gv->window.draw(exitText);
-		gv->window.draw(enterYourNameText); 
-		gv->window.draw(loginText);
-		gv->window.draw(nicknameText);
-		gv->window.display(); // отображает кадр.
+
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		{
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			{
+				gv->menuNum = 2;
+				return;
+			}
+
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->labelsVec.clear(); gv->buttonsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
+
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.
+			{
+				if (gv->menuNum == 0)
+				{
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "nicknameFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::White);
+							input = false;
+							break;
+						}
+					}
+				}
+
+				if (gv->menuNum == 1)
+				{
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "nicknameFieldButton")
+						{
+							el->getSprite().setFillColor(sf::Color::Green);
+							input = true;
+							break;
+						}
+					}
+				}
+
+				if (gv->menuNum == 2)
+				{
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "enterButton")
+						{
+							if (gv->nickname.length() >= 1)
+							{
+								el->getSprite().setFillColor(sf::Color::White);
+								gv->menuNum = 0;
+								gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+								gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+								gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
+								return;
+							}
+							break;
+						}
+					}
+				}
+
+				if (gv->menuNum == 3)
+				{
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "exitButton")
+						{
+							gv->window.close();
+							break;
+						}
+					}
+				}
+
+				if (gv->menuNum == 4)
+				{
+					gv->menuNum = 0;
+					gv->gameLanguage = 'e';
+					authorizationUpdate(gv);
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "nicknameFieldButton")
+						{
+							el->getText().setString(gv->nickname);
+							el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
+							break;
+						}
+					}
+				}
+
+				if (gv->menuNum == 5)
+				{
+					gv->menuNum = 0;
+					gv->gameLanguage = 'r';
+					authorizationUpdate(gv);
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "nicknameFieldButton")
+						{
+							el->getText().setString(gv->nickname);
+							el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
+							break;
+						}
+					}
+				}
+
+			}
+
+			authKeyboard(gv, gv->event, input);
+		}
+		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+
+		for (auto& el : gv->buttonsVec)
+		{
+			gv->window.draw(el->getSprite());
+			gv->window.draw(el->getText());
+		}
+
+		for (auto& el : gv->labelsVec)
+		{
+			gv->window.draw(el->getText());
+		}
+
+		gv->window.display(); // отображаем в окне.
 	}
 }

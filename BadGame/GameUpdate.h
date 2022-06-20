@@ -14,8 +14,6 @@ void boxSpawn(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities);
 
 void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player);
 
-void playerReload(Entity*& player);
-
 void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2, Entity*& player); // функция обновления сущностей.
 
 void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it); // функция рисовки сущностей.

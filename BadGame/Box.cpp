@@ -7,7 +7,7 @@ Box::Box(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(ima
 	rectHitbox.setFillColor(sf::Color::Blue);
 }
 
-void Box::update(GameVariables* gv) // функция update (в параметрах передаем время).
+void Box::update(GameVariables* gv)
 {
 	if (isAlive == true) // если пуля жива, то:
 	{

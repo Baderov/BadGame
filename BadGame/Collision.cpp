@@ -44,7 +44,7 @@ void collision(Entity* entity, Entity* entity2) // функция обработки коллизий.
 		{
 			if (dynamic_cast<Player*>(entity2))
 			{
-				// ударить игрока мечом.
+				// например - ударить игрока мечом.
 			}
 
 			if (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2))

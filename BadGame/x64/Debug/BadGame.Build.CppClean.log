@@ -5,7 +5,10 @@ c:\badproject\badgame\x64\debug\variables.obj
 c:\badproject\badgame\x64\debug\text.obj
 c:\badproject\badgame\x64\debug\player.obj
 c:\badproject\badgame\x64\debug\source.obj
+c:\badproject\badgame\x64\debug\resolution.obj
+c:\badproject\badgame\x64\debug\network.obj
 c:\badproject\badgame\x64\debug\menu.obj
+c:\badproject\badgame\x64\debug\label.obj
 c:\badproject\badgame\x64\debug\keyboard.obj
 c:\badproject\badgame\x64\debug\item.obj
 c:\badproject\badgame\x64\debug\gameupdate.obj
@@ -13,13 +16,12 @@ c:\badproject\badgame\x64\debug\entity.obj
 c:\badproject\badgame\x64\debug\enemy.obj
 c:\badproject\badgame\x64\debug\console.obj
 c:\badproject\badgame\x64\debug\collision.obj
+c:\badproject\badgame\x64\debug\button.obj
 c:\badproject\badgame\x64\debug\bullet.obj
 c:\badproject\badgame\x64\debug\box.obj
 c:\badproject\badgame\x64\debug\authorization.obj
-c:\badproject\badgame\x64\debug\button.obj
-c:\badproject\badgame\x64\debug\resolution.obj
-c:\badproject\x64\debug\badgame.exe
 c:\badproject\badgame\x64\debug\badgame.ilk
+c:\badproject\x64\debug\badgame.exe
 c:\badproject\x64\debug\badgame.pdb
 c:\badproject\badgame\x64\debug\badgame.tlog\cl.command.1.tlog
 c:\badproject\badgame\x64\debug\badgame.tlog\cl.read.1.tlog

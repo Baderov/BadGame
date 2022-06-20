@@ -164,9 +164,9 @@ void settingsMenu(GameVariables* gv)
 	}
 }
 
-void mainMenu(GameVariables* gv)
+void mainMenu(GameVariables* gv, Entity*& player)
 {
-	mainMenuUpdate(gv);
+	mainMenuUpdate(gv, player);
 	//std::cout << gv->lineNumberInConsole++ << ": I'm in the main menu!" << std::endl;
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -176,10 +176,6 @@ void mainMenu(GameVariables* gv)
 		for (auto& el : gv->buttonsVec)
 		{
 			el->getSprite().setFillColor(sf::Color::White);
-			if (el->getName() == "multiPlayerButton")
-			{
-				el->getSprite().setFillColor(gv->greyColor);
-			}
 		}
 
 		for (auto& el : gv->buttonsVec)
@@ -207,6 +203,14 @@ void mainMenu(GameVariables* gv)
 				{
 					gv->menuNum = 16;
 				}
+				if (el->getName() == "restartGameButton")
+				{
+					gv->menuNum = 1;
+				}
+				if (el->getName() == "multiPlayerButton")
+				{
+					gv->menuNum = 17;
+				}
 			}
 		}
 
@@ -231,9 +235,60 @@ void mainMenu(GameVariables* gv)
 	}
 }
 
-void menuEventHandler(GameVariables* gv)
+void multiplayerMenu(GameVariables* gv)
 {
-	mainMenu(gv);
+	multiplayerMenuUpdate(gv);
+	while (gv->window.isOpen()) // пока меню открыто.
+	{
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
+		gv->menuNum = 0; // присваиваем номер меню.
+
+		for (auto& el : gv->buttonsVec)
+		{
+			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+		}
+
+		for (auto& el : gv->buttonsVec)
+		{
+			if (el->getSprite().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y))
+			{
+				el->getSprite().setFillColor(sf::Color::Yellow);
+
+				if (el->getName() == "connectButton")
+				{
+					gv->menuNum = 0;
+				}
+				if (el->getName() == "cancelButton")
+				{
+					gv->menuNum = 0;
+				}
+			}
+		}
+
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		{
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			{
+				gv->menuNum = 13;
+				gv->buttonsVec.clear();
+				return;
+			}
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); return; } // если нажали левую кнопку мыши.	
+		}
+		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+		for (auto& el : gv->buttonsVec)
+		{
+			gv->window.draw(el->getSprite());
+			gv->window.draw(el->getText());
+		}
+		gv->window.display(); // отображаем в окне.
+	}
+}
+
+void menuEventHandler(GameVariables* gv, Entity*& player)
+{
+	mainMenu(gv, player);
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
@@ -263,13 +318,14 @@ void menuEventHandler(GameVariables* gv)
 			break;
 		case 5:
 			gv->menuNum = 0;
-			mainMenu(gv);
+			mainMenu(gv, player);
 			break;
 		case 6:
 			gv->menuNum = 0;
 			if (gv->isFullscreen == true) { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Fullscreen); }
 			else { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Close); }
 			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 			graphicsSettingsMenu(gv);
 			break;
 		case 7:
@@ -277,12 +333,14 @@ void menuEventHandler(GameVariables* gv)
 			if (gv->isFullscreen == true) { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Fullscreen); }
 			else { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Close); }
 			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 			graphicsSettingsMenu(gv);
 			break;
 		case 8:
 			gv->menuNum = 0;
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Close);
 			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 			gv->isFullscreen = false;
 			graphicsSettingsMenu(gv);
 			break;
@@ -290,6 +348,7 @@ void menuEventHandler(GameVariables* gv)
 			gv->menuNum = 0;
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Fullscreen);
 			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 			gv->isFullscreen = true;
 			graphicsSettingsMenu(gv);
 			break;
@@ -309,7 +368,7 @@ void menuEventHandler(GameVariables* gv)
 			break;
 		case 13:
 			gv->menuNum = 0;
-			mainMenu(gv);
+			mainMenu(gv, player);
 			break;
 		case 14:
 			gv->menuNum = 0;
@@ -318,15 +377,17 @@ void menuEventHandler(GameVariables* gv)
 		case 15:
 			gv->menuNum = 0;
 			gv->isGameStarted = false;
-			mainMenu(gv);
+			mainMenu(gv, player);
 			break;
 		case 16:
 			gv->menuNum = 0;
 			gv->isGameStarted = true;
 			return;
 			break;
+		case 17:
+			gv->menuNum = 0;
 
-
+			break;
 
 
 

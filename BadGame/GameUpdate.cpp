@@ -21,7 +21,7 @@ void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), "RightWall"));
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), "TopWall"));
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), "BottomWall"));
-	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->playerStartPos), gv->playerName)); // создаётся игрок и закидывается в список entities(игроки, пули, коробки и т.д).
+	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->playerStartPos), gv->nickname)); // создаётся игрок и закидывается в список entities(игроки, пули, коробки и т.д).
 	player = entities.back().get();
 
 	for (int i = 0; i < 10 + rand() % 21; i++)
@@ -45,18 +45,14 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 	for (it = entities.begin(); it != entities.end();) // проходимся по списку от начала до конца.
 	{
 		Entity* entity = (*it).get(); // создаём объект-указатель и присваиваем значение первого итератора для облегчения чтения кода.
-
 		if (player == nullptr && dynamic_cast<Enemy*>(entity))
 		{
 			entity->setIsAlive(false);
 		}
-
 		for (it2 = entities.begin(); it2 != entities.end(); it2++) // проходимся по списку от начала до конца.
 		{
 			Entity* entity2 = (*it2).get(); // создаём объект-указатель и присваиваем значение первого итератора для облегчения чтения кода.
-
 			collision(entity, entity2); // вызов функции обработки коллизий.			
-
 			if (dynamic_cast<Enemy*>(entity) && dynamic_cast<Player*>(entity2))
 			{
 				entity->setAimPos(entity2->getCurrentPos());
@@ -70,7 +66,6 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			{
 				player->setCurrentAmmo(player->getCurrentAmmo() + player->getMaxAmmo());
 				player->setMaxAmmo(0);
-
 			}
 			else
 			{
@@ -80,7 +75,6 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			player->setIsReload(false);
 		}
 
-
 		if (gv->numberOfEnemies == 0 && player != nullptr)
 		{
 			int gc = player->getGoldCoins();
@@ -88,7 +82,6 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			player->setGoldCoins(gc);
 			return;
 		}		
-
 		if (entity->getIsShoot() == true)
 		{
 			if (dynamic_cast<Player*>(entity))
@@ -100,7 +93,6 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 				}
 				entity->setIsShoot(false);
 			}
-
 			if (dynamic_cast<Enemy*>(entity))
 			{
 				float distance = sqrt(((entity->getAimPos().x - entity->getCurrentPos().x) * (entity->getAimPos().x - entity->getCurrentPos().x)) + ((entity->getAimPos().y - entity->getCurrentPos().y) * (entity->getAimPos().y - entity->getCurrentPos().y)));
@@ -113,8 +105,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 		}
 
 		entity->update(gv); // вызываем функцию update для всех объектов.
-
-		if (entity->getIsAlive() == false) // если этот объект мертв, то удаляем его.
+		if (entity->getIsAlive() == false) // если этот объект мертв
 		{
 			if (dynamic_cast<Box*>(entity)) // если сущность это Коробка.
 			{
@@ -156,7 +147,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 }
 
 void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it) // функция рисовки сущностей.
-{
+{	
 	if (gv->showAimLaser == true)
 	{
 		gv->window.draw(gv->aimLaser);

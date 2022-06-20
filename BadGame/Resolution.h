@@ -7,4 +7,8 @@ void graphicsSettingsMenuUpdate(GameVariables* gv);
 
 void settingsMenuUpdate(GameVariables* gv);
 
-void mainMenuUpdate(GameVariables* gv);
+void mainMenuUpdate(GameVariables* gv, Entity*& player);
+
+void authorizationUpdate(GameVariables* gv);
+
+void multiplayerMenuUpdate(GameVariables* gv);

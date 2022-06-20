@@ -10,7 +10,14 @@ void setGameInfo(GameVariables* gv, Entity* player, std::list<std::unique_ptr<En
 	if (player != nullptr)
 	{
 		gv->playerInfoText.setString(std::to_string(player->getGoldCoins())); // устанавливаем текст.
-		gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo())); // устанавливаем текст.
+		if (gv->gameLanguage == 'e')
+		{
+			gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo())); // устанавливаем текст.
+		}
+		else if (gv->gameLanguage == 'r')
+		{
+			gv->playerAmmoText.setString(L"Патроны: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo())); // устанавливаем текст.
+		}	
 	}
 
 	gv->gameInfoText.setPosition(gv->view.getCenter().x - 600.f, gv->view.getCenter().y - 350.f);

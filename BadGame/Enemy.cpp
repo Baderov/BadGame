@@ -22,8 +22,7 @@ void Enemy::update(GameVariables* gv) // функция update (в параметрах передаем в
 	if (isAlive == true)
 	{
 		updateHPBar();
-
-		shootTime = shootClock.getElapsedTime().asMilliseconds() + shootOffset;
+		shootTime = shootClock.getElapsedTime().asMilliseconds() + shootOffset;		
 		if (shootTime >= shootDelay)
 		{
 			isShoot = true;
@@ -31,7 +30,6 @@ void Enemy::update(GameVariables* gv) // функция update (в параметрах передаем в
 			moveTargetPos.x = 0 + rand() % 3000;
 			moveTargetPos.y = 0 + rand() % 3000;
 		}
-
 		rotate();
 		move(gv);
 		hpText.setString(std::to_string(HP));

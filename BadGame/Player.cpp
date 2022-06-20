@@ -4,7 +4,7 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::string name) : Enti
 {
 	isMove = false;
 	isReload = false;
-	currentVelocity = sf::Vector2f(0.5f, 0.5f);
+	currentVelocity = sf::Vector2f(0.6f, 0.6f);
 	maxSpeed = 5.f;
 	HP = 100;
 	goldCoins = 0;
@@ -72,7 +72,6 @@ void Player::update(GameVariables* gv) // функция update (в параметрах передаем 
 void Player::rotate(GameVariables* gv)
 {
 	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window));//переводим их в игровые (уходим от коорд окна)
-
 	float dX = gv->mousePos.x - currentPos.x;//вектор , колинеарный прямой, которая пересекает спрайт и курсор
 	float dY = gv->mousePos.y - currentPos.y;//он же, координата y
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы

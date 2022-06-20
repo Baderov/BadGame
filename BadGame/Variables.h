@@ -56,7 +56,7 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	std::vector<std::unique_ptr<Button>> buttonsVec;
 	std::vector<std::unique_ptr<Label>> labelsVec;
 
-	std::string playerName;
+	std::string nickname;
 
 	float dt; // время.
 	float fps; // кадры в секунду.

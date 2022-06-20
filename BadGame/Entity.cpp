@@ -66,7 +66,7 @@ void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // движение
 	distance = sqrt(((targetPos.x - currentPos.x) * (targetPos.x - currentPos.x)) + ((targetPos.y - currentPos.y) * (targetPos.y - currentPos.y)));
 
 	// костыль, чтобы игрок не дёргался, когда доходит до цели.
-	if (distance > 6)
+	if (distance > 7)
 	{
 		// stepPos - прирост к текущей позиции.
 		stepPos.x = currentVelocity.x * gv->dt * (targetPos.x - currentPos.x) / distance;

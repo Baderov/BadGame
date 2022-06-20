@@ -7,6 +7,6 @@ void graphicsSettingsMenu(GameVariables* gv);
 
 void settingsMenu(GameVariables* gv);
 
-void mainMenu(GameVariables* gv); // функция запуска меню.
+void mainMenu(GameVariables* gv, Entity*& player); // функция запуска меню.
 
-void menuEventHandler(GameVariables* gv);
+void menuEventHandler(GameVariables* gv, Entity*& player);
