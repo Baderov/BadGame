@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp> // подключаем библиотеку.
 #include "Variables.h" // подключаем заголовочный файл.
 #include "Resolution.h"
+#include "Network.h"
 
 void graphicsSettingsMenu(GameVariables* gv);
 

@@ -237,7 +237,6 @@ void mainMenu(GameVariables* gv, Entity*& player)
 
 void multiplayerMenu(GameVariables* gv)
 {
-	char input = ' ';
 	multiplayerMenuUpdate(gv);
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -264,12 +263,10 @@ void multiplayerMenu(GameVariables* gv)
 				if (el->getName() == "ipFieldButton")
 				{
 					gv->menuNum = 18;
-					input = 'i';
 				}
 				if (el->getName() == "portFieldButton")
 				{
 					gv->menuNum = 19;
-					input = 'p';
 				}
 				if (el->getName() == "connectButton")
 				{
@@ -294,7 +291,7 @@ void multiplayerMenu(GameVariables* gv)
 				switch (gv->menuNum)
 				{
 				case 0:
-					input = ' ';
+					gv->input = ' ';
 					for (auto& el : gv->buttonsVec)
 					{
 						if (el->getName() == "ipFieldButton" || el->getName() == "portFieldButton")
@@ -311,6 +308,7 @@ void multiplayerMenu(GameVariables* gv)
 					break;
 
 				case 18:
+					gv->input = 'i';
 					for (auto& el : gv->buttonsVec)
 					{
 						if (el->getName() == "ipFieldButton")
@@ -325,6 +323,7 @@ void multiplayerMenu(GameVariables* gv)
 					break;
 
 				case 19:
+					gv->input = 'p';
 					for (auto& el : gv->buttonsVec)
 					{
 						if (el->getName() == "ipFieldButton")
@@ -339,10 +338,12 @@ void multiplayerMenu(GameVariables* gv)
 					break;
 
 				case 20:
-
+					std::thread networkThread([&]() { startNetwork(gv); });
+					networkThread.detach();			
 					break;
 				}
 			}
+			multiplayerMenuKeyboard(gv);
 		}
 		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
 		for (auto& el : gv->buttonsVec)

@@ -57,6 +57,8 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	std::vector<std::unique_ptr<Label>> labelsVec;
 
 	std::string nickname;
+	std::string serverIP; // ip адрес сервера.
+	std::string tempPort; // временный порт сервера.
 
 	float dt; // врем€.
 	float fps; // кадры в секунду.
@@ -67,15 +69,18 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	int numberOfPlayers;
 	int menuNum; // номер меню.
 	int lineNumberInConsole; // номер строки в консоли.
+	int serverPort; // порт сервера.
 
 	bool showHitbox; // показывать хитбокс?
 	bool showAimLaser; // показывать прицельный лазер?
 	bool showLogs; // показывать логи?
-	bool isGameStarted; // объ€вл€ем логическую переменную.
-	bool isGameOver; // объ€вл€ем логическую переменную.
-	bool isFullscreen; // объ€вл€ем логическую переменную.
+	bool isGameStarted; 
+	bool isGameOver; 
+	bool isFullscreen; 
 
 	char gameLanguage;
+	char symbol;
+	char input;
 };
 
 void setColor(GameVariables* gv); // функци€ установки значений дл€ цвета.

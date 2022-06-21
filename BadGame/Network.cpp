@@ -3,8 +3,7 @@
 HANDLE handle;
 sf::TcpSocket sock; // программный интерфейс для обеспечения обмена данными между процессами
 sf::Packet packet; // для осуществления пакетной передачи дынных
-std::string ip, nickname, prefix, msg, senderNickname;
-int port;
+std::string prefix, msg, senderNickname;
 sf::Uint64 clientsVecSize = 0;
 
 bool isConnected = false;
@@ -20,16 +19,16 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-void connectToServer()
+void connectToServer(GameVariables *gv)
 {
-	ip = "127.0.0.1";
-	port = 2000;
+	//ip = "127.0.0.1";
+	//port = 2000;
 
-	if (sock.connect(ip, port) == sf::Socket::Done) // подключение к серверу, нужно ввести ip и порт.
+	if (sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done) // подключение к серверу, нужно ввести ip и порт.
 	{
 		sf::Packet packet;
 		prefix = "regNickname"; // regNickname - register a nickname.
-		packet << prefix << nickname;
+		packet << prefix << gv->nickname;
 		sock.send(packet); // отправка данных
 		SetConsoleTextAttribute(handle, 13);
 		return;
@@ -37,7 +36,7 @@ void connectToServer()
 	else
 	{
 		std::cout << "Connecting error. May be invalid ip or port, try again." << std::endl;
-		connectToServer();
+		connectToServer(gv);
 	}
 }
 
@@ -54,7 +53,7 @@ void printOnlineClients()
 	SetConsoleTextAttribute(handle, 15);
 }
 
-void receive()
+void receive(GameVariables* gv)
 {
 	std::string msg;
 	while (true)
@@ -71,9 +70,9 @@ void receive()
 					std::cout << msg << std::endl;
 					SetConsoleTextAttribute(handle, 11);
 					std::cout << "Enter your nickname: ";
-					getline(std::cin, nickname);
+					getline(std::cin, gv->nickname);
 					SetConsoleTextAttribute(handle, 15);
-					connectToServer();
+					connectToServer(gv);
 
 				}
 				else if (prefix == "conSuccess" && packet >> msg)
@@ -125,7 +124,7 @@ void receive()
 	}
 }
 
-void send()
+void send(GameVariables* gv)
 {
 	while (true)
 	{
@@ -137,7 +136,7 @@ void send()
 			if ((msg != "" && msg != " " && msg != "/online"))
 			{
 				prefix = "msg"; // msg - message.
-				packet << prefix << nickname << msg; // пакуем значения координат в Пакет
+				packet << prefix << gv->nickname << msg; // пакуем значения координат в Пакет
 				sock.send(packet); // отправка данных
 			}
 		}
@@ -155,23 +154,20 @@ void send()
 }
 
 
-void startNetwork()
+void startNetwork(GameVariables* gv)
 {
 	handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	SetConsoleTextAttribute(handle, 14);
 	std::cout << "You are a Client." << std::endl << std::endl;
 
-	SetConsoleTextAttribute(handle, 11);
-	std::cout << "Enter your nickname: ";
-	getline(std::cin, nickname);
 	SetConsoleTextAttribute(handle, 15);
 
-	connectToServer();
-	receive();
+	connectToServer(gv);
+	receive(gv);
 
-	std::thread receivethread([&]() { receive(); });
+	std::thread receivethread([&]() { receive(gv); });
 	receivethread.detach();
 
-	send();
+	send(gv);
 }

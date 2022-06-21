@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <windows.h>
+#include "Variables.h"
 
 struct Clients
 {
@@ -15,12 +16,12 @@ struct Clients
 
 sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec);
 
-void connectToServer();
+void connectToServer(GameVariables* gv);
 
 void printOnlineClients();
 
-void receive();
+void receive(GameVariables* gv);
 
-void send();
+void send(GameVariables* gv);
 
-void startNetwork();
+void startNetwork(GameVariables* gv);
