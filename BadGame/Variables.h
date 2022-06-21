@@ -29,18 +29,6 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 
 	sf::RectangleShape aimLaser; // прицельный лазер.
 
-
-
-
-
-	sf::RectangleShape playerShape; 
-
-
-
-
-
-
-
 	sf::CircleShape playerDestination; // создаЄм метку передвижени€ игрока.
 
 	sf::View view;

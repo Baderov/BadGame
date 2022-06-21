@@ -17,7 +17,7 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 {
 	for (auto& el : clientsVec)
 	{
-		packet >> el->id >> el->nickname;
+		packet >> el->id >> el->nickname >> el->pos.x >> el->pos.y;
 	}
 	return packet;
 }
@@ -94,25 +94,64 @@ void receive(GameVariables* gv)
 				}
 				else if (prefix == "move")
 				{
-					if (packet >> allowMove && packet >> side)
+					if (packet >> allowMove && packet >> side && packet >> gv->nickname)
 					{
-						if (side == "up" && allowMove == true)
+						for (auto& el : clientsVec)
 						{
-							gv->playerShape.move(0.f, -5.f);
-						}
-						else if (side == "down" && allowMove == true)
-						{
-							gv->playerShape.move(0.f, 5.f);
-						}
-						else if (side == "left" && allowMove == true)
-						{
-							gv->playerShape.move(-5.f, 0.f);
-						}
-						else if (side == "right" && allowMove == true)
-						{
-							gv->playerShape.move(5.f, 0.f);
-						}
+							if (side == "up" && allowMove == true && el->nickname == gv->nickname)
+							{
+								el->playerShape.move(0.f, -5.f);
+							}
+							else if (side == "down" && allowMove == true && el->nickname == gv->nickname)
+							{
+								el->playerShape.move(0.f, 5.f);
+							}
+							else if (side == "left" && allowMove == true && el->nickname == gv->nickname)
+							{
+								el->playerShape.move(-5.f, 0.f);
+							}
+							else if (side == "right" && allowMove == true && el->nickname == gv->nickname)
+							{
+								el->playerShape.move(5.f, 0.f);
+							}
+						}				
 					}			
+				}
+
+				else if (prefix == "pos")
+				{
+					std::string tempNick = "";
+					sf::Vector2f tempPos;
+					if (packet << tempNick && packet << tempPos.x && packet << tempPos.y)
+					{
+						for (auto& el : clientsVec)
+						{
+							if (el->nickname == tempNick)
+							{
+								el->pos = tempPos;
+							}
+						}
+					}
+				}
+
+				else if (prefix == "clientsList")
+				{
+					clientsVec.clear();
+					packet >> clientsVecSize;
+					srand(time(NULL));
+					for (int i = 0; i < clientsVecSize; i++)
+					{
+						clientsVec.emplace_back(new Clients()); // создание пустых объектов вектора.
+						clientsVec.back()->playerShape.setSize(sf::Vector2f(100.f, 100.f));
+						clientsVec.back()->playerShape.setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
+						clientsVec.back()->playerShape.setOrigin(clientsVec.back()->playerShape.getSize() / 2.f);
+						clientsVec.back()->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
+					}
+					packet >> clientsVec;
+
+					std::cout << "size of clientsVec: " << clientsVec.size() << std::endl; 
+					packet.clear(); // чистим пакет
+
 				}
 				else
 				{
@@ -137,7 +176,15 @@ void sendPosition(GameVariables* gv)
 	sf::Packet packet; // для осуществления пакетной передачи данных
 	packet.clear(); // чистим пакет
 	std::string prefix = "pos";
-	sf::Vector2f pos = gv->playerShape.getPosition();
+	sf::Vector2f pos;
+	for (auto& el : clientsVec)
+	{
+		if (el->nickname == gv->nickname)
+		{
+			pos = el->playerShape.getPosition();
+			break;
+		}
+	}
 	packet << prefix << gv->nickname << pos.x << pos.y;
 	sock.send(packet);
 }
@@ -147,7 +194,7 @@ void moveRequest(GameVariables* gv, std::string side)
 	sf::Packet packet; // для осуществления пакетной передачи данных
 	packet.clear(); // чистим пакет
 	std::string prefix = "move";
-	packet << prefix << side;
+	packet << prefix << side << gv->nickname;
 	sock.send(packet);
 }
 
@@ -181,11 +228,6 @@ void startNetwork(GameVariables* gv)
 
 void multiplayerGame(GameVariables* gv)
 {
-	gv->playerShape.setSize(sf::Vector2f(100.f, 100.f));
-	gv->playerShape.setFillColor(sf::Color::Black);
-	gv->playerShape.setOrigin(gv->playerShape.getSize() / 2.f);
-	gv->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
-
 
 	std::thread receiveThread([&]() { receive(gv); });
 	receiveThread.detach();
@@ -222,7 +264,11 @@ void multiplayerGame(GameVariables* gv)
 			moveRequest(gv, "right");
 		}
 		gv->window.clear(sf::Color::White); // очищаем окно черным цветом.
-		gv->window.draw(gv->playerShape);
+		for (auto& el : clientsVec)
+		{
+			gv->window.draw(el->playerShape);
+		}
+
 		gv->window.display(); // отображаем в окне.
 	}
 }

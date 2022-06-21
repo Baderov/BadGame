@@ -12,7 +12,7 @@ struct Clients
 	std::string nickname = "";
 	int id = 0;
 	sf::RectangleShape playerShape;
-
+	sf::Vector2f pos;
 };
 
 bool connectToServer(GameVariables* gv);
