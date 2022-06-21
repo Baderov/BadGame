@@ -92,8 +92,6 @@ void multiplayerMenuKeyboard(GameVariables* gv)
 		}
 	}
 
-
-
 	for (auto& el : gv->buttonsVec)
 	{
 		if (el->getName() == "ipFieldButton")
@@ -108,6 +106,4 @@ void multiplayerMenuKeyboard(GameVariables* gv)
 		}
 	}
 
-	std::cout << "serverIP: " << gv->serverIP << std::endl;
-	std::cout << "serverPort: " << gv->serverPort << std::endl;
 }

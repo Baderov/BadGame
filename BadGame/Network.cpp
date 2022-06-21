@@ -19,7 +19,7 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-void connectToServer(GameVariables *gv)
+bool connectToServer(GameVariables *gv)
 {
 	//ip = "127.0.0.1";
 	//port = 2000;
@@ -31,12 +31,13 @@ void connectToServer(GameVariables *gv)
 		packet << prefix << gv->nickname;
 		sock.send(packet); // отправка данных
 		SetConsoleTextAttribute(handle, 13);
-		return;
+		return true;
 	}
 	else
 	{
-		std::cout << "Connecting error. May be invalid ip or port, try again." << std::endl;
-		connectToServer(gv);
+		return false;
+		//std::cout << "Connecting error. May be invalid ip or port, try again." << std::endl;
+		//connectToServer(gv);
 	}
 }
 
@@ -156,18 +157,50 @@ void send(GameVariables* gv)
 
 void startNetwork(GameVariables* gv)
 {
-	handle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (connectToServer(gv) == true)
+	{
+		std::cout << "connect true!" << std::endl;
+		gv->drawErrorLabel = false;
+		gv->allowButtons = true;
+		for (auto& el : gv->buttonsVec)
+		{
+			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+		}
+		receive(gv);
+		gv->isMultiplayerGame = true;
+	}
 
-	SetConsoleTextAttribute(handle, 14);
-	std::cout << "You are a Client." << std::endl << std::endl;
+	else
+	{
+		std::cout << "connect false!" << std::endl;
+		gv->drawErrorLabel = true;
+		gv->allowButtons = true;
+		for (auto& el : gv->buttonsVec)
+		{
+			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+		}
+		gv->isMultiplayerGame = false;
+	}
 
-	SetConsoleTextAttribute(handle, 15);
 
-	connectToServer(gv);
-	receive(gv);
+	//std::thread receivethread([&]() { receive(gv); });
+	//receivethread.detach();
 
-	std::thread receivethread([&]() { receive(gv); });
-	receivethread.detach();
+	//send(gv);
+}
 
-	send(gv);
+
+void multiplayerGame(GameVariables* gv)
+{
+	while (gv->window.isOpen()) // пока меню открыто.
+	{
+		//gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
+
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		{
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
+		}
+		gv->window.clear(sf::Color::White); // очищаем окно черным цветом.
+		gv->window.display(); // отображаем в окне.
+	}
 }

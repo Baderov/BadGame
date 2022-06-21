@@ -123,9 +123,12 @@ void setVariables(GameVariables* gv) // обща€ функци€ установки значений.
 	gv->showHitbox = false; 
 	gv->showAimLaser = false;
 	gv->showLogs = false; 
-	gv->isGameStarted = false; // объ€вл€ем логическую переменную.
-	gv->isGameOver = false; // объ€вл€ем логическую переменную.
-	gv->isFullscreen = false; // объ€вл€ем логическую переменную.
+	gv->isGameStarted = false; 
+	gv->isGameOver = false; 
+	gv->isFullscreen = false; 
+	gv->drawErrorLabel = false;
+	gv->allowButtons = true;
+	gv->isMultiplayerGame = false;
 
 	// CHAR.
 	gv->gameLanguage = 'e';

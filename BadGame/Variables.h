@@ -77,6 +77,9 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool isGameStarted; 
 	bool isGameOver; 
 	bool isFullscreen; 
+	bool drawErrorLabel;
+	bool allowButtons;
+	bool isMultiplayerGame;
 
 	char gameLanguage;
 	char symbol;

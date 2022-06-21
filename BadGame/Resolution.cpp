@@ -253,6 +253,9 @@ void multiplayerMenuUpdate(GameVariables* gv)
 
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"Connect", 30, "connectButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Back", 30, "backButton", true));
+
+		gv->labelsVec.emplace_back(new Label(L"Server is not available!", sf::Vector2f(halfWinSizeX, halfWinSizeY + 250.f), 50, "errorLabel"));
+		gv->labelsVec.back()->getText().setFillColor(sf::Color::Red);
 	}
 	else if (gv->gameLanguage == 'r')
 	{
@@ -264,5 +267,8 @@ void multiplayerMenuUpdate(GameVariables* gv)
 
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"Войти", 30, "connectButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Назад", 30, "backButton", true));
+
+		gv->labelsVec.emplace_back(new Label(L"Сервер недоступен!", sf::Vector2f(halfWinSizeX, halfWinSizeY + 250.f), 50, "errorLabel"));
+		gv->labelsVec.back()->getText().setFillColor(sf::Color::Red);
 	}
 }

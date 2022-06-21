@@ -243,17 +243,30 @@ void multiplayerMenu(GameVariables* gv)
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		gv->menuNum = 0; // присваиваем номер меню.
 
+		if (gv->isMultiplayerGame == true)
+		{
+			gv->menuNum = 21;
+			gv->isMultiplayerGame == false;
+			gv->buttonsVec.clear();
+			gv->labelsVec.clear();
+			return;
+		}
+
 		for (auto& el : gv->buttonsVec)
 		{
 			if (el->getName() == "connectButton" || el->getName() == "backButton")
 			{
 				el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
 			}
+			if (gv->allowButtons == false)
+			{
+				el->getSprite().setFillColor(gv->greyColor); // заливаем объект цветом.
+			}
 		}
 
 		for (auto& el : gv->buttonsVec)
 		{
-			if (el->getSprite().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y))
+			if (el->getSprite().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y) && el->getSprite().getFillColor() != gv->greyColor)
 			{
 				if (el->getName() == "backButton")
 				{
@@ -286,7 +299,7 @@ void multiplayerMenu(GameVariables* gv)
 				return;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left) // если нажали левую кнопку мыши.	
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->allowButtons == true) // если нажали левую кнопку мыши.	
 			{
 				switch (gv->menuNum)
 				{
@@ -338,8 +351,12 @@ void multiplayerMenu(GameVariables* gv)
 					break;
 
 				case 20:
-					std::thread networkThread([&]() { startNetwork(gv); });
-					networkThread.detach();			
+					gv->allowButtons = false;
+					std::thread networkThread([&]()
+						{
+							startNetwork(gv);
+						});
+					networkThread.detach();
 					break;
 				}
 			}
@@ -353,7 +370,10 @@ void multiplayerMenu(GameVariables* gv)
 		}
 		for (auto& el : gv->labelsVec)
 		{
-			gv->window.draw(el->getText());
+			if ((el->getName() == "errorLabel" && gv->drawErrorLabel == true) || el->getName() == "enterIPLabel" || el->getName() == "enterPortLabel")
+			{
+				gv->window.draw(el->getText());
+			}
 		}
 		gv->window.display(); // отображаем в окне.
 	}
@@ -457,11 +477,12 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			gv->isGameStarted = true;
 			return;
 			break;
-
-
 		case 17:
 			gv->menuNum = 0;
 			multiplayerMenu(gv);
+			break;
+		case 21:
+			multiplayerGame(gv);
 			break;
 
 
