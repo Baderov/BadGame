@@ -13,6 +13,7 @@ struct Clients
 	int id = 0;
 	sf::RectangleShape playerShape;
 	sf::Vector2f pos;
+	sf::Text nickText;
 };
 
 bool connectToServer(GameVariables* gv);

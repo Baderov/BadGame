@@ -128,6 +128,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->isFullscreen = false; 
 	gv->drawErrorLabel = false;
 	gv->allowButtons = true;
+	gv->focus = true;
 	gv->isMultiplayerGame = false;
 
 	// CHAR.

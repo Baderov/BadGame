@@ -85,34 +85,42 @@ void receive(GameVariables* gv)
 				}
 				else if (prefix == "discon") // discon - disconnected.
 				{
-					if (packet >> msg)
+					std::string disconnectedNick = "";
+					if (packet >> msg && packet >> disconnectedNick)
 					{
 						SetConsoleTextAttribute(handle, 12);
 						std::cout << msg << std::endl;
 						SetConsoleTextAttribute(handle, 15);
+						clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == disconnectedNick; }), clientsVec.end());
 					}
 				}
 				else if (prefix == "move")
 				{
-					if (packet >> allowMove && packet >> side && packet >> gv->nickname)
+					std::string tempNick = "";
+					if (packet >> allowMove && packet >> side && packet >> tempNick)
 					{
 						for (auto& el : clientsVec)
 						{
-							if (side == "up" && allowMove == true && el->nickname == gv->nickname)
+							if (el->nickname == tempNick && allowMove == true)
 							{
-								el->playerShape.move(0.f, -5.f);
-							}
-							else if (side == "down" && allowMove == true && el->nickname == gv->nickname)
-							{
-								el->playerShape.move(0.f, 5.f);
-							}
-							else if (side == "left" && allowMove == true && el->nickname == gv->nickname)
-							{
-								el->playerShape.move(-5.f, 0.f);
-							}
-							else if (side == "right" && allowMove == true && el->nickname == gv->nickname)
-							{
-								el->playerShape.move(5.f, 0.f);
+								if (side == "up")
+								{
+									el->playerShape.move(0.f, -5.f);
+								}
+								else if (side == "down")
+								{
+									el->playerShape.move(0.f, 5.f);
+								}
+								else if (side == "left")
+								{
+									el->playerShape.move(-5.f, 0.f);
+								}
+								else if (side == "right")
+								{
+									el->playerShape.move(5.f, 0.f);
+								}
+								el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
+								el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
 							}
 						}				
 					}			
@@ -142,14 +150,25 @@ void receive(GameVariables* gv)
 					for (int i = 0; i < clientsVecSize; i++)
 					{
 						clientsVec.emplace_back(new Clients()); // создание пустых объектов вектора.
-						clientsVec.back()->playerShape.setSize(sf::Vector2f(100.f, 100.f));
-						clientsVec.back()->playerShape.setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
-						clientsVec.back()->playerShape.setOrigin(clientsVec.back()->playerShape.getSize() / 2.f);
-						clientsVec.back()->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
 					}
+
 					packet >> clientsVec;
 
-					std::cout << "size of clientsVec: " << clientsVec.size() << std::endl; 
+					for (auto& el : clientsVec)
+					{
+						el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
+						el->playerShape.setFillColor(sf::Color::Black);
+						el->playerShape.setOrigin(el->playerShape.getSize() / 2.f);
+						el->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
+
+						el->nickText.setFont(gv->consolasFont);
+						el->nickText.setCharacterSize(40);
+						el->nickText.setString(el->nickname);
+						el->nickText.setFillColor(sf::Color::Green);
+						el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
+						el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
+					}
+
 					packet.clear(); // чистим пакет
 
 				}
@@ -241,24 +260,32 @@ void multiplayerGame(GameVariables* gv)
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
+			if (gv->event.type == sf::Event::LostFocus)
+			{
+				gv->focus = false;
+			}
+			else if (gv->event.type == sf::Event::GainedFocus)
+			{
+				gv->focus = true;
+			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focus == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "up");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && gv->focus == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "down");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && gv->focus == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "left");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && gv->focus == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "right");
@@ -267,8 +294,8 @@ void multiplayerGame(GameVariables* gv)
 		for (auto& el : clientsVec)
 		{
 			gv->window.draw(el->playerShape);
+			gv->window.draw(el->nickText);
 		}
-
 		gv->window.display(); // отображаем в окне.
 	}
 }

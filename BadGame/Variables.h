@@ -80,6 +80,7 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool drawErrorLabel;
 	bool allowButtons;
 	bool isMultiplayerGame;
+	bool focus;
 
 	char gameLanguage;
 	char symbol;
