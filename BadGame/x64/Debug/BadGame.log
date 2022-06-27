@@ -1,3 +1,2 @@
-﻿  Menu.cpp
-C:\BadProject\BadGame\Menu.cpp(249,26): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+﻿  Network.cpp
   BadGame.vcxproj -> C:\BadProject\x64\Debug\BadGame.exe

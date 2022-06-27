@@ -10,6 +10,7 @@ sf::Uint64 clientsVecSize = 0;
 
 bool isConnected = false;
 bool allowMove = false;
+bool isVectorReceived = false;
 
 std::vector<std::unique_ptr<Clients>> clientsVec; // Create a vector to store the future clients
 
@@ -119,7 +120,6 @@ void receive(GameVariables* gv)
 								{
 									el->playerShape.move(5.f, 0.f);
 								}
-								el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
 								el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
 							}
 						}				
@@ -144,33 +144,24 @@ void receive(GameVariables* gv)
 
 				else if (prefix == "clientsList")
 				{
-					clientsVec.clear();
-					packet >> clientsVecSize;
-					srand(time(NULL));
-					for (int i = 0; i < clientsVecSize; i++)
+					if (packet >> clientsVecSize)
 					{
-						clientsVec.emplace_back(new Clients()); // создание пустых объектов вектора.
+						clientsVec.clear();
+						for (int i = 0; i < clientsVecSize; i++)
+						{
+							clientsVec.emplace_back(new Clients()); // создание пустых объектов вектора.
+						}
+
+						if (packet >> clientsVec)
+						{
+							isVectorReceived = true;
+						}
+						else
+						{
+							isVectorReceived = false;
+						}
 					}
-
-					packet >> clientsVec;
-
-					for (auto& el : clientsVec)
-					{
-						el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
-						el->playerShape.setFillColor(sf::Color::Black);
-						el->playerShape.setOrigin(el->playerShape.getSize() / 2.f);
-						el->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
-
-						el->nickText.setFont(gv->consolasFont);
-						el->nickText.setCharacterSize(40);
-						el->nickText.setString(el->nickname);
-						el->nickText.setFillColor(sf::Color::Green);
-						el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
-						el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
-					}
-
 					packet.clear(); // чистим пакет
-
 				}
 				else
 				{
@@ -181,6 +172,8 @@ void receive(GameVariables* gv)
 		}
 	}
 }
+
+
 
 void send(GameVariables* gv)
 {
@@ -215,6 +208,29 @@ void moveRequest(GameVariables* gv, std::string side)
 	std::string prefix = "move";
 	packet << prefix << side << gv->nickname;
 	sock.send(packet);
+}
+
+void fillClientsVector(GameVariables* gv)
+{
+	if (isVectorReceived == true)
+	{
+		for (auto& el : clientsVec)
+		{
+			el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
+			el->playerShape.setFillColor(sf::Color::Black);
+			el->playerShape.setOrigin(el->playerShape.getSize() / 2.f);
+			el->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
+
+			el->nickText.setFont(gv->consolasFont);
+			el->nickText.setFillColor(sf::Color::Green);
+			el->nickText.setCharacterSize(40);
+			el->nickText.setOutlineThickness(2.f);
+			el->nickText.setString(el->nickname);
+			el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
+			el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
+		}
+		isVectorReceived = false;
+	}
 }
 
 void startNetwork(GameVariables* gv)
@@ -257,6 +273,7 @@ void multiplayerGame(GameVariables* gv)
 
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
+		fillClientsVector(gv);
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{

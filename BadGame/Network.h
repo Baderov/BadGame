@@ -9,12 +9,14 @@
 
 struct Clients
 {
-	std::string nickname = "";
-	int id = 0;
+	int id;
+	std::string nickname;
 	sf::RectangleShape playerShape;
 	sf::Vector2f pos;
 	sf::Text nickText;
 };
+
+void fillClientsVector(GameVariables* gv);
 
 bool connectToServer(GameVariables* gv);
 
