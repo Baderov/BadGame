@@ -4,7 +4,7 @@
 //port - 2000;
 
 HANDLE handle;
-sf::TcpSocket sock; // программный интерфейс для обеспечения обмена данными между процессами
+sf::TcpSocket sock; // программный интерфейс для обеспечения обмена данными между процессами.
 std::string senderNickname;
 sf::Uint64 clientsVecSize = 0;
 
@@ -12,7 +12,7 @@ bool isConnected = false;
 bool allowMove = false;
 bool isVectorReceived = false;
 
-std::vector<std::unique_ptr<Clients>> clientsVec; // Create a vector to store the future clients
+std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
 
 sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec)
 {
@@ -173,8 +173,6 @@ void receive(GameVariables* gv)
 	}
 }
 
-
-
 void send(GameVariables* gv)
 {
 	while (true)
@@ -219,7 +217,7 @@ void fillClientsVector(GameVariables* gv)
 			el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
 			el->playerShape.setFillColor(sf::Color::Black);
 			el->playerShape.setOrigin(el->playerShape.getSize() / 2.f);
-			el->playerShape.setPosition(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
+			el->playerShape.setPosition(el->pos);
 
 			el->nickText.setFont(gv->consolasFont);
 			el->nickText.setFillColor(sf::Color::Green);

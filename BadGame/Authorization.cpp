@@ -115,7 +115,8 @@ void authorization(GameVariables* gv)
 							{
 								el->getSprite().setFillColor(sf::Color::White);
 								gv->menuNum = 0;
-								gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+								//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+								gv->window.create(sf::VideoMode(1366, 768), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
 								gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
 								gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 								return;
