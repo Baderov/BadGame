@@ -1,2 +1,115 @@
-﻿  Network.cpp
+﻿  Menu.cpp
+C:\BadProject\BadGame\Menu.cpp(5,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Menu.cpp(6,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Menu.cpp(76,24): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+  Resolution.cpp
+C:\BadProject\BadGame\Resolution.cpp(5,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(6,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(15,213): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(16,214): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(17,213): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(18,215): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(19,212): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(20,219): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(21,184): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(23,134): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(24,136): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(25,132): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(29,213): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(30,214): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(31,219): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(32,231): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(33,212): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(34,219): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(35,190): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(37,167): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(38,153): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(39,142): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(46,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(47,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(54,201): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(55,185): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(59,218): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(60,191): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(66,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(67,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(76,195): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(77,169): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(78,191): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(79,188): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(85,191): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(89,192): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(91,170): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(92,191): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(93,188): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(101,210): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(102,181): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(103,201): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(104,194): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(110,204): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(114,204): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(116,180): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(117,201): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(118,194): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(125,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(126,17): warning C4244: инициализация: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=unsigned int
+          ]
+C:\BadProject\BadGame\Resolution.cpp(136,131): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(137,183): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(139,125): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(140,156): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(142,127): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(143,183): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(145,215): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(146,212): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(148,116): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(153,146): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(154,183): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(156,134): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(157,156): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(159,140): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(160,183): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(162,218): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(163,218): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+C:\BadProject\BadGame\Resolution.cpp(165,116): warning C4244: аргумент: преобразование "float" в "int", возможна потеря данных
+  Создание кода...
   BadGame.vcxproj -> C:\BadProject\x64\Debug\BadGame.exe

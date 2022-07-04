@@ -2,273 +2,167 @@
 
 void graphicsSettingsMenuUpdate(GameVariables* gv)
 {
+	float winSizeX = gv->window.getSize().x;
+	float winSizeY = gv->window.getSize().y;
+
+	float halfWinSizeX = gv->window.getSize().x / 2.f;
+	float halfWinSizeY = gv->window.getSize().y / 2.f;
+
 	gv->buttonsVec.clear();
 	gv->labelsVec.clear();
-	if (gv->window.getSize().x == 1920 && gv->window.getSize().y == 1080)
+	if (gv->gameLanguage == 'e')
 	{
-		if (gv->gameLanguage == 'e')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 100.f), sf::Vector2f(800.f, 200.f), L"1366x768", 50, "HDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 100.f), sf::Vector2f(1120.f, 200.f), L"1920x1080", 50, "fullHDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(750.f, 450.f), L"WINDOWED", 50, "windowedModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(1170.f, 450.f), L"FULLSCREEN", 50, "fullscreenModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(750.f, 700.f), L"English", 50, "engLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(1170.f, 700.f), L"Ðóññêèé", 50, "rusLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(960.f, 915.f), L"BACK", 43, "backButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1366x768", round(winSizeX / 40.f), "HDResolutionButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1920x1080", round(winSizeX / 40.f), "fullHDResolutionButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 8.f), halfWinSizeY - round(winSizeX / 21.f)), L"WINDOWED", round(winSizeX / 40.f), "windowedModeButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 8.f), halfWinSizeY - round(winSizeX / 21.f)), L"FULLSCREEN", round(winSizeX / 40.f), "fullscreenModeButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 8.f), halfWinSizeY + round(winSizeX / 12.f)), L"English", round(winSizeX / 40.f), "engLangButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 8.f), halfWinSizeY + round(winSizeX / 12.f)), L"Ðóññêèé", round(winSizeX / 40.f), "rusLangButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 10.f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 5.f)), L"BACK", round(winSizeX / 45.f), "backButton", true));
 
-			gv->labelsVec.emplace_back(new Label(L"SELECT RESOLUTION", sf::Vector2f(960.f, 100.f), 70, "selectResolutionLabel"));
-			gv->labelsVec.emplace_back(new Label(L"SELECT WINDOW STYLE", sf::Vector2f(960.f, 350.f), 70, "selectWindowStyleLabel"));
-			gv->labelsVec.emplace_back(new Label(L"SELECT LANGUAGE", sf::Vector2f(960.f, 600.f), 70, "selectLanguageLabel"));
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 100.f), sf::Vector2f(800.f, 200.f), L"1366x768", 50, "HDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 100.f), sf::Vector2f(1120.f, 200.f), L"1920x1080", 50, "fullHDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(750.f, 450.f), L"ÎÊÎÍÍÛÉ", 50, "windowedModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(1170.f, 450.f), L"ÏÎËÍÎÝÊÐÀÍÍÛÉ", 50, "fullscreenModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(750.f, 700.f), L"English", 50, "engLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(1170.f, 700.f), L"Ðóññêèé", 50, "rusLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(960.f, 915.f), L"ÍÀÇÀÄ", 43, "backButton", true));
-
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÐÀÇÐÅØÅÍÈÅ ÝÊÐÀÍÀ", sf::Vector2f(960.f, 100.f), 70, "selectResolutionLabel"));
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÑÒÈËÜ ÎÊÍÀ", sf::Vector2f(960.f, 350.f), 70, "selectWindowStyleLabel"));
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ßÇÛÊ", sf::Vector2f(960.f, 600.f), 70, "selectLanguageLabel"));
-		}
+		gv->labelsVec.emplace_back(new Label(L"SELECT RESOLUTION", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 4.5f)), round(winSizeX / 27.f), "selectResolutionLabel"));
+		gv->labelsVec.emplace_back(new Label(L"SELECT WINDOW STYLE", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 10.f)), round(winSizeX / 27.f), "selectWindowStyleLabel"));
+		gv->labelsVec.emplace_back(new Label(L"SELECT LANGUAGE", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 32.f)), round(winSizeX / 27.f), "selectLanguageLabel"));
 	}
-	else if (gv->window.getSize().x == 1366 && gv->window.getSize().y == 768)
+	else if (gv->gameLanguage == 'r')
 	{
-		if (gv->gameLanguage == 'e')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 70.f), sf::Vector2f(553.f, 150.f), L"1366x768", 35, "HDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 70.f), sf::Vector2f(813.f, 150.f), L"1920x1080", 35, "fullHDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(503.f, 350.f), L"WINDOWED", 35, "windowedModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(863.f, 350.f), L"FULLSCREEN", 35, "fullscreenModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(503.f, 550.f), L"English", 35, "engLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(863.f, 550.f), L"Ðóññêèé", 35, "rusLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(683.f, 700.f), L"BACK", 43, "backButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1366x768", round(winSizeX / 40.f), "HDResolutionButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1920x1080", round(winSizeX / 40.f), "fullHDResolutionButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 8.f), halfWinSizeY - round(winSizeX / 21.f)), L"ÎÊÎÍÍÛÉ", round(winSizeX / 40.f), "windowedModeButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 8.f), halfWinSizeY - round(winSizeX / 21.f)), L"ÏÎËÍÎÝÊÐÀÍÍÛÉ", round(winSizeX / 40.f), "fullscreenModeButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 8.f), halfWinSizeY + round(winSizeX / 12.f)), L"English", round(winSizeX / 40.f), "engLangButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 8.f), halfWinSizeY + round(winSizeX / 12.f)), L"Ðóññêèé", round(winSizeX / 40.f), "rusLangButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 10.f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 5.f)), L"ÍÀÇÀÄ", round(winSizeX / 45.f), "backButton", true));
 
-			gv->labelsVec.emplace_back(new Label(L"SELECT RESOLUTION", sf::Vector2f(683.f, 80.f), 51, "selectResolutionLabel"));
-			gv->labelsVec.emplace_back(new Label(L"SELECT WINDOW STYLE", sf::Vector2f(683.f, 280.f), 51, "selectWindowStyleLabel"));
-			gv->labelsVec.emplace_back(new Label(L"SELECT LANGUAGE", sf::Vector2f(683.f, 480.f), 51, "selectLanguageLabel"));
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 70.f), sf::Vector2f(553.f, 150.f), L"1366x768", 35, "HDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 70.f), sf::Vector2f(813.f, 150.f), L"1920x1080", 35, "fullHDResolutionButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(503.f, 350.f), L"ÎÊÎÍÍÛÉ", 35, "windowedModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(863.f, 350.f), L"ÏÎËÍÎÝÊÐÀÍÍÛÉ", 35, "fullscreenModeButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(503.f, 550.f), L"English", 35, "engLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 70.f), sf::Vector2f(863.f, 550.f), L"Ðóññêèé", 35, "rusLangButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(683.f, 700.f), L"ÍÀÇÀÄ", 43, "backButton", true));
-
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÐÀÇÐÅØÅÍÈÅ ÝÊÐÀÍÀ", sf::Vector2f(683.f, 80.f), 51, "selectResolutionLabel"));
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÑÒÈËÜ ÎÊÍÀ", sf::Vector2f(683.f, 280.f), 51, "selectWindowStyleLabel"));
-			gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ßÇÛÊ", sf::Vector2f(683.f, 480.f), 51, "selectLanguageLabel"));
-		}
+		gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÐÀÇÐÅØÅÍÈÅ ÝÊÐÀÍÀ", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 4.5f)), round(winSizeX / 27.f), "selectResolutionLabel"));
+		gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ÑÒÈËÜ ÎÊÍÀ", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 10.f)), round(winSizeX / 27.f), "selectWindowStyleLabel"));
+		gv->labelsVec.emplace_back(new Label(L"ÂÛÁÅÐÈÒÅ ßÇÛÊ", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 32.f)), round(winSizeX / 27.f), "selectLanguageLabel"));
 	}
+
 }
 
 void settingsMenuUpdate(GameVariables* gv)
 {
+	float winSizeX = gv->window.getSize().x;
+	float winSizeY = gv->window.getSize().y;
+
+	float halfWinSizeX = gv->window.getSize().x / 2.f;
+	float halfWinSizeY = gv->window.getSize().y / 2.f;
 	gv->buttonsVec.clear();
-	if (gv->window.getSize().x == 1920 && gv->window.getSize().y == 1080)
+	if (gv->gameLanguage == 'e')
 	{
-		if (gv->gameLanguage == 'e')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 150.f), sf::Vector2f(960.f, 450.f), L"GRAPHICS\nSETTINGS", 43, "graphicsSettingsButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(960.f, 590.f), L"BACK", 43, "backButton", true));
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 150.f), sf::Vector2f(960.f, 450.f), L"ÍÀÑÒÐÎÉÊÈ\n ÃÐÀÔÈÊÈ", 43, "graphicsSettingsButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(960.f, 590.f), L"ÍÀÇÀÄ", 43, "backButton", true));
-		}
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.5f), round(winSizeX / 12.75f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 21.f)), L"GRAPHICS\nSETTINGS", round(winSizeX / 45.f), "graphicsSettingsButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 9.5f), round(winSizeX / 19.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f)), L"BACK", round(winSizeX / 45.f), "backButton", true));
 	}
-	else if (gv->window.getSize().x == 1366 && gv->window.getSize().y == 768)
+	else if (gv->gameLanguage == 'r')
 	{
-		if (gv->gameLanguage == 'e')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 150.f), sf::Vector2f(683.f, 350.f), L"GRAPHICS\nSETTINGS", 43, "graphicsSettingsButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(683.f, 490.f), L"BACK", 43, "backButton", true));
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(300.f, 150.f), sf::Vector2f(683.f, 350.f), L"ÍÀÑÒÐÎÉÊÈ\n ÃÐÀÔÈÊÈ", 43, "graphicsSettingsButton", true));
-			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(200.f, 100.f), sf::Vector2f(683.f, 490.f), L"ÍÀÇÀÄ", 43, "backButton", true));
-		}
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.5f), round(winSizeX / 12.75f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 21.f)), L"ÍÀÑÒÐÎÉÊÈ\n ÃÐÀÔÈÊÈ", round(winSizeX / 45.f), "graphicsSettingsButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 9.5f), round(winSizeX / 19.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f)), L"ÍÀÇÀÄ", round(winSizeX / 45.f), "backButton", true));
 	}
 }
 
 void mainMenuUpdate(GameVariables* gv, Entity*& player)
 {
-	gv->buttonsVec.clear();
-	if (gv->window.getSize().x == 1920 && gv->window.getSize().y == 1080)
-	{
-		if (gv->gameLanguage == 'e')
-		{
-			if (gv->isGameStarted == false)
-			{
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"SINGLEPLAYER", 43, "singlePlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 525.f), L"MULTIPLAYER", 43, "multiPlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 630.f), L"SETTINGS", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 735.f), L"EXIT", 43, "exitButton", true));
-			}
-			else if (gv->isGameStarted == true)
-			{
-				if (player == nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"RESTART", 43, "restartGameButton", true));
-				}
-				else if (player != nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"CONTINUE", 43, "continueButton", true));
-				}
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 525.f), L"BACK TO MENU", 43, "backToMenuButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 630.f), L"SETTINGS", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 735.f), L"EXIT", 43, "exitButton", true));
+	float winSizeX = gv->window.getSize().x;
+	float winSizeY = gv->window.getSize().y;
 
-			}
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			if (gv->isGameStarted == false)
-			{
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"ÎÄÈÍÎ×ÍÀß ÈÃÐÀ", 43, "singlePlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 525.f), L"ÑÅÒÅÂÀß ÈÃÐÀ", 43, "multiPlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 630.f), L"ÍÀÑÒÐÎÉÊÈ", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 735.f), L"ÂÛÕÎÄ", 43, "exitButton", true));
-			}
-			else if (gv->isGameStarted == true)
-			{
-				if (player == nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"ÏÅÐÅÇÀÏÓÑÊ", 43, "restartGameButton", true));
-				}
-				else if (player != nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 420.f), L"ÏÐÎÄÎËÆÈÒÜ", 43, "continueButton", true));
-				}
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 525.f), L"ÍÀÇÀÄ Â ÌÅÍÞ", 43, "backToMenuButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 630.f), L"ÍÀÑÒÐÎÉÊÈ", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(960.f, 735.f), L"ÂÛÕÎÄ", 43, "exitButton", true));
-			}
-		}
-	}
-	else if (gv->window.getSize().x == 1366 && gv->window.getSize().y == 768)
-	{
-		if (gv->gameLanguage == 'e')
-		{
-			if (gv->isGameStarted == false)
-			{
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"SINGLEPLAYER", 43, "singlePlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 375.f), L"MULTIPLAYER", 43, "multiPlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 480.f), L"SETTINGS", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 585.f), L"EXIT", 43, "exitButton", true));
-			}
-			else if (gv->isGameStarted == true)
-			{
-				if (player == nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"RESTART", 43, "restartGameButton", true));
-				}
-				else if (player != nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"CONTINUE", 43, "continueButton", true));
-				}
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 375.f), L"BACK TO MENU", 43, "backToMenuButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 480.f), L"SETTINGS", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 585.f), L"EXIT", 43, "exitButton", true));
-			}
-		}
-		else if (gv->gameLanguage == 'r')
-		{
-			if (gv->isGameStarted == false)
-			{
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"ÎÄÈÍÎ×ÍÀß ÈÃÐÀ", 43, "singlePlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 375.f), L"ÑÅÒÅÂÀß ÈÃÐÀ", 43, "multiPlayerButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 480.f), L"ÍÀÑÒÐÎÉÊÈ", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 585.f), L"ÂÛÕÎÄ", 43, "exitButton", true));
-			}
-			else if (gv->isGameStarted == true)
-			{
-				if (player == nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"ÏÅÐÅÇÀÏÓÑÊ", 43, "restartGameButton", true));
-				}
-				else if (player != nullptr)
-				{
-					gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 270.f), L"ÏÐÎÄÎËÆÈÒÜ", 43, "continueButton", true));
-				}
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 375.f), L"ÍÀÇÀÄ Â ÌÅÍÞ", 43, "backToMenuButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 480.f), L"ÍÀÑÒÐÎÉÊÈ", 43, "settingsButton", true));
-				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 100.f), sf::Vector2f(683.f, 585.f), L"ÂÛÕÎÄ", 43, "exitButton", true));
-			}
-		}
-	}
-}
-
-void authorizationUpdate(GameVariables* gv)
-{
-	gv->buttonsVec.clear();
-	gv->labelsVec.clear();
 	float halfWinSizeX = gv->window.getSize().x / 2.f;
-
+	float halfWinSizeY = gv->window.getSize().y / 2.f;
+	gv->buttonsVec.clear();
 	if (gv->gameLanguage == 'e')
 	{
-		gv->labelsVec.emplace_back(new Label(L"ENTER YOUR NICKNAME", sf::Vector2f(halfWinSizeX, 100.f), 50, "enterYourNicknameLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, 250.f), L"", 45, "nicknameFieldButton", false));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, 400.f), L"Enter", 40, "enterButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, 400.f), L"Exit", 40, "exitButton", true));
+		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
+		{
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"SINGLEPLAYER", round(winSizeX / 45.f), "singlePlayerButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"MULTIPLAYER", round(winSizeX / 45.f), "multiPlayerButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"SETTINGS", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", round(winSizeX / 45.f), "exitButton", true));
+		}
+		else if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
+		{
+			if (player == nullptr)
+			{
+				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"RESTART", round(winSizeX / 45.f), "restartGameButton", true));
+			}
+			else if (player != nullptr)
+			{
+				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"CONTINUE", round(winSizeX / 45.f), "continueButton", true));
+			}
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"BACK TO MENU", round(winSizeX / 45.f), "backToMenuButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"SETTINGS", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", round(winSizeX / 45.f), "exitButton", true));
 
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(100.f, 40.f), sf::Vector2f(500.f, 500.f), L"English", 20, "engLangButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(100.f, 40.f), sf::Vector2f(500.f, 550.f), L"Ðóññêèé", 20, "rusLangButton", true));
+		}
 	}
 	else if (gv->gameLanguage == 'r')
 	{
-		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ ÑÂÎÉ ÍÈÊÍÅÉÌ", sf::Vector2f(halfWinSizeX, 100.f), 50, "enterYourNicknameLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, 250.f), L"", 45, "nicknameFieldButton", false));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, 400.f), L"Âîéòè", 40, "enterButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, 400.f), L"Âûõîä", 40, "exitButton", true));
-		gv->buttonsVec.back()->getText().setPosition(gv->buttonsVec.back()->getText().getPosition().x, gv->buttonsVec.back()->getText().getPosition().y + 3.f);
-
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(100.f, 40.f), sf::Vector2f(500.f, 500.f), L"English", 20, "engLangButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(100.f, 40.f), sf::Vector2f(500.f, 550.f), L"Ðóññêèé", 20, "rusLangButton", true));
+		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
+		{
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"ÎÄÈÍÎ×ÍÀß ÈÃÐÀ", round(winSizeX / 45.f), "singlePlayerButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"ÑÅÒÅÂÀß ÈÃÐÀ", round(winSizeX / 45.f), "multiPlayerButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"ÍÀÑÒÐÎÉÊÈ", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"ÂÛÕÎÄ", round(winSizeX / 45.f), "exitButton", true));
+		}
+		else if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
+		{
+			if (player == nullptr)
+			{
+				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"ÏÅÐÅÇÀÏÓÑÊ", round(winSizeX / 45.f), "restartGameButton", true));
+			}
+			else if (player != nullptr)
+			{
+				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"ÏÐÎÄÎËÆÈÒÜ", round(winSizeX / 45.f), "continueButton", true));
+			}
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"ÍÀÇÀÄ Â ÌÅÍÞ", round(winSizeX / 45.f), "backToMenuButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"ÍÀÑÒÐÎÉÊÈ", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"ÂÛÕÎÄ", round(winSizeX / 45.f), "exitButton", true));
+		}
 	}
 }
 
 void multiplayerMenuUpdate(GameVariables* gv)
 {
-	gv->buttonsVec.clear();
-	gv->labelsVec.clear();
+	float winSizeX = gv->window.getSize().x;
+	float winSizeY = gv->window.getSize().y;
+
 	float halfWinSizeX = gv->window.getSize().x / 2.f;
 	float halfWinSizeY = gv->window.getSize().y / 2.f;
 
+	gv->buttonsVec.clear();
+	gv->labelsVec.clear();
+
 	if (gv->gameLanguage == 'e')
 	{
-		gv->labelsVec.emplace_back(new Label(L"ENTER IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - 160.f), 50, "enterIPLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY - 100.f), L"", 45, "ipFieldButton", false));
+		gv->labelsVec.emplace_back(new Label(L"ENTER NICKNAME", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 9.1f)), round(winSizeX / 38.f), "enterNicknameLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 12.75f)), L"", round(winSizeX / 43.f), "nicknameFieldButton", false));
 
-		gv->labelsVec.emplace_back(new Label(L"ENTER PORT", sf::Vector2f(halfWinSizeX, halfWinSizeY - 10.f), 50, "enterPortLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY + 50.f), L"", 45, "portFieldButton", false));
+		gv->labelsVec.emplace_back(new Label(L"ENTER IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 32.f)), round(winSizeX / 38.f), "enterIPLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"", round(winSizeX / 43.f), "ipFieldButton", false));
 
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"Connect", 30, "connectButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Back", 30, "backButton", true));
+		gv->labelsVec.emplace_back(new Label(L"ENTER PORT", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 21.f)), round(winSizeX / 38.f), "enterPortLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 12.75f)), L"", round(winSizeX / 43.f), "portFieldButton", false));
 
-		gv->labelsVec.emplace_back(new Label(L"Server is not available!", sf::Vector2f(halfWinSizeX, halfWinSizeY + 250.f), 50, "errorLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 12.75f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 19.f), halfWinSizeY + round(winSizeX / 7.6f)), L"Connect", round(winSizeX / 64.f), "connectButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 12.75f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 19.f), halfWinSizeY + round(winSizeX / 7.6f)), L"Back", round(winSizeX / 64.f), "backButton", true));
+
+		gv->labelsVec.emplace_back(new Label(L"", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 5.f)), round(winSizeX / 38.f), "errorLabel"));
 		gv->labelsVec.back()->getText().setFillColor(sf::Color::Red);
 	}
 	else if (gv->gameLanguage == 'r')
 	{
-		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - 160.f), 50, "enterIPLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY - 100.f), L"", 45, "ipFieldButton", false));
+		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ ÍÈÊÍÅÉÌ", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 9.1f)), round(winSizeX / 38.f), "enterNicknameLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 12.75f)), L"", round(winSizeX / 43.f), "nicknameFieldButton", false));
 
-		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ ÏÎÐÒ", sf::Vector2f(halfWinSizeX, halfWinSizeY - 10.f), 50, "enterPortLabel"));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(400.f, 50.f), sf::Vector2f(halfWinSizeX, halfWinSizeY + 50.f), L"", 45, "portFieldButton", false));
+		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ IP", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 32.f)), round(winSizeX / 38.f), "enterIPLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"", round(winSizeX / 43.f), "ipFieldButton", false));
 
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX - 100.f, halfWinSizeY + 150.f), L"Âîéòè", 30, "connectButton", true));
-		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(150.f, 50.f), sf::Vector2f(halfWinSizeX + 100.f, halfWinSizeY + 150.f), L"Íàçàä", 30, "backButton", true));
+		gv->labelsVec.emplace_back(new Label(L"ÂÂÅÄÈÒÅ ÏÎÐÒ", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 21.f)), round(winSizeX / 38.f), "enterPortLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 12.75f)), L"", round(winSizeX / 43.f), "portFieldButton", false));
 
-		gv->labelsVec.emplace_back(new Label(L"Ñåðâåð íåäîñòóïåí!", sf::Vector2f(halfWinSizeX, halfWinSizeY + 250.f), 50, "errorLabel"));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 12.75f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 19.f), halfWinSizeY + round(winSizeX / 7.6f)), L"Âîéòè", round(winSizeX / 64.f), "connectButton", true));
+		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 12.75f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 19.f), halfWinSizeY + round(winSizeX / 7.6f)), L"Íàçàä", round(winSizeX / 64.f), "backButton", true));
+
+		gv->labelsVec.emplace_back(new Label(L"", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 5.f)), round(winSizeX / 38.f), "errorLabel"));
 		gv->labelsVec.back()->getText().setFillColor(sf::Color::Red);
 	}
 }

@@ -114,16 +114,14 @@ int main() // главная функция программы.
 	consoleSettings(); // вызов функции установки настроек для консоли.
 	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
 	setVariables(gv);
-	authorization(gv);
-	gv->window.setKeyRepeatEnabled(false); // отключаем повторное нажатие клавиш.
 	menuEventHandler(gv, player);
 	gv->clock.restart(); // перезагружает время.
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
-		if (gv->isGameStarted == false)
+		if (gv->singlePlayerGame == false)
 		{
 			restartGame(gv, entities, player);
-			gv->isGameStarted = true;
+			gv->singlePlayerGame = true;
 		}
 		updateTime(gv); // вызов функции обновления времени.
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.

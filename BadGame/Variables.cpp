@@ -80,7 +80,8 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна.
 
-	gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
 
 	srand(time(NULL));
@@ -109,7 +110,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
 
 	// STRING.
-	gv->nickname = "BADEROV";
+	gv->nickname = "";
 
 	// INT.
 	gv->divisor = 800; 
@@ -122,14 +123,13 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	// BOOL.
 	gv->showHitbox = false; 
 	gv->showAimLaser = false;
-	gv->showLogs = false; 
-	gv->isGameStarted = false; 
+	gv->showLogs = false;
 	gv->isGameOver = false; 
 	gv->isFullscreen = false; 
-	gv->drawErrorLabel = false;
 	gv->allowButtons = true;
-	gv->focus = true;
-	gv->isMultiplayerGame = false;
+	gv->focusEvent = true;
+	gv->multiPlayerGame = false;
+	gv->singlePlayerGame = false;
 
 	// CHAR.
 	gv->gameLanguage = 'e';

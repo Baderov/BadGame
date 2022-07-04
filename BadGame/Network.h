@@ -6,6 +6,7 @@
 #include <thread>
 #include <windows.h>
 #include "Variables.h"
+#include "Menu.h"
 
 struct Clients
 {
@@ -28,4 +29,4 @@ void sendPosition(GameVariables* gv);
 
 void startNetwork(GameVariables* gv);
 
-void multiplayerGame(GameVariables* gv);
+void multiplayerGame(GameVariables* gv, Entity*& player);

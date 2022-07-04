@@ -7,9 +7,16 @@
 #include "Button.h"
 #include "Label.h"
 
+enum class MenuErrors
+{
+	NoErrors, ServerIsNotAvailable, NicknameIsAlreadyTaken, NickMustContainMoreChars
+}; 
 
 struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 {
+	MenuErrors menuError;
+
+
 	sf::RenderWindow window; // главное окно приложени€.
 
 	sf::Event event; // объект событи€.
@@ -74,13 +81,12 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool showHitbox; // показывать хитбокс?
 	bool showAimLaser; // показывать прицельный лазер?
 	bool showLogs; // показывать логи?
-	bool isGameStarted; 
-	bool isGameOver; 
+	bool isGameOver;
 	bool isFullscreen; 
-	bool drawErrorLabel;
 	bool allowButtons;
-	bool isMultiplayerGame;
-	bool focus;
+	bool multiPlayerGame;
+	bool singlePlayerGame;
+	bool focusEvent;
 
 	char gameLanguage;
 	char symbol;

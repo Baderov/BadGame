@@ -3,7 +3,6 @@
 #include "Text.h" // подключаем заголовочный файл.
 #include "GameUpdate.h" // подключаем заголовочный файл.
 #include "Console.h" // подключаем заголовочный файл.
-#include "Authorization.h"
 #include "Item.h"
 #include "Menu.h"
 

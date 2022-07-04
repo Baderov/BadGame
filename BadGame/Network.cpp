@@ -11,6 +11,7 @@ sf::Uint64 clientsVecSize = 0;
 bool isConnected = false;
 bool allowMove = false;
 bool isVectorReceived = false;
+bool isNickTaken = false;
 
 std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
 
@@ -54,26 +55,13 @@ void receive(GameVariables* gv)
 			{
 				if (prefix == "conError")
 				{
-					if (packet >> msg)
-					{
-						SetConsoleTextAttribute(handle, 12);
-						std::cout << msg << std::endl;
-						SetConsoleTextAttribute(handle, 11);
-						std::cout << "Enter your nickname: ";
-						getline(std::cin, gv->nickname);
-						SetConsoleTextAttribute(handle, 15);
-						connectToServer(gv);
-					}
+					isNickTaken = true;
+					break;
 				}
 				else if (prefix == "conSuccess")
 				{
-					if (packet >> msg)
-					{
-						SetConsoleTextAttribute(handle, 10);
-						std::cout << "\n" + msg << std::endl;
-						SetConsoleTextAttribute(handle, 15);
-						break;
-					}
+					isNickTaken = false;
+					break;
 				}
 				else if (prefix == "con") // con - connected.
 				{
@@ -122,8 +110,8 @@ void receive(GameVariables* gv)
 								}
 								el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
 							}
-						}				
-					}			
+						}
+					}
 				}
 
 				else if (prefix == "pos")
@@ -167,7 +155,7 @@ void receive(GameVariables* gv)
 				{
 					std::cout << "Reading error!" << std::endl;
 					packet.clear(); // чистим пакет
-				}	
+				}
 			}
 		}
 	}
@@ -235,39 +223,42 @@ void startNetwork(GameVariables* gv)
 {
 	if (connectToServer(gv) == true)
 	{
-		std::cout << "connect true!" << std::endl;
-		gv->drawErrorLabel = false;
 		gv->allowButtons = true;
 		for (auto& el : gv->buttonsVec)
 		{
 			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
 		}
 		receive(gv);
-		gv->isMultiplayerGame = true;
+		if (isNickTaken == true)
+		{
+			gv->menuError = MenuErrors::NicknameIsAlreadyTaken;
+			gv->multiPlayerGame = false;
+		}
+		else if (isNickTaken == false)
+		{
+			gv->menuError = MenuErrors::NoErrors;
+			gv->multiPlayerGame = true;
+		}
 	}
-
 	else
 	{
-		std::cout << "connect false!" << std::endl;
-		gv->drawErrorLabel = true;
 		gv->allowButtons = true;
+		gv->menuError = MenuErrors::ServerIsNotAvailable;
 		for (auto& el : gv->buttonsVec)
 		{
 			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
 		}
-		gv->isMultiplayerGame = false;
+		gv->multiPlayerGame = false;
 	}
 }
 
-void multiplayerGame(GameVariables* gv)
+void multiplayerGame(GameVariables* gv, Entity*& player)
 {
-
 	std::thread receiveThread([&]() { receive(gv); });
 	receiveThread.detach();
 
 	//std::thread sendThread([&]() { send(gv); });
 	//sendThread.detach();
-
 
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -277,30 +268,34 @@ void multiplayerGame(GameVariables* gv)
 		{
 			if (gv->event.type == sf::Event::LostFocus)
 			{
-				gv->focus = false;
+				gv->focusEvent = false;
 			}
 			else if (gv->event.type == sf::Event::GainedFocus)
 			{
-				gv->focus = true;
+				gv->focusEvent = true;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			{
+				menuEventHandler(gv, player);
+			}
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focus == true)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focusEvent == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "up");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && gv->focus == true)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && gv->focusEvent == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "down");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && gv->focus == true)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && gv->focusEvent == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "left");
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && gv->focus == true)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && gv->focusEvent == true)
 		{
 			sendPosition(gv);
 			moveRequest(gv, "right");
