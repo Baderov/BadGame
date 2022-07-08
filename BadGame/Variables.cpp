@@ -81,7 +81,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна.
 
 	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
+	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
 
 	srand(time(NULL));
@@ -130,6 +130,10 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->focusEvent = true;
 	gv->multiPlayerGame = false;
 	gv->singlePlayerGame = false;
+	gv->exitFromMenu = false;
+	gv->restartGame = false;
+	gv->recvFuncTerminate = false;
+	gv->mainMenu = true;
 
 	// CHAR.
 	gv->gameLanguage = 'e';

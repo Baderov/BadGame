@@ -4,7 +4,7 @@
 //port - 2000;
 
 HANDLE handle;
-sf::TcpSocket sock; // программный интерфейс для обеспечения обмена данными между процессами.
+
 std::string senderNickname;
 sf::Uint64 clientsVecSize = 0;
 
@@ -26,12 +26,12 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 
 bool connectToServer(GameVariables* gv)
 {
-	if (sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done) // подключение к серверу, нужно ввести ip и порт.
+	if (gv->sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done) // подключение к серверу, нужно ввести ip и порт.
 	{
 		sf::Packet packet;
 		std::string prefix = "regNickname"; // regNickname - register a nickname.
 		packet << prefix << gv->nickname;
-		sock.send(packet); // отправка данных
+		gv->sock.send(packet); // отправка данных
 		SetConsoleTextAttribute(handle, 13);
 		return true;
 	}
@@ -47,7 +47,12 @@ void receive(GameVariables* gv)
 	std::string prefix = "", msg = "", side = "";
 	while (true)
 	{
-		if (sock.receive(packet) == sf::Socket::Done)
+		if (gv->recvFuncTerminate == true)
+		{
+			gv->recvFuncTerminate = false;
+			break;
+		}
+		if (gv->sock.receive(packet) == sf::Socket::Done)
 		{
 			msg = "";
 			prefix = "";
@@ -184,7 +189,7 @@ void sendPosition(GameVariables* gv)
 		}
 	}
 	packet << prefix << gv->nickname << pos.x << pos.y;
-	sock.send(packet);
+	gv->sock.send(packet);
 }
 
 void moveRequest(GameVariables* gv, std::string side)
@@ -193,7 +198,7 @@ void moveRequest(GameVariables* gv, std::string side)
 	packet.clear(); // чистим пакет
 	std::string prefix = "move";
 	packet << prefix << side << gv->nickname;
-	sock.send(packet);
+	gv->sock.send(packet);
 }
 
 void fillClientsVector(GameVariables* gv)
@@ -278,6 +283,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
 				menuEventHandler(gv, player);
+				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->recvFuncTerminate = true; return; }
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focusEvent == true)

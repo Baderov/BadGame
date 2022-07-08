@@ -1,6 +1,7 @@
 #pragma once // защита от повторного включени€.
 #include <iostream> 
 #include <SFML/Graphics.hpp> 
+#include <SFML/Network.hpp>
 #include <memory>
 #include <cmath>
 #include <list>
@@ -35,6 +36,8 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	sf::Sprite goldCoinHUDSprite;
 
 	sf::RectangleShape aimLaser; // прицельный лазер.
+
+	sf::TcpSocket sock; // программный интерфейс дл€ обеспечени€ обмена данными между процессами.
 
 	sf::CircleShape playerDestination; // создаЄм метку передвижени€ игрока.
 
@@ -87,6 +90,10 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool multiPlayerGame;
 	bool singlePlayerGame;
 	bool focusEvent;
+	bool exitFromMenu;
+	bool mainMenu;
+	bool restartGame;
+	bool recvFuncTerminate;
 
 	char gameLanguage;
 	char symbol;

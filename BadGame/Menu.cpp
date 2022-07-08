@@ -72,8 +72,7 @@ void multiplayerMenu(GameVariables* gv)
 
 		if (gv->multiPlayerGame == true)
 		{
-			gv->menuNum = 21;
-			gv->multiPlayerGame == false;
+			gv->menuNum = 23;
 			gv->buttonsVec.clear();
 			gv->labelsVec.clear();
 			return;
@@ -412,7 +411,6 @@ void settingsMenu(GameVariables* gv)
 void mainMenu(GameVariables* gv, Entity*& player)
 {
 	mainMenuUpdate(gv, player);
-	//std::cout << gv->lineNumberInConsole++ << ": I'm in the main menu!" << std::endl;
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
@@ -446,7 +444,7 @@ void mainMenu(GameVariables* gv, Entity*& player)
 				}
 				if (el->getName() == "continueButton")
 				{
-					gv->menuNum = 16;
+					gv->menuNum = 23;
 				}
 				if (el->getName() == "restartGameButton")
 				{
@@ -461,9 +459,9 @@ void mainMenu(GameVariables* gv, Entity*& player)
 
 		while (gv->window.pollEvent(gv->event)) // пока происход€т событи€.
 		{
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && gv->singlePlayerGame == true) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && (gv->singlePlayerGame == true || gv->multiPlayerGame == true)) // если отпустили кнопку Escape.
 			{
-				gv->menuNum = 16;
+				gv->menuNum = 23;
 				return;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; } // если состо€ние событи€ прин€ло значение "«акрыто" - окно закрываетс€.
@@ -495,6 +493,7 @@ void mainMenu(GameVariables* gv, Entity*& player)
 
 void menuEventHandler(GameVariables* gv, Entity*& player)
 {
+	gv->exitFromMenu = false;
 	mainMenu(gv, player);
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -507,7 +506,8 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 		{
 		case 1:
 			gv->menuNum = 0;
-			gv->singlePlayerGame = false;
+			gv->restartGame = true;
+			gv->singlePlayerGame = true;
 			return;
 			break;
 		case 2:
@@ -579,22 +579,24 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			break;
 		case 15:
 			gv->menuNum = 0;
-			gv->singlePlayerGame = false;
-			mainMenu(gv, player);
-			break;
-		case 16:
-			gv->menuNum = 0;
-			gv->singlePlayerGame = true;
+			if (gv->singlePlayerGame == true)
+			{
+				gv->singlePlayerGame = false;
+			}
+			if (gv->multiPlayerGame == true)
+			{
+				gv->multiPlayerGame = false;
+				gv->sock.disconnect();
+			}
+			//mainMenu(gv, player);
 			return;
 			break;
 		case 17:
 			gv->menuNum = 0;
 			multiplayerMenu(gv);
 			break;
-		case 21:
-			multiplayerGame(gv, player);
-			break;
 		case 23:
+			gv->menuNum = 0;
 			return;
 			break;
 
@@ -638,6 +640,11 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 
 
 
+		}
+
+		if (gv->exitFromMenu == true)
+		{		
+			return;
 		}
 	}
 }

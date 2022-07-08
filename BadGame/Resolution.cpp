@@ -93,6 +93,13 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player)
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", round(winSizeX / 45.f), "exitButton", true));
 
 		}
+		else if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
+		{
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"CONTINUE", round(winSizeX / 45.f), "continueButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"BACK TO MENU", round(winSizeX / 45.f), "backToMenuButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"SETTINGS", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", round(winSizeX / 45.f), "exitButton", true));
+		}
 	}
 	else if (gv->gameLanguage == 'r')
 	{
@@ -113,6 +120,13 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player)
 			{
 				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"опнднкфхрэ", round(winSizeX / 45.f), "continueButton", true));
 			}
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"мюгюд б лемч", round(winSizeX / 45.f), "backToMenuButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"мюярпнийх", round(winSizeX / 45.f), "settingsButton", true));
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"бшунд", round(winSizeX / 45.f), "exitButton", true));
+		}
+		else if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
+		{
+			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"опнднкфхрэ", round(winSizeX / 45.f), "continueButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"мюгюд б лемч", round(winSizeX / 45.f), "backToMenuButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"мюярпнийх", round(winSizeX / 45.f), "settingsButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"бшунд", round(winSizeX / 45.f), "exitButton", true));

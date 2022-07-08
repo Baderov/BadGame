@@ -85,6 +85,7 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			gv->window.setView(gv->view);
 
 			menuEventHandler(gv, player);
+			if (gv->singlePlayerGame == false) { return; }
 
 			gv->view.setSize(oldViewSize);
 			gv->view.setCenter(oldViewCenter);
@@ -109,25 +110,22 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 	}
 }
 
-int main() // главная функция программы.
+void singleplayerGame(GameVariables* gv)
 {
-	consoleSettings(); // вызов функции установки настроек для консоли.
-	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
-	setVariables(gv);
-	menuEventHandler(gv, player);
 	gv->clock.restart(); // перезагружает время.
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
-		if (gv->singlePlayerGame == false)
+		if (gv->restartGame == true)
 		{
 			restartGame(gv, entities, player);
-			gv->singlePlayerGame = true;
+			gv->restartGame = false;
 		}
 		updateTime(gv); // вызов функции обновления времени.
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
 			eventHandler(gv->event, gv); // вызов функции обработки событий.
+			if (gv->singlePlayerGame == false) { return; }
 		}
 		gv->window.setView(gv->view);
 		updateEntities(gv, entities, it, it2, player); // вызов функции обновления сущностей.
@@ -136,6 +134,38 @@ int main() // главная функция программы.
 		drawGameInfo(gv); // вызов функции рисовки игровой информации.
 		gv->window.display(); // отображает кадр.
 		updateFPS(gv); // вызов функции обновления FPS.
+	}
+}
+
+int main() // главная функция программы.
+{
+	consoleSettings(); // вызов функции установки настроек для консоли.
+	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
+	setVariables(gv);
+	menuEventHandler(gv, player);
+	while (gv->window.isOpen()) // пока открыто окно.
+	{
+		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		{
+			if (gv->event.type == sf::Event::Closed)
+			{
+				gv->window.close(); // закрываем окно.
+			}
+		}
+		if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
+		{
+			singleplayerGame(gv);
+		}
+
+		if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
+		{
+			multiplayerGame(gv, player);
+		}
+
+		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
+		{
+			menuEventHandler(gv, player);
+		}
 	}
 	delete gv; // удаляем переменную gv.
 	std::cout << "Memory cleared!\n"; // отправляем сообщение в консоль.

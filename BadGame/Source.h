@@ -12,4 +12,6 @@ void updateFPS(GameVariables* gv); // функция обновления FPS.
 
 void eventHandler(sf::Event& event, GameVariables* gv); // функция обработки событий.
 
+void singleplayerGame(GameVariables* gv);
+
 int main(); // главная функция программы.
