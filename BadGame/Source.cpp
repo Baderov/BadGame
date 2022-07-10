@@ -68,6 +68,7 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 				player->setIsReload(true);
 				player->getReloadClock().restart();
 				player->setReloadTime(0);
+				player->setMenuTime(0);
 			}
 			break; // выходим.
 		}
@@ -84,14 +85,27 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			gv->view.setCenter(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
 			gv->window.setView(gv->view);
 
+			gv->menuClock.restart(); // перезагружает время.
 			menuEventHandler(gv, player);
+			gv->menuTimer = gv->menuClock.getElapsedTime().asMilliseconds();
+
+			for (it = entities.begin(); it != entities.end(); it++) // проходимся по списку от начала до конца.
+			{
+				Entity* entity = (*it).get(); // создаём объект-указатель и присваиваем значение первого итератора для облегчения чтения кода.
+				if (player != nullptr && (dynamic_cast<Enemy*>(entity) || dynamic_cast<Player*>(entity)))
+				{
+					entity->setMenuTime(gv->menuTimer + entity->getMenuTime());
+				}
+			}
+
+			gv->clock.restart(); // перезагружает время.
 			if (gv->singlePlayerGame == false) { return; }
 
 			gv->view.setSize(oldViewSize);
 			gv->view.setCenter(oldViewCenter);
 			gv->window.setView(gv->view);
 
-			gv->clock.restart(); // перезагружает время.
+
 			break; // выходим.
 		}
 		break;
@@ -110,8 +124,19 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 	}
 }
 
+void logs(GameVariables* gv)
+{
+	while (true)
+	{
+		if (gv->singlePlayerGame == false) { break; }
+	}
+}
+
 void singleplayerGame(GameVariables* gv)
 {
+	//std::thread logsTh([&]() { logs(gv); });
+	//logsTh.detach();
+
 	gv->clock.restart(); // перезагружает время.
 	while (gv->window.isOpen()) // пока открыто окно.
 	{

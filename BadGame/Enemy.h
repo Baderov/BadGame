@@ -9,9 +9,4 @@ public:
 	void update(GameVariables* gv);
 	void move(GameVariables* gv);
 	void rotate();
-private:
-	sf::Clock shootClock;
-	int shootTime;
-	int shootDelay;
-	int shootOffset;
 };

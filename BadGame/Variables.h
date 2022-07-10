@@ -17,7 +17,6 @@ struct GameVariables // объявляем структуру для игровых переменных.
 {
 	MenuErrors menuError;
 
-
 	sf::RenderWindow window; // главное окно приложения.
 
 	sf::Event event; // объект события.
@@ -49,7 +48,6 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	sf::Text playerInfoText; // текст информации об игроке.
 	sf::Text playerAmmoText; // текст информации о патронах игрока.
 
-
 	sf::Vector2f mousePos; // позиция курсора мыши.
 	sf::Vector2f playerStartPos; // стартовая позиция игрока.
 	sf::Vector2f boxStartPositions[12]; // стартовые позиции коробок.
@@ -59,6 +57,7 @@ struct GameVariables // объявляем структуру для игровых переменных.
 
 	sf::Clock clock; // часы.
 	sf::Clock fpsClock; // часы для FPS.
+	sf::Clock menuClock; // часы для Menu.
 
 	sf::Time fpsPreviousTime; // время предыдущего кадра.
 	sf::Time fpsCurrentTime; // время текущего кадра.
@@ -80,6 +79,7 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	int menuNum; // номер меню.
 	int lineNumberInConsole; // номер строки в консоли.
 	int serverPort; // порт сервера.
+	int menuTimer;
 
 	bool showHitbox; // показывать хитбокс?
 	bool showAimLaser; // показывать прицельный лазер?

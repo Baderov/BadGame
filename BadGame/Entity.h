@@ -12,6 +12,10 @@ public:
 	void calcDirection();
 	void updateHPBar();
 
+	int& getShootTime();
+	int& getShootDelay();
+	int& getShootOffset();
+	int& getMenuTime();
 	int& getHP();
 	int& getMaxHP();
 	int& getGoldCoins();
@@ -25,8 +29,8 @@ public:
 	bool& getIsMove();
 	bool& getIsShoot();
 	bool& getIsReload();
-	sf::Clock& getSpawnClock();
 	sf::Clock& getReloadClock();
+	sf::Clock& getShootClock();
 	sf::Text& getHPText();
 	sf::Text& getNameText();
 	sf::Text& getReloadText();
@@ -46,6 +50,11 @@ public:
 	std::string& getName();
 	std::string& getCreatorName();
 
+
+	void setShootTime(int shootTime);
+	void setShootDelay(int shootDelay);
+	void setShootOffset(int shootOffset);
+	void setMenuTime(int menuTime);
 	void setHP(int HP);
 	void setMaxHP(int maxHP);
 	void setGoldCoins(int goldCoins);
@@ -59,7 +68,6 @@ public:
 	void setIsMove(bool isMove);
 	void setIsShoot(bool isShoot);
 	void setIsReload(bool isReload);
-	void setSpawnClock(sf::Clock spawnClock);
 	void setReloadClock(sf::Clock reloadClock);
 	void setHpText(sf::Text hpText);
 	void setNameText(sf::Text nameText);
@@ -82,9 +90,9 @@ public:
 
 protected:
 	float maxSpeed, distance;
-	int w, h, HP, maxHP, goldCoins, spawnTime, reloadTime, currentAmmo, maxAmmo, missingAmmo, magazineAmmo; // w - ширина спрайта, h - высота спрайта, HP - здоровье, maxHP - максимальное количество HP.
+	int w, h, HP, maxHP, goldCoins, spawnTime, reloadTime, menuTime, shootTime, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo; // w - ширина спрайта, h - высота спрайта, HP - здоровье, maxHP - максимальное количество HP.
 	bool isAlive, isMove, isShoot, isReload;
-	sf::Clock spawnClock, reloadClock;
+	sf::Clock reloadClock, shootClock;
 	sf::Font consolasFont;
 	sf::Text hpText, nameText, reloadText;
 	sf::Color grayColor;

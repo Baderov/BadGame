@@ -22,10 +22,11 @@ void Enemy::update(GameVariables* gv) // функция update (в параметрах передаем в
 	if (isAlive == true)
 	{
 		updateHPBar();
-		shootTime = shootClock.getElapsedTime().asMilliseconds() + shootOffset;		
+		shootTime = (shootClock.getElapsedTime().asMilliseconds() + shootOffset) - menuTime;		
 		if (shootTime >= shootDelay)
 		{
 			isShoot = true;
+			menuTime = 0;
 			shootClock.restart();
 			moveTargetPos.x = 0 + rand() % 3000;
 			moveTargetPos.y = 0 + rand() % 3000;

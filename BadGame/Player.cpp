@@ -16,6 +16,8 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::string name) : Enti
 	maxAmmo = 500;
 	missingAmmo = 0;
 
+	reloadTime = 0;
+
 	rectHitbox.setFillColor(sf::Color::Red);
 	rectHitbox.setSize(sf::Vector2f(h, h));
 	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
@@ -36,6 +38,7 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::string name) : Enti
 
 	nameText.setString(name);
 	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
+
 }
 
 void Player::update(GameVariables* gv) // функция update (в параметрах передаем время).
@@ -44,7 +47,8 @@ void Player::update(GameVariables* gv) // функция update (в параметрах передаем 
 	{
 		if (isReload == true) 
 		{
-			reloadTime = reloadClock.getElapsedTime().asMilliseconds(); 
+			reloadTime = reloadClock.getElapsedTime().asMilliseconds() - menuTime;
+			if (reloadTime < 0) { reloadTime = 0; }
 			updateReloadRect();
 		}
 		nameText.setPosition(currentPos.x, currentPos.y - 90.f);
@@ -95,16 +99,23 @@ void Player::updateLaser(GameVariables* gv)
 void Player::updateReloadRect()
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
-
-	if ((reloadTime / 10) < reloadRectOuter.getSize().x)
+	int tempReloadTime = 0;
+	if (reloadTime > 0)
 	{
-		reloadRectInner.setSize(sf::Vector2f(reloadTime / 10, reloadRectOuter.getSize().y));
+		tempReloadTime = reloadTime / 10;
+	}
+
+	int reloadRectOuterSizeX = static_cast<int>(reloadRectOuter.getSize().x);
+	
+	if (tempReloadTime < reloadRectOuterSizeX)
+	{
+		reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y));
 	}
 	else
 	{
 		reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y));
 	}
-
+	
 	reloadRectOuter.setPosition(currentPos.x - 90.f, currentPos.y + 300.f);
 	reloadRectInner.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y);
 	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);

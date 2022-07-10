@@ -16,6 +16,7 @@ void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities
 
 	gv->numberOfPlayers = 0;
 	gv->numberOfEnemies = 0;
+	gv->menuTimer = 0;
 
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), "LeftWall"));
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), "RightWall"));
@@ -72,6 +73,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 				player->setCurrentAmmo(player->getCurrentAmmo() + player->getMissingAmmo());
 				player->setMaxAmmo(player->getMaxAmmo() - player->getMissingAmmo());
 			}
+
 			player->setIsReload(false);
 		}
 
@@ -184,6 +186,4 @@ void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entitie
 			gv->window.draw((*it)->getNameText());
 		}
 	}
-
-
 }

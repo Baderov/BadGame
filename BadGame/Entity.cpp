@@ -8,6 +8,7 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::string name)
 	grayColor.b = 160;
 	distance = 0.f;
 	maxSpeed = 0.f;
+	menuTime = 0;
 	currentPos = startPos;
 	this->name = name; // присваиваем каждой переменной класса Entity то, что пользователь написал в параметрах при вызове объекта.
 	creatorName = "";
@@ -98,6 +99,7 @@ void Entity::updateHPBar()
 	}
 }
 
+int& Entity::getMenuTime() { return menuTime; }
 int& Entity::getHP() { return HP; }
 int& Entity::getMaxHP() { return maxHP; }
 int& Entity::getGoldCoins() { return goldCoins; }
@@ -107,12 +109,15 @@ int& Entity::getCurrentAmmo() { return currentAmmo; }
 int& Entity::getMaxAmmo() { return maxAmmo; }
 int& Entity::getMissingAmmo() { return missingAmmo; }
 int& Entity::getMagazineAmmo() { return magazineAmmo; }
+int& Entity::getShootDelay() { return shootDelay; }
+int& Entity::getShootOffset() { return shootOffset; }
+int& Entity::getShootTime() { return shootTime; }
 bool& Entity::getIsAlive() { return isAlive; }
 bool& Entity::getIsMove() { return isMove; }
 bool& Entity::getIsShoot() { return isShoot; }
 bool& Entity::getIsReload() { return isReload; }
-sf::Clock& Entity::getSpawnClock() { return spawnClock; }
 sf::Clock& Entity::getReloadClock() { return reloadClock; }
+sf::Clock& Entity::getShootClock() { return shootClock; }
 sf::Text& Entity::getHPText() { return hpText; }
 sf::Text& Entity::getNameText() { return nameText; }
 sf::Text& Entity::getReloadText() { return reloadText; }
@@ -132,8 +137,13 @@ sf::Sprite& Entity::getSprite() { return sprite; }
 std::string& Entity::getName() { return name; }
 std::string& Entity::getCreatorName() { return creatorName; }
 
+
+void Entity::setMenuTime(int menuTime) { this->menuTime = menuTime; }
 void Entity::setHP(int HP) { this->HP = HP; }
 void Entity::setMaxHP(int maxHP) { this->maxHP = maxHP; }
+void Entity::setShootDelay(int shootDelay) { this->shootDelay = shootDelay; }
+void Entity::setShootOffset(int shootOffset) { this->shootOffset = shootOffset; }
+void Entity::setShootTime(int shootTime) { this->shootTime = shootTime; }
 void Entity::setGoldCoins(int goldCoins) { this->goldCoins = goldCoins; }
 void Entity::setSpawnTime(int spawnTime) { this->spawnTime = spawnTime; }
 void Entity::setReloadTime(int reloadTime) { this->reloadTime = reloadTime; }
@@ -145,7 +155,6 @@ void Entity::setIsAlive(bool isAlive) { this->isAlive = isAlive; }
 void Entity::setIsMove(bool isMove) { this->isMove = isMove; }
 void Entity::setIsShoot(bool isShoot) { this->isShoot = isShoot; }
 void Entity::setIsReload(bool isReload) { this->isReload = isReload; }
-void Entity::setSpawnClock(sf::Clock spawnClock) { this->spawnClock = spawnClock; }
 void Entity::setReloadClock(sf::Clock reloadClock) { this->reloadClock = reloadClock; }
 void Entity::setHpText(sf::Text hpText) { this->hpText = hpText; }
 void Entity::setNameText(sf::Text nameText) { this->nameText = nameText; }

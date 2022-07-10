@@ -588,7 +588,6 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 				gv->multiPlayerGame = false;
 				gv->sock.disconnect();
 			}
-			//mainMenu(gv, player);
 			return;
 			break;
 		case 17:

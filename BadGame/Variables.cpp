@@ -119,6 +119,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->numberOfPlayers = 0;
 	gv->menuNum = 0;
 	gv->lineNumberInConsole = 1;
+	gv->menuTimer = 0;
 
 	// BOOL.
 	gv->showHitbox = false; 
@@ -134,6 +135,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->restartGame = false;
 	gv->recvFuncTerminate = false;
 	gv->mainMenu = true;
+
 
 	// CHAR.
 	gv->gameLanguage = 'e';
