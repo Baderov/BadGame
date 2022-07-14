@@ -65,9 +65,13 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	std::vector<std::unique_ptr<Button>> buttonsVec;
 	std::vector<std::unique_ptr<Label>> labelsVec;
 
-	std::string nickname;
+	std::wstring nickname;
+	std::wstring chatStr;
+	std::wstring chatPrefix;
 	std::string serverIP; // ip адрес сервера.
 	std::string tempPort; // временный порт сервера.
+	std::wstring scrollbarDir;
+
 
 	float dt; // время.
 	float fps; // кадры в секунду.
@@ -80,6 +84,9 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	int lineNumberInConsole; // номер строки в консоли.
 	int serverPort; // порт сервера.
 	int menuTimer;
+	int numOfLinesInChat;
+	int scrollbarDivisor;
+	unsigned int scrollbarStepNumber;
 
 	bool showHitbox; // показывать хитбокс?
 	bool showAimLaser; // показывать прицельный лазер?
@@ -93,7 +100,10 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	bool exitFromMenu;
 	bool mainMenu;
 	bool restartGame;
-	bool recvFuncTerminate;
+	bool funcTerminate;
+	bool chatContainsMouse;
+	bool chatEnterText;
+	bool permissionToSend;
 
 	char gameLanguage;
 	char symbol;

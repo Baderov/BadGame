@@ -1,6 +1,6 @@
 #include "Bullet.h" // подключаем заголовочный файл.
 
-Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::string name, std::string creatorName, sf::Vector2f aimPos) : Entity(image, startPos, name)
+Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::wstring creatorName, sf::Vector2f aimPos) : Entity(image, startPos, name)
 {
 	this->creatorName = creatorName;
 	isMove = true;

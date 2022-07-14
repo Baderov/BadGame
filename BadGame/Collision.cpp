@@ -23,12 +23,12 @@ void collision(Entity* entity, Entity* entity2) // функция обработки коллизий.
 				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
 			}
 
-			if (entity2->getName() == "GoldCoin")
+			if (entity2->getName() == L"GoldCoin")
 			{
 				entity->setGoldCoins(entity->getGoldCoins() + 1);
 				entity2->setIsAlive(false);
 			}
-			if (entity2->getName() == "HPBonus" && entity->getHP() < 100)
+			if (entity2->getName() == L"HPBonus" && entity->getHP() < 100)
 			{
 				entity->setHP(entity->getHP() + 30);
 				if (entity->getHP() >= 100)

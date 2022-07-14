@@ -1,6 +1,6 @@
 #include "Enemy.h" // подключаем заголовочный файл.
 
-Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(image, startPos, name)
+Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
 {
 	currentVelocity = sf::Vector2f(0.4f, 0.4f);
 	maxSpeed = 5.f;

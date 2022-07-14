@@ -1,6 +1,6 @@
 #include "Player.h" // подключаем заголовочный файл.
 
-Player::Player(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(image, startPos, name)
+Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
 {
 	isMove = false;
 	isReload = false;

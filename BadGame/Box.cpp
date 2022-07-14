@@ -1,6 +1,6 @@
 #include "Box.h" // подключаем заголовочный файл.
 
-Box::Box(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(image, startPos, name)
+Box::Box(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
 {
 	isAlive = true;
 	HP = 30;

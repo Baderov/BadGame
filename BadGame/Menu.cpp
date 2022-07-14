@@ -52,10 +52,10 @@ void errorChecking(GameVariables* gv)
 	}
 }
 
-void multiplayerMenu(GameVariables* gv)
+void multiplayerMenu(GameVariables* gv, Chat& chat)
 {
 	multiplayerMenuUpdate(gv);
-	gv->nickname = "";
+	gv->nickname = L"";
 	gv->serverIP = "";
 	gv->tempPort = "";
 	gv->serverPort = 0;
@@ -218,7 +218,8 @@ void multiplayerMenu(GameVariables* gv)
 					gv->allowButtons = false;
 					std::thread networkThread([&]()
 						{
-							startNetwork(gv);
+							startNetwork(gv, chat);
+							gv->chatPrefix = gv->nickname + L": ";
 						});
 					networkThread.detach();
 					break;
@@ -491,7 +492,7 @@ void mainMenu(GameVariables* gv, Entity*& player)
 	}
 }
 
-void menuEventHandler(GameVariables* gv, Entity*& player)
+void menuEventHandler(GameVariables* gv, Entity*& player, Chat& chat)
 {
 	gv->exitFromMenu = false;
 	mainMenu(gv, player);
@@ -592,7 +593,7 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			break;
 		case 17:
 			gv->menuNum = 0;
-			multiplayerMenu(gv);
+			multiplayerMenu(gv, chat);
 			break;
 		case 23:
 			gv->menuNum = 0;

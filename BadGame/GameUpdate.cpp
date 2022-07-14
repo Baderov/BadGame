@@ -4,7 +4,7 @@ void boxSpawn(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities)
 {
 	for (int i = 0; i < std::size(gv->boxStartPositions); i++)
 	{
-		entities.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), "Box")); // создаём коробку и отправляем в конец списка.
+		entities.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // создаём коробку и отправляем в конец списка.
 	}
 }
 
@@ -18,22 +18,22 @@ void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities
 	gv->numberOfEnemies = 0;
 	gv->menuTimer = 0;
 
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), "LeftWall"));
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), "RightWall"));
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), "TopWall"));
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), "BottomWall"));
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall"));
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall"));
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall"));
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall"));
 	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->playerStartPos), gv->nickname)); // создаётся игрок и закидывается в список entities(игроки, пули, коробки и т.д).
 	player = entities.back().get();
 
 	for (int i = 0; i < 10 + rand() % 21; i++)
 	{
-		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), "Enemy"));
+		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), L"Enemy"));
 		gv->numberOfEnemies++;
 	}
 
 	for (int i = 0; i < 20 + rand() % 31; i++)
 	{
-		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), "HPBonus"));
+		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), L"HPBonus"));
 	}
 
 	gv->numberOfPlayers++;
@@ -90,7 +90,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			{
 				if (entity->getCurrentAmmo() > 0 && player->getIsReload() == false)
 				{
-					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), "Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // создаём пулю и отправляем в конец списка.
+					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // создаём пулю и отправляем в конец списка.
 					entity->setCurrentAmmo(entity->getCurrentAmmo() - 1);
 				}
 				entity->setIsShoot(false);
@@ -100,7 +100,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 				float distance = sqrt(((entity->getAimPos().x - entity->getCurrentPos().x) * (entity->getAimPos().x - entity->getCurrentPos().x)) + ((entity->getAimPos().y - entity->getCurrentPos().y) * (entity->getAimPos().y - entity->getCurrentPos().y)));
 				if (distance < 750.f)
 				{
-					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), "Bullet", entity->getName(), entity->getAimPos())); // создаём пулю и отправляем в конец списка.
+					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), entity->getAimPos())); // создаём пулю и отправляем в конец списка.
 				}
 				entity->setIsShoot(false);
 			}
@@ -117,14 +117,14 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 					{
 						for (int i = 0; i < 0 + rand() % 2; i++)
 						{
-							entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), "HPBonus"));
+							entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"HPBonus"));
 						}
 					}
 					else if (itemNum == 2)
 					{
 						for (int i = 0; i < 0 + rand() % 3; i++)
 						{
-							entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), "GoldCoin"));
+							entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin"));
 						}
 					}
 				}
@@ -139,7 +139,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 				gv->numberOfEnemies--; // уменьшаем количество врагов. 			
 				for (int i = 0; i < 0 + rand() % 6; i++)
 				{
-					entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), "GoldCoin"));
+					entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin"));
 				}
 			}
 			it = entities.erase(it); // удаляем элемент.

@@ -110,7 +110,12 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
 
 	// STRING.
-	gv->nickname = "";
+	gv->nickname = L"";
+	gv->chatStr = L"";
+	gv->chatPrefix = L"";
+	gv->serverIP = ""; // ip адрес сервера.
+	gv->tempPort = ""; // временный порт сервера.
+	gv->scrollbarDir = L"";
 
 	// INT.
 	gv->divisor = 800; 
@@ -120,6 +125,9 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->menuNum = 0;
 	gv->lineNumberInConsole = 1;
 	gv->menuTimer = 0;
+	gv->numOfLinesInChat = 1;
+	gv->scrollbarDivisor = 1;
+	gv->scrollbarStepNumber = 0;
 
 	// BOOL.
 	gv->showHitbox = false; 
@@ -133,11 +141,15 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->singlePlayerGame = false;
 	gv->exitFromMenu = false;
 	gv->restartGame = false;
-	gv->recvFuncTerminate = false;
+	gv->funcTerminate = false;
 	gv->mainMenu = true;
-
+	gv->chatEnterText = false;
+	gv->chatContainsMouse = false;
+	gv->permissionToSend = true;
 
 	// CHAR.
 	gv->gameLanguage = 'e';
+	gv->symbol = ' ';
+	gv->input = ' ';
 
 }

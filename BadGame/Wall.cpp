@@ -1,11 +1,11 @@
 #include "Wall.h" // подключаем заголовочный файл.
 
-Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(image, startPos, name)
+Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
 {
 	sprite.setOrigin(0.f, 0.f);
 	rectHitbox.setOrigin(0.f, 0.f);
 
-	if (name == "LeftWall" || name == "RightWall")
+	if (name == L"LeftWall" || name == L"RightWall")
 	{
 		sprite.setRotation(90);
 		rectHitbox.setRotation(90);

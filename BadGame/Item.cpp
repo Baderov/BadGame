@@ -1,6 +1,6 @@
 #include "Item.h"
 
-Item::Item(sf::Image& image, sf::Vector2f startPos, std::string name) : Entity(image, startPos, name)
+Item::Item(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
 {
 
 }

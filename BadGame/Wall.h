@@ -5,7 +5,7 @@
 class Wall : public Entity // создаём класс коробки и наследуем его от Entity.
 {
 public:
-	Wall(sf::Image& image, sf::Vector2f startPos, std::string name); // конструктор класса.
+	Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name); // конструктор класса.
 	void update(GameVariables* gv); // функция обновления логики объекта. (в параметрах передаем время).
 	void move(GameVariables* gv);
 };

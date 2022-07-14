@@ -1,6 +1,6 @@
 #include "Entity.h" // подключаем заголовочный файл.
 
-Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::string name)
+Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name)
 {
 	currentVelocity = sf::Vector2f(0.f, 0.f);
 	grayColor.r = 160;
@@ -11,7 +11,7 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::string name)
 	menuTime = 0;
 	currentPos = startPos;
 	this->name = name; // присваиваем каждой переменной класса Entity то, что пользователь написал в параметрах при вызове объекта.
-	creatorName = "";
+	creatorName = L"";
 	isAlive = true;
 	isShoot = false;
 
@@ -134,8 +134,8 @@ sf::Vector2f& Entity::getAimPos() { return aimPos; }
 sf::Vector2f& Entity::getAimDir() { return aimDir; }
 sf::Vector2f& Entity::getAimDirNorm() { return aimDirNorm; }
 sf::Sprite& Entity::getSprite() { return sprite; }
-std::string& Entity::getName() { return name; }
-std::string& Entity::getCreatorName() { return creatorName; }
+std::wstring& Entity::getName() { return name; }
+std::wstring& Entity::getCreatorName() { return creatorName; }
 
 
 void Entity::setMenuTime(int menuTime) { this->menuTime = menuTime; }
@@ -172,5 +172,5 @@ void Entity::setAimPos(sf::Vector2f aimPos) { this->aimPos = aimPos; }
 void Entity::setAimDir(sf::Vector2f aimDir) { this->aimDir = aimDir; }
 void Entity::setAimDirNorm(sf::Vector2f aimDirNorm) { this->aimDirNorm = aimDirNorm; }
 void Entity::setSprite(sf::Sprite sprite) { this->sprite = sprite; }
-void Entity::setName(std::string name) { this->name = name; }
-void Entity::setCreatorName(std::string creatorName) { this->creatorName = creatorName; }
+void Entity::setName(std::wstring name) { this->name = name; }
+void Entity::setCreatorName(std::wstring creatorName) { this->creatorName = creatorName; }

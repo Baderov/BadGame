@@ -150,6 +150,7 @@
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Chat.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Resolution.cpp" />
+    <ClCompile Include="RichText.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -171,6 +173,7 @@
     <ClInclude Include="Box.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Chat.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Enemy.h" />
@@ -183,6 +186,7 @@
     <ClInclude Include="Network.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resolution.h" />
+    <ClInclude Include="RichText.hpp" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Variables.h" />

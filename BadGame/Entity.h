@@ -4,7 +4,7 @@
 class Entity // общий класс дл€ всех сущностей.
 {
 public:
-	Entity(sf::Image& image, sf::Vector2f startPos, std::string name);
+	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name);
 	virtual void update(GameVariables* gv) = 0; // функци€ update дл€ всех существ.
 	virtual void move(GameVariables* gv) = 0; // функци€ move дл€ всех существ.
 	void moveToTarget(sf::Vector2f targetPos, GameVariables* gv);
@@ -47,8 +47,8 @@ public:
 	sf::Vector2f& getAimDir();
 	sf::Vector2f& getAimDirNorm();
 	sf::Sprite& getSprite();
-	std::string& getName();
-	std::string& getCreatorName();
+	std::wstring& getName();
+	std::wstring& getCreatorName();
 
 
 	void setShootTime(int shootTime);
@@ -85,8 +85,8 @@ public:
 	void setAimDir(sf::Vector2f aimDir);
 	void setAimDirNorm(sf::Vector2f aimDirNorm);
 	void setSprite(sf::Sprite sprite);
-	void setName(std::string name);
-	void setCreatorName(std::string creatorName);
+	void setName(std::wstring name);
+	void setCreatorName(std::wstring creatorName);
 
 protected:
 	float maxSpeed, distance;
@@ -101,5 +101,5 @@ protected:
 	sf::Image image; // создаЄм изображение.
 	sf::Texture texture; // создаЄм текстуру.
 	sf::Sprite sprite; // создаЄм спрайт.
-	std::string name, creatorName; // враги могут быть разные, мы не будем делать другой класс дл€ врага.¬сего лишь различим врагов по имени и дадим каждому свое действие в update в зависимости от имени.
+	std::wstring name, creatorName; // враги могут быть разные, мы не будем делать другой класс дл€ врага.¬сего лишь различим врагов по имени и дадим каждому свое действие в update в зависимости от имени.
 };
