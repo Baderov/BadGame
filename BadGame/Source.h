@@ -10,9 +10,9 @@ void updateFPS(GameVariables* gv); // функция обновления FPS.
 
 void updateTime(GameVariables* gv);
 
-void eventHandler(sf::Event& event, GameVariables* gv, Chat& chat); // функция обработки событий.
+void eventHandler(sf::Event& event, GameVariables* gv); // функция обработки событий.
 
-void singleplayerGame(GameVariables* gv, Chat& chat);
+void singleplayerGame(GameVariables* gv);
 
 void logs(GameVariables* gv);
 

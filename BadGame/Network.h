@@ -22,12 +22,12 @@ void fillClientsVector(GameVariables* gv);
 
 bool connectToServer(GameVariables* gv);
 
-void receive(GameVariables* gv, Chat& chat);
+void receive(GameVariables* gv);
 
 void send(GameVariables* gv);
 
 void sendPosition(GameVariables* gv);
 
-void startNetwork(GameVariables* gv, Chat& chat);
+void startNetwork(GameVariables* gv);
 
-void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat);
+void multiplayerGame(GameVariables* gv, Entity*& player);

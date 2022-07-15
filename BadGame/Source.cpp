@@ -20,7 +20,7 @@ void updateFPS(GameVariables* gv) // функция обновления FPS.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // присваиваем переменной gv->fpsPreviousTime текущее время.
 }
 
-void eventHandler(sf::Event& event, GameVariables* gv, Chat& chat) // функция обработки событий.
+void eventHandler(sf::Event& event, GameVariables* gv) // функция обработки событий.
 {
 	switch (gv->event.type) // проверка по типу событий.
 	{
@@ -86,7 +86,7 @@ void eventHandler(sf::Event& event, GameVariables* gv, Chat& chat) // функц
 			gv->window.setView(gv->view);
 
 			gv->menuClock.restart(); // перезагружает время.
-			menuEventHandler(gv, player, chat);
+			menuEventHandler(gv, player);
 			gv->menuTimer = gv->menuClock.getElapsedTime().asMilliseconds();
 
 			for (it = entities.begin(); it != entities.end(); it++) // проходимся по списку от начала до конца.
@@ -132,7 +132,7 @@ void logs(GameVariables* gv)
 	}
 }
 
-void singleplayerGame(GameVariables* gv, Chat& chat)
+void singleplayerGame(GameVariables* gv)
 {
 	//std::thread logsTh([&]() { logs(gv); });
 	//logsTh.detach();
@@ -149,7 +149,7 @@ void singleplayerGame(GameVariables* gv, Chat& chat)
 		setGameInfo(gv, player, entities); // вызов функции установки игровой информации.
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
-			eventHandler(gv->event, gv, chat); // вызов функции обработки событий.
+			eventHandler(gv->event, gv); // вызов функции обработки событий.
 			if (gv->singlePlayerGame == false) { return; }
 		}
 		gv->window.setView(gv->view);
@@ -168,8 +168,7 @@ int main() // главная функция программы.
 	consoleSettings(); // вызов функции установки настроек для консоли.
 	GameVariables* gv = new GameVariables(); // создаётся переменная gv, для передачи в параметры функций значений игровых переменных.
 	setVariables(gv);
-	Chat chat(gv->window);
-	menuEventHandler(gv, player, chat);
+	menuEventHandler(gv, player);
 	while (gv->window.isOpen()) // пока открыто окно.
 	{
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
@@ -181,17 +180,17 @@ int main() // главная функция программы.
 		}
 		if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
 		{
-			singleplayerGame(gv, chat);
+			singleplayerGame(gv);
 		}
 
 		if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
 		{
-			multiplayerGame(gv, player, chat);
+			multiplayerGame(gv, player);
 		}
 
 		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
 		{
-			menuEventHandler(gv, player, chat);
+			menuEventHandler(gv, player);
 		}
 	}
 	delete gv; // удаляем переменную gv.

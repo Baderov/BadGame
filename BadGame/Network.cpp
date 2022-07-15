@@ -5,7 +5,7 @@
 
 HANDLE handle;
 
-std::wstring senderNickname;
+std::wstring senderNickname = L"";
 sf::Uint64 clientsVecSize = 0;
 
 bool isConnected = false;
@@ -13,7 +13,6 @@ bool allowMove = false;
 bool isVectorReceived = false;
 bool isNickTaken = false;
 bool hideChat = false;
-bool sendMsg = false;
 std::wstring movement = L"";
 
 std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
@@ -44,7 +43,7 @@ bool connectToServer(GameVariables* gv)
 	}
 }
 
-void receive(GameVariables* gv, Chat& chat)
+void receive(GameVariables* gv)
 {
 	sf::Packet packet; // для осуществления пакетной передачи данных
 	std::wstring prefix = L"", msg = L"", side = L"";
@@ -121,7 +120,6 @@ void receive(GameVariables* gv, Chat& chat)
 						}
 					}
 				}
-
 				else if (prefix == L"pos")
 				{
 					std::wstring tempNick = L"";
@@ -139,19 +137,14 @@ void receive(GameVariables* gv, Chat& chat)
 				}
 				else if (prefix == L"msg")
 				{
-					std::wstring tempNick = L"";
-					if (packet >> tempNick && packet >> gv->chatStr)
-					{
-						gv->chatPrefix = tempNick + L": ";
-						addString(gv, chat);
-						gv->numOfLinesInChat = 1;
-						chat.getUserText().clear();
-						gv->chatStr = L"";		
-						gv->permissionToSend = true;
-						chat.getUserTextBox().setFillColor(sf::Color::White);
+					senderNickname = L"";
+					gv->chatStr = L"";
+					gv->numOfLinesInChat = 1;
+					if (packet >> senderNickname && packet >> gv->chatStr && packet >> gv->numOfLinesInChat)
+					{	
+						gv->recvMsg = true;
 					}
 				}
-
 				else if (prefix == L"clientsList")
 				{
 					if (packet >> clientsVecSize)
@@ -188,7 +181,7 @@ void sendMessage(GameVariables* gv)
 	sf::Packet packet; // для осуществления пакетной передачи данных
 	packet.clear(); // чистим пакет
 	std::wstring prefix = L"msg";
-	packet << prefix << gv->nickname << gv->chatStr;
+	packet << prefix << gv->nickname << gv->userStr << gv->numOfLinesInUserTextBox;
 	gv->sock.send(packet);
 }
 
@@ -228,9 +221,9 @@ void send(GameVariables* gv)
 			gv->funcTerminate = false;
 			break;
 		}
-		if (sendMsg == true)
+		if (gv->sendMsg == true)
 		{
-			sendMsg = false;
+			gv->sendMsg = false;
 			sendMessage(gv);
 		}
 		if (movement == L"up")
@@ -283,7 +276,7 @@ void fillClientsVector(GameVariables* gv)
 	}
 }
 
-void startNetwork(GameVariables* gv, Chat& chat)
+void startNetwork(GameVariables* gv)
 {
 	if (connectToServer(gv) == true)
 	{
@@ -292,7 +285,7 @@ void startNetwork(GameVariables* gv, Chat& chat)
 		{
 			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
 		}
-		receive(gv, chat);
+		receive(gv);
 		if (isNickTaken == true)
 		{
 			gv->menuError = MenuErrors::NicknameIsAlreadyTaken;
@@ -316,9 +309,11 @@ void startNetwork(GameVariables* gv, Chat& chat)
 	}
 }
 
-void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat)
+void multiplayerGame(GameVariables* gv, Entity*& player)
 {
-	std::thread receiveThread([&]() { receive(gv, chat); });
+	Chat chat(gv->window);
+
+	std::thread receiveThread([&]() { receive(gv); });
 	receiveThread.detach();
 
 	std::thread sendThread([&]() { send(gv); });
@@ -329,6 +324,18 @@ void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat)
 		fillClientsVector(gv);
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		gv->menuNum = 0;
+
+		if (gv->recvMsg == true)
+		{
+			gv->chatPrefix = senderNickname + L": ";
+			addString(gv, chat);
+			gv->numOfLinesInUserTextBox = 1;
+			chat.getUserText().clear();
+			gv->chatStr = L"";
+			gv->userStr = L"";
+			gv->sendMsg = false;
+			gv->recvMsg = false;
+		}
 
 		if (chat.getUserTextBox().getGlobalBounds().contains(gv->mousePos.x, gv->mousePos.y))
 		{
@@ -374,7 +381,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat)
 
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
-				menuEventHandler(gv, player, chat);
+				menuEventHandler(gv, player);
 				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->funcTerminate = true; return; }
 			}
 
@@ -399,17 +406,17 @@ void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat)
 			{
 				if (gv->event.text.unicode == 8)
 				{
-					if (gv->chatStr.size() > 0)
+					if (gv->userStr.size() > 0)
 					{
-						gv->chatStr.resize(gv->chatStr.size() - 1);
+						gv->userStr.resize(gv->userStr.size() - 1);
 						chat.getUserText().clear();
-						chat.getUserText() << sf::Color::Black << gv->chatStr;
-						if (!gv->chatStr.empty())
+						chat.getUserText() << sf::Color::Black << gv->userStr;
+						if (!gv->userStr.empty())
 						{
-							if (gv->chatStr[gv->chatStr.size() - 1] == '\n')
+							if (gv->userStr[gv->userStr.size() - 1] == '\n')
 							{
-								gv->chatStr.resize(gv->chatStr.size() - 1);
-								gv->numOfLinesInChat--;
+								gv->userStr.resize(gv->userStr.size() - 1);
+								gv->numOfLinesInUserTextBox--;
 							}
 						}
 					}
@@ -417,28 +424,26 @@ void multiplayerGame(GameVariables* gv, Entity*& player, Chat& chat)
 
 				else if (gv->event.text.unicode == 13)
 				{
-					if (gv->chatStr.size() > 0 && gv->chatStr.size() <= 202 && gv->permissionToSend == true)
+					if (gv->userStr.size() > 0 && gv->userStr.size() <= 202 && gv->sendMsg == false && gv->recvMsg == false)
 					{
-						sendMsg = true;
-						gv->permissionToSend = false;
-						chat.getUserTextBox().setFillColor(sf::Color::Red);
+						gv->sendMsg = true;
 					}
 				}
 				
 				else if (gv->event.text.unicode != 27)
 				{
-					if (gv->chatStr.size() < 202)
+					if (gv->userStr.size() < 202)
 					{
-						if (gv->chatStr.size() == 54 || gv->chatStr.size() == 109 || gv->chatStr.size() == 164)
+						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
 						{
-							gv->chatStr += '\n';
+							gv->userStr += '\n';
 							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->chatStr;
-							gv->numOfLinesInChat++;
+							chat.getUserText() << sf::Color::Black << gv->userStr;
+							gv->numOfLinesInUserTextBox++;
 						}
-						gv->chatStr += gv->event.text.unicode;
+						gv->userStr += gv->event.text.unicode;
 						chat.getUserText().clear();
-						chat.getUserText() << sf::Color::Black << gv->chatStr;
+						chat.getUserText() << sf::Color::Black << gv->userStr;
 					}
 				}
 			}

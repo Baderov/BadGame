@@ -67,6 +67,7 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 
 	std::wstring nickname;
 	std::wstring chatStr;
+	std::wstring userStr;
 	std::wstring chatPrefix;
 	std::string serverIP; // ip адрес сервера.
 	std::string tempPort; // временный порт сервера.
@@ -85,6 +86,7 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	int serverPort; // порт сервера.
 	int menuTimer;
 	int numOfLinesInChat;
+	int numOfLinesInUserTextBox;
 	int scrollbarDivisor;
 	unsigned int scrollbarStepNumber;
 
@@ -103,7 +105,8 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool funcTerminate;
 	bool chatContainsMouse;
 	bool chatEnterText;
-	bool permissionToSend;
+	bool recvMsg;
+	bool sendMsg;
 
 	char gameLanguage;
 	char symbol;

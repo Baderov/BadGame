@@ -76,7 +76,7 @@ sfe::RichText& Chat::getUserText()
 	return userText;
 }
 
-void addString(GameVariables *gv, Chat& chat)
+void addString(GameVariables* gv, Chat& chat)
 {
 	std::wstring tempStr = L"";
 	int subStrStep = 54 - gv->chatPrefix.size();
@@ -89,7 +89,7 @@ void addString(GameVariables *gv, Chat& chat)
 			{
 				tempStr = gv->chatStr.substr(0, subStrStep);
 				chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 1));
-				if (gv->numOfLinesInChat == 1 && gv->chatStr.size() > subStrStep) 
+				if (gv->numOfLinesInChat == 1 && gv->chatStr.size() > subStrStep)
 				{
 					tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 2));
@@ -112,7 +112,7 @@ void addString(GameVariables *gv, Chat& chat)
 				tempStr = gv->chatStr.substr(subStrStep, 54);
 				chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 3));
 				subStrStep += 54;
-				if (gv->numOfLinesInChat == 3 && gv->chatStr.size() > subStrStep) 
+				if (gv->numOfLinesInChat == 3 && gv->chatStr.size() > subStrStep)
 				{
 					tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 4));
@@ -124,18 +124,42 @@ void addString(GameVariables *gv, Chat& chat)
 				tempStr = gv->chatStr.substr(subStrStep, 54);
 				chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 4));
 				subStrStep += 54;
-				if (gv->numOfLinesInChat == 4 && gv->chatStr.size() > subStrStep) 
+				if (gv->numOfLinesInChat == 4 && gv->chatStr.size() > subStrStep)
 				{
 					tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 5));
 				}
 			}
+		}
 
-			chat.getChatText().clear();
-			unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-			if (max > 10)
+		chat.getChatText().clear();
+		unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
+		if (max > 10)
+		{
+			unsigned int min = max - 10;
+			for (; min < max; min++)
 			{
-			/*	unsigned int min = max - 10;
+				if (chat.getStrVector()[min].get()->countOfLines == 1)
+				{
+					chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+				}
+				else
+				{
+					chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+				}
+			}
+			if (gv->scrollbarStepNumber >= 0)
+			{
+				gv->scrollbarStepNumber = 0;
+				gv->scrollbarDivisor = chat.getStrVector().size() - 9;
+				if (gv->scrollbarDivisor <= 0) { gv->scrollbarDivisor = 1; }
+
+				chat.getInnerScrollBar().setSize(sf::Vector2f(30.f, chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
+				chat.getInnerScrollBar().setOrigin(chat.getInnerScrollBar().getSize() / 2.f);
+				chat.getInnerScrollBar().setPosition(chat.getOuterScrollBar().getPosition().x, (chat.getOuterScrollBar().getPosition().y + chat.getOuterScrollBar().getSize().y / 2.f) - chat.getInnerScrollBar().getSize().y / 2.f);
+				chat.getChatText().clear();
+				unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
+				unsigned int min = max - 10;
 				for (; min < max; min++)
 				{
 					if (chat.getStrVector()[min].get()->countOfLines == 1)
@@ -147,44 +171,20 @@ void addString(GameVariables *gv, Chat& chat)
 						chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
 					}
 				}
-				if (gv->scrollbarStepNumber >= 0)
-				{
-					gv->scrollbarStepNumber = 0;
-					gv->scrollbarDivisor = chat.getStrVector().size() - 9;
-					if (gv->scrollbarDivisor <= 0) { gv->scrollbarDivisor = 1; }
-
-					chat.getInnerScrollBar().setSize(sf::Vector2f(30.f, chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
-					chat.getInnerScrollBar().setOrigin(chat.getInnerScrollBar().getSize() / 2.f);
-					chat.getInnerScrollBar().setPosition(chat.getOuterScrollBar().getPosition().x, (chat.getOuterScrollBar().getPosition().y + chat.getOuterScrollBar().getSize().y / 2.f) - chat.getInnerScrollBar().getSize().y / 2.f);
-					chat.getChatText().clear();
-					unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-					unsigned int min = max - 10;
-					for (; min < max; min++)
-					{
-						if (chat.getStrVector()[min].get()->countOfLines == 1)
-						{
-							chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
-						}
-						else
-						{
-							chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
-						}
-					}
-				}*/
 			}
-			else
+		}
+		else
+		{
+			chat.getChatText().clear();
+			for (int a = 0; a < chat.getStrVector().size(); a++)
 			{
-				chat.getChatText().clear();
-				for (int a = 0; a < chat.getStrVector().size(); a++)
+				if (chat.getStrVector()[a].get()->countOfLines == 1)
 				{
-					if (chat.getStrVector()[a].get()->countOfLines == 1)
-					{
-						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[a].get()->prefix << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
-					}
-				/*	else
-					{
-						chat.getChatText() << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
-					}*/
+					chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[a].get()->prefix << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
+				}
+				else
+				{
+					chat.getChatText() << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
 				}
 			}
 		}
@@ -193,7 +193,7 @@ void addString(GameVariables *gv, Chat& chat)
 
 void moveUp(GameVariables* gv, Chat& chat)
 {
-	/*chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
+	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (chat.getStrVector().size() > gv->scrollbarStepNumber)
 	{
 		if (chat.getStrVector().size() - gv->scrollbarStepNumber > 10)
@@ -217,12 +217,12 @@ void moveUp(GameVariables* gv, Chat& chat)
 				}
 			}
 		}
-	}*/
+	}
 }
 
 void moveDown(GameVariables* gv, Chat& chat)
 {
-	/*chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
+	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (gv->scrollbarStepNumber > 0)
 	{
 		if (chat.getStrVector().size() > 10)
@@ -246,5 +246,5 @@ void moveDown(GameVariables* gv, Chat& chat)
 				}
 			}
 		}
-	}*/
+	}
 }

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "RichText.hpp"
 #include "Variables.h"
+#include <windows.h>
 
 struct chatStrings
 {

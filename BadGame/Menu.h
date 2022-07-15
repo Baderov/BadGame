@@ -11,10 +11,10 @@ void graphicsSettingsMenu(GameVariables* gv);
 
 void settingsMenu(GameVariables* gv);
 
-void multiplayerMenu(GameVariables* gv, Chat& chat);
+void multiplayerMenu(GameVariables* gv);
 
 void mainMenu(GameVariables* gv, Entity*& player); // функция запуска меню.
 
-void menuEventHandler(GameVariables* gv, Entity*& player, Chat& chat);
+void menuEventHandler(GameVariables* gv, Entity*& player);
 
 void errorChecking(GameVariables* gv);

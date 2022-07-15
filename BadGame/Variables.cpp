@@ -112,6 +112,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	// STRING.
 	gv->nickname = L"";
 	gv->chatStr = L"";
+	gv->userStr = L"";
 	gv->chatPrefix = L"";
 	gv->serverIP = ""; // ip адрес сервера.
 	gv->tempPort = ""; // временный порт сервера.
@@ -126,6 +127,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->lineNumberInConsole = 1;
 	gv->menuTimer = 0;
 	gv->numOfLinesInChat = 1;
+	gv->numOfLinesInUserTextBox = 1;
 	gv->scrollbarDivisor = 1;
 	gv->scrollbarStepNumber = 0;
 
@@ -145,7 +147,8 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->mainMenu = true;
 	gv->chatEnterText = false;
 	gv->chatContainsMouse = false;
-	gv->permissionToSend = true;
+	gv->recvMsg = false;
+	gv->sendMsg = false;
 
 	// CHAR.
 	gv->gameLanguage = 'e';
