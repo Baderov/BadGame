@@ -6,15 +6,19 @@
 
 struct chatStrings
 {
-	chatStrings(std::wstring prefix, std::wstring msg, int countOfLines)
+	chatStrings(std::wstring prefix, std::wstring msg, int countOfLines, bool joinedTheServer, bool leftTheServer)
 	{
 		this->prefix = prefix;
 		this->msg = msg;
 		this->countOfLines = countOfLines;
+		this->joinedTheServer = joinedTheServer;
+		this->leftTheServer = leftTheServer;
 	}
 	std::wstring prefix = L"";
 	std::wstring msg = L"";
 	int countOfLines = 1;
+	bool joinedTheServer = false;
+	bool leftTheServer = false;
 };
 
 class Chat
@@ -31,7 +35,7 @@ public:
 	sfe::RichText& getUserText();
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
-	sf::Color grayColor;
+	sf::Color greyColor;
 	std::vector<std::unique_ptr<chatStrings>> strVector;
 	sf::Font font;
 	sfe::RichText chatText, userText;

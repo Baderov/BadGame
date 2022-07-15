@@ -13,6 +13,7 @@ bool allowMove = false;
 bool isVectorReceived = false;
 bool isNickTaken = false;
 bool hideChat = false;
+
 std::wstring movement = L"";
 
 std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
@@ -49,9 +50,8 @@ void receive(GameVariables* gv)
 	std::wstring prefix = L"", msg = L"", side = L"";
 	while (true)
 	{
-		if (gv->funcTerminate == true)
+		if (gv->isGameOver == true)
 		{
-			gv->funcTerminate = false;
 			break;
 		}
 		if (gv->sock.receive(packet) == sf::Socket::Done)
@@ -72,22 +72,26 @@ void receive(GameVariables* gv)
 				}
 				else if (prefix == L"con") // con - connected.
 				{
-					if (packet >> msg)
+					std::wstring tempMsg = L"";
+					gv->joinedNick = L"";
+					gv->joinedMsg = L"";
+					if (packet >> gv->joinedNick && packet >> tempMsg)
 					{
-						SetConsoleTextAttribute(handle, 10);
-						std::wcout << msg << std::endl;
-						SetConsoleTextAttribute(handle, 15);
+						gv->joinedMsg = gv->joinedNick + tempMsg;
+						gv->joinTheServer = true;
 					}
 				}
 				else if (prefix == L"discon") // discon - disconnected.
 				{
-					std::wstring disconnectedNick = L"";
-					if (packet >> msg && packet >> disconnectedNick)
+					std::wstring tempMsg = L"";
+					gv->leftNick = L"";
+					gv->leftMsg = L"";
+					if (packet >> gv->leftNick && packet >> tempMsg)
 					{
-						SetConsoleTextAttribute(handle, 12);
-						std::wcout << msg << std::endl;
-						SetConsoleTextAttribute(handle, 15);
-						clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == disconnectedNick; }), clientsVec.end());
+						gv->leftMsg = gv->leftNick + tempMsg;
+						gv->leftTheServer = true;
+					
+						clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == gv->leftNick; }), clientsVec.end());
 					}
 				}
 				else if (prefix == L"move")
@@ -141,7 +145,7 @@ void receive(GameVariables* gv)
 					gv->chatStr = L"";
 					gv->numOfLinesInChat = 1;
 					if (packet >> senderNickname && packet >> gv->chatStr && packet >> gv->numOfLinesInChat)
-					{	
+					{
 						gv->recvMsg = true;
 					}
 				}
@@ -216,9 +220,8 @@ void send(GameVariables* gv)
 {
 	while (true)
 	{
-		if (gv->funcTerminate == true)
+		if (gv->isGameOver == true)
 		{
-			gv->funcTerminate = false;
 			break;
 		}
 		if (gv->sendMsg == true)
@@ -325,14 +328,29 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		gv->menuNum = 0;
 
+		if (gv->leftTheServer == true)
+		{
+			gv->chatStr = gv->leftMsg;
+			addString(gv, chat);
+			gv->leftTheServer = false;
+		}
+		if (gv->joinTheServer == true)
+		{
+			gv->chatStr = gv->joinedMsg;
+			addString(gv, chat);
+			gv->joinTheServer = false;
+		}
+
 		if (gv->recvMsg == true)
 		{
 			gv->chatPrefix = senderNickname + L": ";
 			addString(gv, chat);
-			gv->numOfLinesInUserTextBox = 1;
-			chat.getUserText().clear();
-			gv->chatStr = L"";
-			gv->userStr = L"";
+			if (gv->nickname == senderNickname)
+			{
+				gv->numOfLinesInUserTextBox = 1;
+				chat.getUserText().clear();
+				gv->userStr = L"";
+			}
 			gv->sendMsg = false;
 			gv->recvMsg = false;
 		}
@@ -370,7 +388,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				if (gv->menuNum == 0)
 				{
 					gv->chatEnterText = false;
-					chat.getUserTextBox().setFillColor(sf::Color(255, 255, 255, 180));
+					chat.getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
 				}
 				else if (gv->menuNum == 1)
 				{
@@ -382,7 +400,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
 				menuEventHandler(gv, player);
-				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->funcTerminate = true; return; }
+				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; return; }
 			}
 
 			if (gv->event.type == sf::Event::MouseWheelMoved && chat.getStrVector().size() > 10 && gv->chatContainsMouse == true)
@@ -400,6 +418,10 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::O && gv->chatEnterText == false) // если отпустили кнопку Escape.
 			{
 				hideChat = !hideChat;
+			}
+			else if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::P && gv->chatEnterText == false)
+			{
+				//gv->autoScroll = !gv->autoScroll;
 			}
 
 			if (gv->event.type == sf::Event::TextEntered && gv->chatEnterText == true && hideChat == false)
@@ -429,7 +451,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 						gv->sendMsg = true;
 					}
 				}
-				
+
 				else if (gv->event.text.unicode != 27)
 				{
 					if (gv->userStr.size() < 202)
@@ -461,7 +483,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			gv->scrollbarDir = L"";
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focusEvent == true && gv->chatEnterText ==false)
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && gv->focusEvent == true && gv->chatEnterText == false)
 		{
 			movement = L"up";
 		}
@@ -486,10 +508,10 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 		}
 		if (hideChat == false)
 		{
-			gv->window.draw(chat.getChatTextBox());
-			gv->window.draw(chat.getUserTextBox());
 			gv->window.draw(chat.getOuterScrollBar());
 			gv->window.draw(chat.getInnerScrollBar());
+			gv->window.draw(chat.getChatTextBox());
+			gv->window.draw(chat.getUserTextBox());
 			gv->window.draw(chat.getUserText());
 			gv->window.draw(chat.getChatText());
 		}

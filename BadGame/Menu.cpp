@@ -216,8 +216,9 @@ void multiplayerMenu(GameVariables* gv)
 					}
 
 					gv->allowButtons = false;
+					gv->isGameOver = false;
 					std::thread networkThread([&]()
-						{
+						{						
 							startNetwork(gv);
 						});
 					networkThread.detach();
@@ -586,6 +587,7 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			if (gv->multiPlayerGame == true)
 			{
 				gv->multiPlayerGame = false;
+				gv->isGameOver = true;
 				gv->sock.disconnect();
 			}
 			return;
