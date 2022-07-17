@@ -152,8 +152,8 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->chatContainsMouse = false;
 	gv->recvMsg = false;
 	gv->sendMsg = false;
-	gv->leftTheServer = false;
-	gv->joinTheServer = false;
+	gv->leftFromServer = false;
+	gv->joinToServer = false;
 	//gv->autoScroll = true;
 
 	// CHAR.

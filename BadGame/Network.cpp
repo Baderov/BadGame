@@ -78,7 +78,7 @@ void receive(GameVariables* gv)
 					if (packet >> gv->joinedNick && packet >> tempMsg)
 					{
 						gv->joinedMsg = gv->joinedNick + tempMsg;
-						gv->joinTheServer = true;
+						gv->joinToServer = true;
 					}
 				}
 				else if (prefix == L"discon") // discon - disconnected.
@@ -89,7 +89,7 @@ void receive(GameVariables* gv)
 					if (packet >> gv->leftNick && packet >> tempMsg)
 					{
 						gv->leftMsg = gv->leftNick + tempMsg;
-						gv->leftTheServer = true;
+						gv->leftFromServer = true;
 					
 						clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == gv->leftNick; }), clientsVec.end());
 					}
@@ -322,23 +322,27 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 	std::thread sendThread([&]() { send(gv); });
 	sendThread.detach();
 
+	gv->chatEnterText = false;
+
+	int kek = 0;
+
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
 		fillClientsVector(gv);
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
 		gv->menuNum = 0;
 
-		if (gv->leftTheServer == true)
+		if (gv->leftFromServer == true)
 		{
 			gv->chatStr = gv->leftMsg;
 			addString(gv, chat);
-			gv->leftTheServer = false;
+			gv->leftFromServer = false;
 		}
-		if (gv->joinTheServer == true)
+		if (gv->joinToServer == true)
 		{
 			gv->chatStr = gv->joinedMsg;
 			addString(gv, chat);
-			gv->joinTheServer = false;
+			gv->joinToServer = false;
 		}
 
 		if (gv->recvMsg == true)
@@ -397,6 +401,8 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				}
 			}
 
+		
+
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
 				menuEventHandler(gv, player);
@@ -448,11 +454,75 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() > 0 && gv->userStr.size() <= 202 && gv->sendMsg == false && gv->recvMsg == false)
 					{
-						gv->sendMsg = true;
+						gv->sendMsg = true;					
+					}
+				}
+				else if (gv->event.text.unicode == 63)
+				{
+					if (gv->userStr.size() < 202)
+					{
+						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
+						{
+							gv->userStr += '\n';
+							chat.getUserText().clear();
+							chat.getUserText() << sf::Color::Black << gv->userStr;
+							gv->numOfLinesInUserTextBox++;
+						}
+						gv->userStr += L"\?";
+						chat.getUserText().clear();
+						chat.getUserText() << sf::Color::Black << gv->userStr;
+					}
+				}
+				else if (gv->event.text.unicode == 34)
+				{
+					if (gv->userStr.size() < 202)
+					{
+						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
+						{
+							gv->userStr += '\n';
+							chat.getUserText().clear();
+							chat.getUserText() << sf::Color::Black << gv->userStr;
+							gv->numOfLinesInUserTextBox++;
+						}
+						gv->userStr += L"\"";
+						chat.getUserText().clear();
+						chat.getUserText() << sf::Color::Black << gv->userStr;
+					}
+				}
+				else if (gv->event.text.unicode == 39)
+				{
+					if (gv->userStr.size() < 202)
+					{
+						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
+						{
+							gv->userStr += '\n';
+							chat.getUserText().clear();
+							chat.getUserText() << sf::Color::Black << gv->userStr;
+							gv->numOfLinesInUserTextBox++;
+						}
+						gv->userStr += L"\'";
+						chat.getUserText().clear();
+						chat.getUserText() << sf::Color::Black << gv->userStr;
+					}
+				}
+				else if (gv->event.text.unicode == 92)
+				{
+					if (gv->userStr.size() < 202)
+					{
+						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
+						{
+							gv->userStr += '\n';
+							chat.getUserText().clear();
+							chat.getUserText() << sf::Color::Black << gv->userStr;
+							gv->numOfLinesInUserTextBox++;
+						}
+						gv->userStr += L"\\";
+						chat.getUserText().clear();
+						chat.getUserText() << sf::Color::Black << gv->userStr;
 					}
 				}
 
-				else if (gv->event.text.unicode != 27)
+				else if (gv->event.text.unicode != 8 && gv->event.text.unicode != 27)
 				{
 					if (gv->userStr.size() < 202)
 					{

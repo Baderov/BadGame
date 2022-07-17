@@ -84,12 +84,12 @@ void addString(GameVariables* gv, Chat& chat)
 	if (gv->chatStr != L"" && gv->chatStr.size() <= 202)
 	{
 		gv->chatStr.erase(std::remove(gv->chatStr.begin(), gv->chatStr.end(), '\n'), gv->chatStr.end());
-		if (gv->joinTheServer == true && gv->leftTheServer == false)
+		if (gv->joinToServer == true && gv->leftFromServer == false)
 		{
 			chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, gv->joinedMsg, 1, true, false));
 		}
 		
-		else if (gv->leftTheServer == true && gv->joinTheServer == false)
+		else if (gv->leftFromServer == true && gv->joinToServer == false)
 		{
 			chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, gv->leftMsg, 1, false, true));
 		}

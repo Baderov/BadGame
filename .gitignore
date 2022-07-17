@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+BadGame/x64/
+
+BadGame/*vcxproj*
+
+*.dll
+
+BadGame/SFML/
+
+BadGame/Images/
+
+*.ttf

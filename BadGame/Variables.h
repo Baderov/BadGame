@@ -109,8 +109,8 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	bool chatEnterText;
 	bool recvMsg;
 	bool sendMsg;
-	bool leftTheServer;
-	bool joinTheServer;
+	bool leftFromServer;
+	bool joinToServer;
 	//bool autoScroll;
 
 	char gameLanguage;

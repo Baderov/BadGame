@@ -6,13 +6,35 @@ void keyboardEvents(GameVariables* gv)
 	{
 		if (gv->event.type == sf::Event::TextEntered)
 		{
-			if (gv->event.text.unicode == 8 && gv->nickname.size() > 0)
+			if (gv->event.text.unicode == 8)
 			{
-				gv->nickname.resize(gv->nickname.size() - 1);
+				if (gv->nickname.size() > 0)
+				{
+					gv->nickname.resize(gv->nickname.size() - 1);
+				}
 			}
-			else if (gv->nickname.size() < 15 && ((gv->event.text.unicode > 47 && gv->event.text.unicode < 58) || (gv->event.text.unicode > 64 && gv->event.text.unicode < 91) || (gv->event.text.unicode > 96 && gv->event.text.unicode < 123)))
+			else if (gv->event.text.unicode == 63)
 			{
-				gv->nickname += gv->event.text.unicode;
+				gv->nickname += L"\?";
+			}
+			else if (gv->event.text.unicode == 34)
+			{
+				gv->nickname += L"\"";
+			}
+			else if (gv->event.text.unicode == 39)
+			{
+				gv->nickname += L"\'";
+			}
+			else if (gv->event.text.unicode == 92)
+			{
+				gv->nickname += L"\\";
+			}
+			else 
+			{
+				if (gv->nickname.size() < 15 && gv->event.text.unicode != 32)
+				{
+					gv->nickname += gv->event.text.unicode;
+				}
 			}
 			for (auto& el : gv->buttonsVec)
 			{
