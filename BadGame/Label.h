@@ -5,7 +5,7 @@
 class Label
 {
 public:
-	Label(std::wstring str, sf::Vector2f labelPos, int textSize, std::string name);
+	Label(std::wstring str, sf::Vector2f labelPos, unsigned int textSize, std::string name);
 	sf::Text& getText();
 	std::string& getName();
 private:

@@ -78,7 +78,7 @@ void Player::rotate(GameVariables* gv)
 	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window));//переводим их в игровые (уходим от коорд окна)
 	float dX = gv->mousePos.x - currentPos.x;//вектор , колинеарный прямой, которая пересекает спрайт и курсор
 	float dY = gv->mousePos.y - currentPos.y;//он же, координата y
-	float rotation = (atan2(dY, dX)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
+	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f;//получаем угол в радианах и переводим его в градусы
 	sprite.setRotation(rotation);
 	gv->aimLaser.setRotation(rotation + 90.f);
 }
@@ -99,17 +99,17 @@ void Player::updateLaser(GameVariables* gv)
 void Player::updateReloadRect()
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
-	int tempReloadTime = 0;
+	sf::Int32 tempReloadTime = 0;
 	if (reloadTime > 0)
 	{
-		tempReloadTime = reloadTime / 10;
+		tempReloadTime = reloadTime / static_cast<sf::Int32>(10);
 	}
 
-	int reloadRectOuterSizeX = static_cast<int>(reloadRectOuter.getSize().x);
+	sf::Int32 reloadRectOuterSizeX = static_cast<sf::Int32>(reloadRectOuter.getSize().x);
 	
 	if (tempReloadTime < reloadRectOuterSizeX)
 	{
-		reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y));
+		reloadRectInner.setSize(sf::Vector2f(static_cast<float>(tempReloadTime), reloadRectOuter.getSize().y));
 	}
 	else
 	{

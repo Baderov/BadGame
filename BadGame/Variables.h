@@ -77,20 +77,20 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	std::string serverIP; // ip адрес сервера.
 	std::string tempPort; // временный порт сервера.
 
-	float dt; // время.
 	float fps; // кадры в секунду.
 	float aimLaserLength; // длина прицельного лазера
+	float scrollbarDivisor;
 
-	int divisor; // делитель для времени.
+	sf::Int32 menuTimer;
+	sf::Int64 dt; // время.
+	sf::Int64 divisor; // делитель для времени.
 	int numberOfEnemies;
 	int numberOfPlayers;
 	int menuNum; // номер меню.
 	int serverPort; // порт сервера.
-	int menuTimer;
 	int numOfLinesInChat;
 	int numOfLinesInUserTextBox;
-	int scrollbarDivisor;
-	unsigned int scrollbarStepNumber;
+	size_t scrollbarStepNumber;
 
 	bool showHitbox; // показывать хитбокс?
 	bool showAimLaser; // показывать прицельный лазер?

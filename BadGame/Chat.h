@@ -42,7 +42,7 @@ public:
 
 	void moveDown(GameVariables* gv, Chat& chat);
 
-	bool checkStr(std::wstring& str, GameVariables* gv);
+	bool trimString(std::wstring& str, GameVariables* gv);
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;

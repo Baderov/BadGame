@@ -17,8 +17,8 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name)
 
 	texture.loadFromImage(image); // загружаем картинку которая передана в параметры объекта существа.
 	sprite.setTexture(texture); // далее устанавливаем текстуру для заданного объекта.
-	w = texture.getSize().x;
-	h = texture.getSize().y;
+	w = static_cast<float>(texture.getSize().x);
+	h = static_cast<float>(texture.getSize().y);
 	sprite.setOrigin(w / 2.f, h / 2.f); // устанавливаем центральную точку для всех преобразований (положение, масштаб, вращение).
 	sprite.setPosition(currentPos);
 
@@ -70,8 +70,8 @@ void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // движение
 	if (distance > 7)
 	{
 		// stepPos - прирост к текущей позиции.
-		stepPos.x = currentVelocity.x * gv->dt * (targetPos.x - currentPos.x) / distance;
-		stepPos.y = currentVelocity.y * gv->dt * (targetPos.y - currentPos.y) / distance;
+		stepPos.x = currentVelocity.x * static_cast<float>(gv->dt) * (targetPos.x - currentPos.x) / distance;
+		stepPos.y = currentVelocity.y * static_cast<float>(gv->dt) * (targetPos.y - currentPos.y) / distance;
 		currentPos += stepPos;
 	}
 	else { isMove = false; } // иначе - не двигаемся. 
@@ -79,39 +79,39 @@ void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // движение
 
 void Entity::updateHPBar()
 {
-	HPBarOuter.setSize(sf::Vector2f(maxHP, 20.f));
+	HPBarOuter.setSize(sf::Vector2f(static_cast<float>(maxHP), 20.f));
 	HPBarOuter.setPosition(currentPos.x - 50.f, currentPos.y - 60.f);
 
-	HPBarInner.setSize(sf::Vector2f(HP, HPBarOuter.getSize().y));
+	HPBarInner.setSize(sf::Vector2f(static_cast<float>(HP), HPBarOuter.getSize().y));
 	HPBarInner.setPosition(HPBarOuter.getPosition().x, HPBarOuter.getPosition().y);
 
-	if (HP <= maxHP / 1.5f)
+	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 1.5f)
 	{
 		HPBarInner.setFillColor(sf::Color::Yellow);
 	}
-	if (HP <= maxHP / 3.f)
+	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 3.f)
 	{
 		HPBarInner.setFillColor(sf::Color::Red);
 	}
-	if (HP > maxHP / 1.5f)
+	if (static_cast<float>(HP) > static_cast<float>(maxHP) / 1.5f)
 	{
 		HPBarInner.setFillColor(sf::Color::Green);
 	}
 }
 
-int& Entity::getMenuTime() { return menuTime; }
+sf::Int32& Entity::getMenuTime() { return menuTime; }
+sf::Int32& Entity::getShootTime() { return shootTime; }
+sf::Int32& Entity::getSpawnTime() { return spawnTime; }
+sf::Int32& Entity::getReloadTime() { return reloadTime; }
 int& Entity::getHP() { return HP; }
 int& Entity::getMaxHP() { return maxHP; }
 int& Entity::getGoldCoins() { return goldCoins; }
-int& Entity::getSpawnTime() { return spawnTime; }
-int& Entity::getReloadTime() { return reloadTime; }
 int& Entity::getCurrentAmmo() { return currentAmmo; }
 int& Entity::getMaxAmmo() { return maxAmmo; }
 int& Entity::getMissingAmmo() { return missingAmmo; }
 int& Entity::getMagazineAmmo() { return magazineAmmo; }
 int& Entity::getShootDelay() { return shootDelay; }
 int& Entity::getShootOffset() { return shootOffset; }
-int& Entity::getShootTime() { return shootTime; }
 bool& Entity::getIsAlive() { return isAlive; }
 bool& Entity::getIsMove() { return isMove; }
 bool& Entity::getIsShoot() { return isShoot; }
@@ -138,15 +138,15 @@ std::wstring& Entity::getName() { return name; }
 std::wstring& Entity::getCreatorName() { return creatorName; }
 
 
-void Entity::setMenuTime(int menuTime) { this->menuTime = menuTime; }
+void Entity::setMenuTime(sf::Int32 menuTime) { this->menuTime = menuTime; }
+void Entity::setSpawnTime(sf::Int32 spawnTime) { this->spawnTime = spawnTime; }
+void Entity::setReloadTime(sf::Int32 reloadTime) { this->reloadTime = reloadTime; }
+void Entity::setShootTime(sf::Int32 shootTime) { this->shootTime = shootTime; }
 void Entity::setHP(int HP) { this->HP = HP; }
 void Entity::setMaxHP(int maxHP) { this->maxHP = maxHP; }
 void Entity::setShootDelay(int shootDelay) { this->shootDelay = shootDelay; }
 void Entity::setShootOffset(int shootOffset) { this->shootOffset = shootOffset; }
-void Entity::setShootTime(int shootTime) { this->shootTime = shootTime; }
 void Entity::setGoldCoins(int goldCoins) { this->goldCoins = goldCoins; }
-void Entity::setSpawnTime(int spawnTime) { this->spawnTime = spawnTime; }
-void Entity::setReloadTime(int reloadTime) { this->reloadTime = reloadTime; }
 void Entity::setCurrentAmmo(int currentAmmo) { this->currentAmmo = currentAmmo; }
 void Entity::setMaxAmmo(int maxAmmo) { this->maxAmmo = maxAmmo; }
 void Entity::setMissingAmmo(int missingAmmo) { this->missingAmmo = missingAmmo; }

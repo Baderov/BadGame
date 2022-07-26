@@ -78,9 +78,7 @@ sfe::RichText& Chat::getUserText()
 void Chat::addString(GameVariables* gv, Chat& chat)
 {
 	std::wstring tempStr = L"";
-	int subStrStep = 54 - gv->chatPrefix.size();
-	unsigned int max = 0;
-	unsigned int min = 0;
+	size_t subStrStep = 54 - gv->chatPrefix.size(), max = 0, min = 0;
 	if (gv->chatStr != L"" && gv->chatStr.size() <= 202)
 	{
 		gv->chatStr.erase(std::remove(gv->chatStr.begin(), gv->chatStr.end(), '\n'), gv->chatStr.end());
@@ -95,7 +93,7 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 		}
 		else
 		{
-			for (int i = 0; i < gv->numOfLinesInChat; i++)
+			for (size_t i = 0; i < gv->numOfLinesInChat; i++)
 			{
 				if (i == 0)
 				{
@@ -177,8 +175,8 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 			{
 				gv->scrollbarStepNumber = 0;
 
-				gv->scrollbarDivisor = chat.getStrVector().size() - 9;
-				if (gv->scrollbarDivisor <= 0) { gv->scrollbarDivisor = 1; }
+				gv->scrollbarDivisor = static_cast<float>(chat.getStrVector().size()) - 9.f;
+				if (gv->scrollbarDivisor <= 0.f) { gv->scrollbarDivisor = 1.f; }
 
 				chat.getInnerScrollBar().setSize(sf::Vector2f(30.f, chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 				chat.getInnerScrollBar().setOrigin(chat.getInnerScrollBar().getSize() / 2.f);
@@ -213,7 +211,7 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 		else
 		{
 			chat.getChatText().clear();
-			for (int a = 0; a < chat.getStrVector().size(); a++)
+			for (size_t a = 0; a < chat.getStrVector().size(); a++)
 			{
 				if (chat.getStrVector()[a].get()->joinedTheServer == true && chat.getStrVector()[a].get()->leftTheServer == false)
 				{
@@ -259,11 +257,11 @@ void Chat::moveUp(GameVariables* gv, Chat& chat)
 		{
 			gv->scrollbarStepNumber++;
 		}
-		unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
+		size_t max = chat.getStrVector().size() - gv->scrollbarStepNumber;
 		if (max >= 10)
 		{
 			chat.getChatText().clear();
-			unsigned int min = max - 10;
+			size_t min = max - 10;
 			for (; min < max; min++)
 			{
 				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -299,11 +297,11 @@ void Chat::moveDown(GameVariables* gv, Chat& chat)
 		{
 			gv->scrollbarStepNumber--;
 		}
-		unsigned int max = chat.getStrVector().size() - gv->scrollbarStepNumber;
+		size_t max = chat.getStrVector().size() - gv->scrollbarStepNumber;
 		if (max >= 10)
 		{
 			chat.getChatText().clear();
-			unsigned int min = max - 10;
+			size_t min = max - 10;
 			for (; min < max; min++)
 			{
 				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -330,10 +328,10 @@ void Chat::moveDown(GameVariables* gv, Chat& chat)
 	}
 }
 
-bool Chat::checkStr(std::wstring& str, GameVariables* gv)
+bool Chat::trimString(std::wstring& str, GameVariables* gv)
 {
 	// проверка на строку из пробелов.
-	for (int i = 0; i < str.size();)
+	for (size_t i = 0; i < str.size();)
 	{
 		if (str[i] == ' ' || str[i] == '\n')
 		{
@@ -349,7 +347,7 @@ bool Chat::checkStr(std::wstring& str, GameVariables* gv)
 		}
 	}
 	// проверка на пробелы в начале строки.
-	int subStrPos = 0;
+	size_t subStrPos = 0;
 	while (str[subStrPos] == ' ' || str[subStrPos] == '\n')
 	{
 		subStrPos++;
@@ -357,7 +355,7 @@ bool Chat::checkStr(std::wstring& str, GameVariables* gv)
 	str = str.substr(subStrPos, str.size() - subStrPos);
 
 	// проверка на пробелы в конце строки.
-	for (int i = str.size() - 1; i > 0; i--)
+	for (size_t i = str.size() - 1; i > 0; i--)
 	{
 		if (str[i] == ' ' || str[i] == '\n')
 		{

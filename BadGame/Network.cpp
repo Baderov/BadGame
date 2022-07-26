@@ -481,7 +481,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() > 0 && gv->userStr.size() <= 202 && gv->sendMsg == false && gv->recvMsg == false)
 					{
-						if (chat.checkStr(gv->userStr, gv) == true)
+						if (chat.trimString(gv->userStr, gv) == true)
 						{
 							gv->sendMsg = true;
 						}

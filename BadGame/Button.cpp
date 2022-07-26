@@ -1,6 +1,6 @@
 #include "Button.h"
 
-Button::Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, int textSize, std::string name, bool textOrigin)
+Button::Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, unsigned int textSize, std::string name, bool textOrigin)
 {
 	font.loadFromFile("consolas.ttf");
 

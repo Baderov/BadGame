@@ -9,8 +9,8 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	shootDelay = 2000;
 	shootTime = 0;
 	shootOffset = 0 + rand() % (shootDelay / 2);
-	moveTargetPos.x = 0 + rand() % 3000;
-	moveTargetPos.y = 0 + rand() % 3000;
+	moveTargetPos.x = static_cast<float>(0 + rand() % 3000);
+	moveTargetPos.y = static_cast<float>(0 + rand() % 3000);
 
 	rectHitbox.setFillColor(sf::Color::Red);
 	rectHitbox.setSize(sf::Vector2f(h, h));
@@ -28,8 +28,8 @@ void Enemy::update(GameVariables* gv) // функция update (в параметрах передаем в
 			isShoot = true;
 			menuTime = 0;
 			shootClock.restart();
-			moveTargetPos.x = 0 + rand() % 3000;
-			moveTargetPos.y = 0 + rand() % 3000;
+			moveTargetPos.x = static_cast < float>(0 + rand() % 3000);
+			moveTargetPos.y = static_cast < float>(0 + rand() % 3000);
 		}
 		rotate();
 		move(gv);
@@ -45,7 +45,7 @@ void Enemy::rotate()
 {
 	float dX = aimPos.x - currentPos.x;//вектор , колинеарный прямой, которая пересекает спрайт и курсор
 	float dY = aimPos.y - currentPos.y;//он же, координата y
-	float rotation = (atan2(dY, dX)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
+	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f;//получаем угол в радианах и переводим его в градусы
 	sprite.setRotation(rotation);
 }
 

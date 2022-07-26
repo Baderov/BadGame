@@ -27,13 +27,13 @@ void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities
 
 	for (int i = 0; i < 10 + rand() % 21; i++)
 	{
-		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), L"Enemy"));
+		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"Enemy"));
 		gv->numberOfEnemies++;
 	}
 
 	for (int i = 0; i < 20 + rand() % 31; i++)
 	{
-		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(100 + rand() % 2600, 100 + rand() % 2600), L"HPBonus"));
+		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"HPBonus"));
 	}
 
 	gv->numberOfPlayers++;

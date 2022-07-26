@@ -84,7 +84,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
 	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
 
-	srand(time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
 	setColor(gv); // вызов функции установки значений для цвета. 
 	setFont(gv); // вызов функции установки значений для шрифтов.
@@ -109,6 +109,10 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->boxStartPositions[10] = sf::Vector2f(2250.f, 1900.f);
 	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
 
+	// FLOAT.
+	gv->scrollbarDivisor = 1.f;
+	gv->aimLaserLength = 100.f;
+
 	// STRING.
 	gv->nickname = L"";
 	gv->chatStr = L"";
@@ -122,17 +126,15 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->joinedMsg = L"";
 	gv->leftMsg = L"";
 
-	// INT.
-	gv->divisor = 800; 
-	gv->aimLaserLength = 100; 
+	// INT, SIZE_T, sf::INT8,sf::INT16, sf::INT32, sf::INT64.
 	gv->numberOfEnemies = 0;
 	gv->numberOfPlayers = 0;
 	gv->menuNum = 0;
 	gv->menuTimer = 0;
 	gv->numOfLinesInChat = 1;
 	gv->numOfLinesInUserTextBox = 1;
-	gv->scrollbarDivisor = 1;
 	gv->scrollbarStepNumber = 0;
+	gv->divisor = 800;
 
 	// BOOL.
 	gv->showHitbox = false; 

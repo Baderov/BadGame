@@ -1,6 +1,6 @@
 #include "Label.h"
 
-Label::Label(std::wstring str, sf::Vector2f labelPos, int textSize, std::string name)
+Label::Label(std::wstring str, sf::Vector2f labelPos, unsigned int textSize, std::string name)
 {
 	font.loadFromFile("consolas.ttf");
 	this->name = name;

@@ -81,7 +81,7 @@ void eventHandler(sf::Event& event, GameVariables* gv) // функция обр�
 			sf::Vector2f oldViewSize(gv->view.getSize());
 			sf::Vector2f oldViewCenter(gv->view.getCenter());
 
-			gv->view.setSize(gv->window.getSize().x, gv->window.getSize().y);
+			gv->view.setSize(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y));
 			gv->view.setCenter(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
 			gv->window.setView(gv->view);
 

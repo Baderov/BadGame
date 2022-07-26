@@ -2,11 +2,11 @@
 
 void errorChecking(GameVariables* gv)
 {
-	float winSizeX = gv->window.getSize().x;
-	float winSizeY = gv->window.getSize().y;
+	float winSizeX = static_cast<float>(gv->window.getSize().x);
+	float winSizeY = static_cast<float>(gv->window.getSize().y);
 
-	float halfWinSizeX = gv->window.getSize().x / 2.f;
-	float halfWinSizeY = gv->window.getSize().y / 2.f;
+	float halfWinSizeX = static_cast<float>(gv->window.getSize().x) / 2.f;
+	float halfWinSizeY = static_cast<float>(gv->window.getSize().y) / 2.f;
 
 	for (auto& el : gv->labelsVec)
 	{

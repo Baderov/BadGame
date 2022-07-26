@@ -12,15 +12,15 @@ public:
 	void calcDirection();
 	void updateHPBar();
 
-	int& getShootTime();
+	sf::Int32& getShootTime();
+	sf::Int32& getMenuTime();
+	sf::Int32& getSpawnTime();
+	sf::Int32& getReloadTime();
 	int& getShootDelay();
 	int& getShootOffset();
-	int& getMenuTime();
 	int& getHP();
 	int& getMaxHP();
 	int& getGoldCoins();
-	int& getSpawnTime();
-	int& getReloadTime();
 	int& getCurrentAmmo();
 	int& getMaxAmmo();
 	int& getMissingAmmo();
@@ -50,16 +50,15 @@ public:
 	std::wstring& getName();
 	std::wstring& getCreatorName();
 
-
-	void setShootTime(int shootTime);
+	void setShootTime(sf::Int32 shootTime);
+	void setMenuTime(sf::Int32 menuTime);
+	void setSpawnTime(sf::Int32 spawnTime);
+	void setReloadTime(sf::Int32 reloadTime);
 	void setShootDelay(int shootDelay);
 	void setShootOffset(int shootOffset);
-	void setMenuTime(int menuTime);
 	void setHP(int HP);
 	void setMaxHP(int maxHP);
 	void setGoldCoins(int goldCoins);
-	void setSpawnTime(int spawnTime);
-	void setReloadTime(int reloadTime);
 	void setCurrentAmmo(int currentAmmo);
 	void setMaxAmmo(int maxAmmo);
 	void setMissingAmmo(int missingAmmo);
@@ -89,8 +88,9 @@ public:
 	void setCreatorName(std::wstring creatorName);
 
 protected:
-	float maxSpeed, distance;
-	int w, h, HP, maxHP, goldCoins, spawnTime, reloadTime, menuTime, shootTime, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo; // w - ширина спрайта, h - высота спрайта, HP - здоровье, maxHP - максимальное количество HP.
+	sf::Int32 spawnTime, reloadTime, menuTime, shootTime;
+	float maxSpeed, distance, w, h;
+	int HP, maxHP, goldCoins, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo; // w - ширина спрайта, h - высота спрайта, HP - здоровье, maxHP - максимальное количество HP.
 	bool isAlive, isMove, isShoot, isReload;
 	sf::Clock reloadClock, shootClock;
 	sf::Font consolasFont;
