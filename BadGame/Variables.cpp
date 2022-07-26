@@ -128,7 +128,6 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->numberOfEnemies = 0;
 	gv->numberOfPlayers = 0;
 	gv->menuNum = 0;
-	gv->lineNumberInConsole = 1;
 	gv->menuTimer = 0;
 	gv->numOfLinesInChat = 1;
 	gv->numOfLinesInUserTextBox = 1;

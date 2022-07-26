@@ -8,9 +8,12 @@
 #include "Variables.h"
 #include "Menu.h"
 #include "Chat.h"
+#include <mutex>
 
 struct Clients
 {
+	Clients(int id, std::wstring nickname, sf::Vector2f pos);
+	Clients();
 	int id;
 	std::wstring nickname;
 	sf::RectangleShape playerShape;
@@ -29,5 +32,7 @@ void send(GameVariables* gv);
 void sendPosition(GameVariables* gv);
 
 void startNetwork(GameVariables* gv);
+
+void updateVariables(GameVariables* gv);
 
 void multiplayerGame(GameVariables* gv, Entity*& player);

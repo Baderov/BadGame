@@ -13,10 +13,24 @@ bool allowMove = false;
 bool isVectorReceived = false;
 bool isNickTaken = false;
 bool hideChat = false;
-
 std::wstring movement = L"";
 
+Clients::Clients(int id, std::wstring nickname, sf::Vector2f pos)
+{
+	this->id = id;
+	this->nickname = nickname;
+	this->pos = pos;
+}
+
+Clients::Clients()
+{
+	this->id = 0;
+	this->nickname = L"";
+	this->pos = sf::Vector2f(0.f, 0.f);
+}
+
 std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
+std::vector<std::unique_ptr<Clients>> tempVec; // вектор структур для клиентов.
 
 sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec)
 {
@@ -63,12 +77,14 @@ void receive(GameVariables* gv)
 				if (prefix == L"conError")
 				{
 					isNickTaken = true;
-					break;
+					gv->menuError = MenuErrors::NicknameIsAlreadyTaken;
+					gv->multiPlayerGame = false;
 				}
 				else if (prefix == L"conSuccess")
 				{
 					isNickTaken = false;
-					break;
+					gv->menuError = MenuErrors::NoErrors;
+					gv->multiPlayerGame = true;
 				}
 				else if (prefix == L"con") // con - connected.
 				{
@@ -90,8 +106,6 @@ void receive(GameVariables* gv)
 					{
 						gv->leftMsg = gv->leftNick + tempMsg;
 						gv->leftFromServer = true;
-					
-						clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == gv->leftNick; }), clientsVec.end());
 					}
 				}
 				else if (prefix == L"move")
@@ -152,20 +166,15 @@ void receive(GameVariables* gv)
 				else if (prefix == L"clientsList")
 				{
 					if (packet >> clientsVecSize)
-					{
-						clientsVec.clear();
+					{				
+						tempVec.clear();
 						for (int i = 0; i < clientsVecSize; i++)
 						{
-							clientsVec.emplace_back(new Clients()); // создание пустых объектов вектора.
+							tempVec.emplace_back(new Clients()); // создание пустых объектов вектора.
 						}
-
-						if (packet >> clientsVec)
+						if (packet >> tempVec)
 						{
 							isVectorReceived = true;
-						}
-						else
-						{
-							isVectorReceived = false;
 						}
 					}
 					packet.clear(); // чистим пакет
@@ -260,6 +269,12 @@ void fillClientsVector(GameVariables* gv)
 {
 	if (isVectorReceived == true)
 	{
+		clientsVec.clear();
+		for (int i = 0; i < tempVec.size(); i++)
+		{
+			clientsVec.emplace_back(new Clients(tempVec[i].get()->id, tempVec[i].get()->nickname, tempVec[i].get()->pos));
+		}
+
 		for (auto& el : clientsVec)
 		{
 			el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
@@ -281,23 +296,14 @@ void fillClientsVector(GameVariables* gv)
 
 void startNetwork(GameVariables* gv)
 {
+	std::thread receiveThread([&]() { receive(gv); });
+	receiveThread.detach();
 	if (connectToServer(gv) == true)
 	{
 		gv->allowButtons = true;
 		for (auto& el : gv->buttonsVec)
 		{
 			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
-		}
-		receive(gv);
-		if (isNickTaken == true)
-		{
-			gv->menuError = MenuErrors::NicknameIsAlreadyTaken;
-			gv->multiPlayerGame = false;
-		}
-		else if (isNickTaken == false)
-		{
-			gv->menuError = MenuErrors::NoErrors;
-			gv->multiPlayerGame = true;
 		}
 	}
 	else
@@ -310,21 +316,43 @@ void startNetwork(GameVariables* gv)
 		}
 		gv->multiPlayerGame = false;
 	}
+	gv->isGameOver = true;
+
+}
+
+void updateVariables(GameVariables* gv)
+{
+	gv->userStr = L"";
+	gv->chatStr = L"";
+	gv->chatPrefix = L"";
+	gv->scrollbarDir = L"";
+	gv->leftNick = L"";
+	gv->leftMsg = L"";
+	gv->joinedNick = L"";
+	gv->joinedMsg = L"";
+	gv->numOfLinesInChat = 1;
+	gv->numOfLinesInUserTextBox = 1;
+	gv->scrollbarDivisor = 1;
+	gv->scrollbarStepNumber = 0;
+	gv->chatEnterText = false;
+	gv->chatContainsMouse = false;
+	gv->recvMsg = false;
+	gv->sendMsg = false;
+	gv->leftFromServer = false;
+	gv->joinToServer = false;
 }
 
 void multiplayerGame(GameVariables* gv, Entity*& player)
 {
+	updateVariables(gv);
+
 	Chat chat(gv->window);
 
 	std::thread receiveThread([&]() { receive(gv); });
-	receiveThread.detach();
-
 	std::thread sendThread([&]() { send(gv); });
+
+	receiveThread.detach();
 	sendThread.detach();
-
-	gv->chatEnterText = false;
-
-	int kek = 0;
 
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
@@ -334,21 +362,22 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 		if (gv->leftFromServer == true)
 		{
+			clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == gv->leftNick; }), clientsVec.end());
 			gv->chatStr = gv->leftMsg;
-			addString(gv, chat);
+			chat.addString(gv, chat);
 			gv->leftFromServer = false;
 		}
 		if (gv->joinToServer == true)
 		{
 			gv->chatStr = gv->joinedMsg;
-			addString(gv, chat);
+			chat.addString(gv, chat);
 			gv->joinToServer = false;
 		}
 
 		if (gv->recvMsg == true)
 		{
 			gv->chatPrefix = senderNickname + L": ";
-			addString(gv, chat);
+			chat.addString(gv, chat);
 			if (gv->nickname == senderNickname)
 			{
 				gv->numOfLinesInUserTextBox = 1;
@@ -375,7 +404,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 		while (gv->window.pollEvent(gv->event)) // пока происходят события.
 		{
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
+			if (gv->event.type == sf::Event::Closed) { clientsVec.clear(); tempVec.clear(); gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
 
 			if (gv->event.type == sf::Event::LostFocus)
 			{
@@ -401,12 +430,10 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				}
 			}
 
-		
-
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
 				menuEventHandler(gv, player);
-				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; return; }
+				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->isGameOver = true; return; }
 			}
 
 			if (gv->event.type == sf::Event::MouseWheelMoved && chat.getStrVector().size() > 10 && gv->chatContainsMouse == true)
@@ -454,20 +481,23 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() > 0 && gv->userStr.size() <= 202 && gv->sendMsg == false && gv->recvMsg == false)
 					{
-						gv->sendMsg = true;					
+						if (chat.checkStr(gv->userStr, gv) == true)
+						{
+							gv->sendMsg = true;
+						}
+						else
+						{
+							gv->numOfLinesInUserTextBox = 1;
+							chat.getUserText().clear();
+							gv->userStr = L"";
+						}
 					}
 				}
 				else if (gv->event.text.unicode == 63)
 				{
 					if (gv->userStr.size() < 202)
 					{
-						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
-						{
-							gv->userStr += '\n';
-							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->userStr;
-							gv->numOfLinesInUserTextBox++;
-						}
+						chat.addNewLine(gv, chat);
 						gv->userStr += L"\?";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -477,13 +507,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < 202)
 					{
-						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
-						{
-							gv->userStr += '\n';
-							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->userStr;
-							gv->numOfLinesInUserTextBox++;
-						}
+						chat.addNewLine(gv, chat);
 						gv->userStr += L"\"";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -493,13 +517,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < 202)
 					{
-						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
-						{
-							gv->userStr += '\n';
-							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->userStr;
-							gv->numOfLinesInUserTextBox++;
-						}
+						chat.addNewLine(gv, chat);
 						gv->userStr += L"\'";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -509,13 +527,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < 202)
 					{
-						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
-						{
-							gv->userStr += '\n';
-							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->userStr;
-							gv->numOfLinesInUserTextBox++;
-						}
+						chat.addNewLine(gv, chat);
 						gv->userStr += L"\\";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -526,13 +538,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < 202)
 					{
-						if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
-						{
-							gv->userStr += '\n';
-							chat.getUserText().clear();
-							chat.getUserText() << sf::Color::Black << gv->userStr;
-							gv->numOfLinesInUserTextBox++;
-						}
+						chat.addNewLine(gv, chat);
 						gv->userStr += gv->event.text.unicode;
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -543,13 +549,13 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 		if (gv->scrollbarDir == L"up" && ((chat.getInnerScrollBar().getPosition().y - (chat.getInnerScrollBar().getSize().y / 2.f))) > chat.getOuterScrollBar().getPosition().y - (chat.getOuterScrollBar().getSize().y / 2.f)) // up
 		{
-			moveUp(gv, chat);
+			chat.moveUp(gv, chat);
 			gv->scrollbarDir = L"";
 		}
 
 		else if (gv->scrollbarDir == L"down" && ((chat.getInnerScrollBar().getPosition().y + (chat.getInnerScrollBar().getSize().y / 2.f))) < chat.getOuterScrollBar().getPosition().y + (chat.getOuterScrollBar().getSize().y / 2.f)) // down
 		{
-			moveDown(gv, chat);
+			chat.moveDown(gv, chat);
 			gv->scrollbarDir = L"";
 		}
 
@@ -571,11 +577,13 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 		}
 
 		gv->window.clear(gv->backgroundColor);
+
 		for (auto& el : clientsVec)
 		{
 			gv->window.draw(el->playerShape);
 			gv->window.draw(el->nickText);
 		}
+
 		if (hideChat == false)
 		{
 			gv->window.draw(chat.getOuterScrollBar());

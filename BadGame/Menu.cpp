@@ -248,7 +248,6 @@ void multiplayerMenu(GameVariables* gv)
 void graphicsSettingsMenu(GameVariables* gv)
 {
 	graphicsSettingsMenuUpdate(gv);
-	//std::cout << gv->lineNumberInConsole++ << ": I'm in the graphics settings menu!" << std::endl;
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
@@ -361,7 +360,6 @@ void graphicsSettingsMenu(GameVariables* gv)
 void settingsMenu(GameVariables* gv)
 {
 	settingsMenuUpdate(gv);
-	//std::cout << gv->lineNumberInConsole++ << ": I'm in the settings menu!" << std::endl;
 	while (gv->window.isOpen()) // пока меню открыто.
 	{
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
@@ -598,49 +596,9 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			break;
 		case 23:
 			gv->menuNum = 0;
+			gv->isGameOver = false;
 			return;
 			break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		}
 
 		if (gv->exitFromMenu == true)

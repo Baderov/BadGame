@@ -58,7 +58,7 @@ sf::RectangleShape& Chat::getUserTextBox()
 {
 	return userTextBox;
 }
-std::vector<std::unique_ptr<chatStrings>>& Chat::getStrVector()
+std::vector<std::unique_ptr<Chat::chatStrings>>& Chat::getStrVector()
 {
 	return strVector;
 }
@@ -75,7 +75,7 @@ sfe::RichText& Chat::getUserText()
 	return userText;
 }
 
-void addString(GameVariables* gv, Chat& chat)
+void Chat::addString(GameVariables* gv, Chat& chat)
 {
 	std::wstring tempStr = L"";
 	int subStrStep = 54 - gv->chatPrefix.size();
@@ -239,7 +239,18 @@ void addString(GameVariables* gv, Chat& chat)
 	}
 }
 
-void moveUp(GameVariables* gv, Chat& chat)
+void Chat::addNewLine(GameVariables* gv, Chat& chat)
+{
+	if (gv->userStr.size() == 54 || gv->userStr.size() == 109 || gv->userStr.size() == 164)
+	{
+		gv->userStr += '\n';
+		chat.getUserText().clear();
+		chat.getUserText() << sf::Color::Black << gv->userStr;
+		gv->numOfLinesInUserTextBox++;
+	}
+}
+
+void Chat::moveUp(GameVariables* gv, Chat& chat)
 {
 	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (chat.getStrVector().size() > gv->scrollbarStepNumber)
@@ -279,7 +290,7 @@ void moveUp(GameVariables* gv, Chat& chat)
 	}
 }
 
-void moveDown(GameVariables* gv, Chat& chat)
+void Chat::moveDown(GameVariables* gv, Chat& chat)
 {
 	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (gv->scrollbarStepNumber > 0)
@@ -317,4 +328,63 @@ void moveDown(GameVariables* gv, Chat& chat)
 			}
 		}
 	}
+}
+
+bool Chat::checkStr(std::wstring& str, GameVariables* gv)
+{
+	// проверка на строку из пробелов.
+	for (int i = 0; i < str.size();)
+	{
+		if (str[i] == ' ' || str[i] == '\n')
+		{
+			i++;
+		}
+		else
+		{
+			break;
+		}
+		if (i == str.size())
+		{
+			return false;
+		}
+	}
+	// проверка на пробелы в начале строки.
+	int subStrPos = 0;
+	while (str[subStrPos] == ' ' || str[subStrPos] == '\n')
+	{
+		subStrPos++;
+	}
+	str = str.substr(subStrPos, str.size() - subStrPos);
+
+	// проверка на пробелы в конце строки.
+	for (int i = str.size() - 1; i > 0; i--)
+	{
+		if (str[i] == ' ' || str[i] == '\n')
+		{
+			str.resize(str.size() - 1);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+
+	if (str.size() > 0 && str.size() <= 54)
+	{
+		gv->numOfLinesInUserTextBox = 1;
+	}
+	else if (str.size() > 54 && str.size() <= 109)
+	{
+		gv->numOfLinesInUserTextBox = 2;
+	}
+	else if (str.size() > 109 && str.size() <= 164)
+	{
+		gv->numOfLinesInUserTextBox = 3;
+	}
+	else if (str.size() > 164 && str.size() < 202)
+	{
+		gv->numOfLinesInUserTextBox = 4;
+	}
+	return true;
 }

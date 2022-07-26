@@ -85,7 +85,6 @@ struct GameVariables // объявляем структуру для игровых переменных.
 	int numberOfEnemies;
 	int numberOfPlayers;
 	int menuNum; // номер меню.
-	int lineNumberInConsole; // номер строки в консоли.
 	int serverPort; // порт сервера.
 	int menuTimer;
 	int numOfLinesInChat;
