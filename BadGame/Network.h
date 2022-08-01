@@ -8,7 +8,6 @@
 #include "Variables.h"
 #include "Menu.h"
 #include "Chat.h"
-#include <mutex>
 
 struct Clients
 {
@@ -33,6 +32,6 @@ void sendPosition(GameVariables* gv);
 
 void startNetwork(GameVariables* gv);
 
-void updateVariables(GameVariables* gv);
+void resetVariables(GameVariables* gv);
 
 void multiplayerGame(GameVariables* gv, Entity*& player);

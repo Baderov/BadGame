@@ -15,6 +15,18 @@ bool isNickTaken = false;
 bool hideChat = false;
 std::wstring movement = L"";
 
+const int BACKSPACE_CODE = 8;
+const int QUESTION_MARK_CODE = 63;
+const int DOUBLE_QUOTES_CODE = 34;
+const int SINGLE_QUOTES_CODE = 39;
+const int BACKSLASH_CODE = 92;
+const int ESCAPE_CODE = 27;
+const int ENTER_CODE = 13;
+const int MAX_CHAR_NUM = 202;
+
+std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
+std::vector<std::unique_ptr<Clients>> tempVec; // вектор структур для клиентов.
+
 Clients::Clients(int id, std::wstring nickname, sf::Vector2f pos)
 {
 	this->id = id;
@@ -28,9 +40,6 @@ Clients::Clients()
 	this->nickname = L"";
 	this->pos = sf::Vector2f(0.f, 0.f);
 }
-
-std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
-std::vector<std::unique_ptr<Clients>> tempVec; // вектор структур для клиентов.
 
 sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec)
 {
@@ -166,7 +175,7 @@ void receive(GameVariables* gv)
 				else if (prefix == L"clientsList")
 				{
 					if (packet >> clientsVecSize)
-					{				
+					{
 						tempVec.clear();
 						for (int i = 0; i < clientsVecSize; i++)
 						{
@@ -320,7 +329,7 @@ void startNetwork(GameVariables* gv)
 
 }
 
-void updateVariables(GameVariables* gv)
+void resetVariables(GameVariables* gv)
 {
 	gv->userStr = L"";
 	gv->chatStr = L"";
@@ -344,7 +353,7 @@ void updateVariables(GameVariables* gv)
 
 void multiplayerGame(GameVariables* gv, Entity*& player)
 {
-	updateVariables(gv);
+	resetVariables(gv);
 
 	Chat chat(gv->window);
 
@@ -459,7 +468,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 			if (gv->event.type == sf::Event::TextEntered && gv->chatEnterText == true && hideChat == false)
 			{
-				if (gv->event.text.unicode == 8)
+				if (gv->event.text.unicode == BACKSPACE_CODE)
 				{
 					if (gv->userStr.size() > 0)
 					{
@@ -477,9 +486,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 					}
 				}
 
-				else if (gv->event.text.unicode == 13)
+				else if (gv->event.text.unicode == ENTER_CODE)
 				{
-					if (gv->userStr.size() > 0 && gv->userStr.size() <= 202 && gv->sendMsg == false && gv->recvMsg == false)
+					if (gv->userStr.size() > 0 && gv->userStr.size() <= MAX_CHAR_NUM && gv->sendMsg == false && gv->recvMsg == false)
 					{
 						if (chat.trimString(gv->userStr, gv) == true)
 						{
@@ -493,9 +502,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 						}
 					}
 				}
-				else if (gv->event.text.unicode == 63)
+				else if (gv->event.text.unicode == QUESTION_MARK_CODE)
 				{
-					if (gv->userStr.size() < 202)
+					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
 						chat.addNewLine(gv, chat);
 						gv->userStr += L"\?";
@@ -503,9 +512,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 						chat.getUserText() << sf::Color::Black << gv->userStr;
 					}
 				}
-				else if (gv->event.text.unicode == 34)
+				else if (gv->event.text.unicode == DOUBLE_QUOTES_CODE)
 				{
-					if (gv->userStr.size() < 202)
+					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
 						chat.addNewLine(gv, chat);
 						gv->userStr += L"\"";
@@ -513,9 +522,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 						chat.getUserText() << sf::Color::Black << gv->userStr;
 					}
 				}
-				else if (gv->event.text.unicode == 39)
+				else if (gv->event.text.unicode == SINGLE_QUOTES_CODE)
 				{
-					if (gv->userStr.size() < 202)
+					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
 						chat.addNewLine(gv, chat);
 						gv->userStr += L"\'";
@@ -523,9 +532,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 						chat.getUserText() << sf::Color::Black << gv->userStr;
 					}
 				}
-				else if (gv->event.text.unicode == 92)
+				else if (gv->event.text.unicode == BACKSLASH_CODE)
 				{
-					if (gv->userStr.size() < 202)
+					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
 						chat.addNewLine(gv, chat);
 						gv->userStr += L"\\";
@@ -534,9 +543,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 					}
 				}
 
-				else if (gv->event.text.unicode != 8 && gv->event.text.unicode != 27)
+				else if (gv->event.text.unicode != BACKSPACE_CODE && gv->event.text.unicode != ESCAPE_CODE)
 				{
-					if (gv->userStr.size() < 202)
+					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
 						chat.addNewLine(gv, chat);
 						gv->userStr += gv->event.text.unicode;

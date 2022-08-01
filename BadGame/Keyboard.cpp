@@ -1,37 +1,44 @@
 #include "Keyboard.h"
 
+const int BACKSPACE_CODE = 8;
+const int SPACE_CODE = 32;
+const int QUESTION_MARK_CODE = 63;
+const int DOUBLE_QUOTES_CODE = 34;
+const int SINGLE_QUOTES_CODE = 39;
+const int BACKSLASH_CODE = 92;
+
 void keyboardEvents(GameVariables* gv)
 {
 	if (gv->input == 'n')
 	{
 		if (gv->event.type == sf::Event::TextEntered)
 		{
-			if (gv->event.text.unicode == 8)
+			if (gv->event.text.unicode == BACKSPACE_CODE)
 			{
 				if (gv->nickname.size() > 0)
 				{
 					gv->nickname.resize(gv->nickname.size() - 1);
 				}
 			}
-			else if (gv->event.text.unicode == 63)
+			else if (gv->event.text.unicode == QUESTION_MARK_CODE)
 			{
 				gv->nickname += L"\?";
 			}
-			else if (gv->event.text.unicode == 34)
+			else if (gv->event.text.unicode == DOUBLE_QUOTES_CODE)
 			{
 				gv->nickname += L"\"";
 			}
-			else if (gv->event.text.unicode == 39)
+			else if (gv->event.text.unicode == SINGLE_QUOTES_CODE)
 			{
 				gv->nickname += L"\'";
 			}
-			else if (gv->event.text.unicode == 92)
+			else if (gv->event.text.unicode == BACKSLASH_CODE)
 			{
 				gv->nickname += L"\\";
 			}
 			else 
 			{
-				if (gv->nickname.size() < 15 && gv->event.text.unicode != 32)
+				if (gv->nickname.size() < 15 && gv->event.text.unicode != SPACE_CODE)
 				{
 					gv->nickname += gv->event.text.unicode;
 				}

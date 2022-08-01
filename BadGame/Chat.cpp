@@ -1,10 +1,10 @@
 #include "Chat.h"
 
-const int singleLineWidth = 54;
-const int twoLineWidth = 109;
-const int threeLineWidth = 164;
-const int fourLineWidth = 202;
-const int numOfDisplayedRows = 10;
+const int SINGLE_LINE_WIDTH = 54;
+const int TWO_LINE_WIDTH = 109;
+const int THREE_LINE_WIDTH = 164;
+const int FOUR_LINE_WIDTH = 202;
+const int NUM_OF_DISPLAYED_ROWS = 10;
 
 Chat::Chat(sf::RenderWindow& window)
 {
@@ -84,8 +84,8 @@ sfe::RichText& Chat::getUserText()
 void Chat::addString(GameVariables* gv, Chat& chat)
 {
 	std::wstring tempStr = L"";
-	size_t subStrStep = singleLineWidth - gv->chatPrefix.size(), max = 0, min = 0;
-	if (gv->chatStr != L"" && gv->chatStr.size() <= fourLineWidth)
+	size_t subStrStep = SINGLE_LINE_WIDTH - gv->chatPrefix.size(), max = 0, min = 0;
+	if (gv->chatStr != L"" && gv->chatStr.size() <= FOUR_LINE_WIDTH)
 	{
 		gv->chatStr.erase(std::remove(gv->chatStr.begin(), gv->chatStr.end(), '\n'), gv->chatStr.end());
 		if (gv->joinToServer == true && gv->leftFromServer == false)
@@ -113,9 +113,9 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 				}
 				else if (i == 1)
 				{
-					tempStr = gv->chatStr.substr(subStrStep, singleLineWidth);
+					tempStr = gv->chatStr.substr(subStrStep, SINGLE_LINE_WIDTH);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 2, false, false));
-					subStrStep += singleLineWidth;
+					subStrStep += SINGLE_LINE_WIDTH;
 					if (gv->numOfLinesInChat == 2 && gv->chatStr.size() > subStrStep)
 					{
 						tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
@@ -125,9 +125,9 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 				}
 				else if (i == 2)
 				{
-					tempStr = gv->chatStr.substr(subStrStep, singleLineWidth);
+					tempStr = gv->chatStr.substr(subStrStep, SINGLE_LINE_WIDTH);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 3, false, false));
-					subStrStep += singleLineWidth;
+					subStrStep += SINGLE_LINE_WIDTH;
 					if (gv->numOfLinesInChat == 3 && gv->chatStr.size() > subStrStep)
 					{
 						tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
@@ -137,9 +137,9 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 				}
 				else if (i == 3)
 				{
-					tempStr = gv->chatStr.substr(subStrStep, singleLineWidth);
+					tempStr = gv->chatStr.substr(subStrStep, SINGLE_LINE_WIDTH);
 					chat.getStrVector().emplace_back(new chatStrings(gv->chatPrefix, tempStr, 4, false, false));
-					subStrStep += singleLineWidth;
+					subStrStep += SINGLE_LINE_WIDTH;
 					if (gv->numOfLinesInChat == 4 && gv->chatStr.size() > subStrStep)
 					{
 						tempStr = gv->chatStr.substr(subStrStep, gv->chatStr.size() - subStrStep);
@@ -151,9 +151,9 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 
 		chat.getChatText().clear();
 		max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-		if (max > numOfDisplayedRows)
+		if (max > NUM_OF_DISPLAYED_ROWS)
 		{
-			min = max - numOfDisplayedRows;
+			min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
 				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -189,7 +189,7 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 				chat.getInnerScrollBar().setPosition(chat.getOuterScrollBar().getPosition().x, (chat.getOuterScrollBar().getPosition().y + chat.getOuterScrollBar().getSize().y / 2.f) - chat.getInnerScrollBar().getSize().y / 2.f);
 				chat.getChatText().clear();
 				max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-				min = max - numOfDisplayedRows;
+				min = max - NUM_OF_DISPLAYED_ROWS;
 				for (; min < max; min++)
 				{
 					if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -245,7 +245,7 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 
 void Chat::addNewLine(GameVariables* gv, Chat& chat)
 {
-	if (gv->userStr.size() == singleLineWidth || gv->userStr.size() == twoLineWidth || gv->userStr.size() == threeLineWidth)
+	if (gv->userStr.size() == SINGLE_LINE_WIDTH || gv->userStr.size() == TWO_LINE_WIDTH || gv->userStr.size() == THREE_LINE_WIDTH)
 	{
 		gv->userStr += '\n';
 		chat.getUserText().clear();
@@ -259,15 +259,15 @@ void Chat::moveUp(GameVariables* gv, Chat& chat)
 	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (chat.getStrVector().size() > gv->scrollbarStepNumber)
 	{
-		if (chat.getStrVector().size() - gv->scrollbarStepNumber > numOfDisplayedRows)
+		if (chat.getStrVector().size() - gv->scrollbarStepNumber > NUM_OF_DISPLAYED_ROWS)
 		{
 			gv->scrollbarStepNumber++;
 		}
 		size_t max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-		if (max >= numOfDisplayedRows)
+		if (max >= NUM_OF_DISPLAYED_ROWS)
 		{
 			chat.getChatText().clear();
-			size_t min = max - numOfDisplayedRows;
+			size_t min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
 				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -299,15 +299,15 @@ void Chat::moveDown(GameVariables* gv, Chat& chat)
 	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (gv->scrollbarStepNumber > 0)
 	{
-		if (chat.getStrVector().size() > numOfDisplayedRows)
+		if (chat.getStrVector().size() > NUM_OF_DISPLAYED_ROWS)
 		{
 			gv->scrollbarStepNumber--;
 		}
 		size_t max = chat.getStrVector().size() - gv->scrollbarStepNumber;
-		if (max >= numOfDisplayedRows)
+		if (max >= NUM_OF_DISPLAYED_ROWS)
 		{
 			chat.getChatText().clear();
-			size_t min = max - numOfDisplayedRows;
+			size_t min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
 				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
@@ -374,19 +374,19 @@ bool Chat::trimString(std::wstring& str, GameVariables* gv)
 	}
 
 
-	if (str.size() > 0 && str.size() <= singleLineWidth)
+	if (str.size() > 0 && str.size() <= SINGLE_LINE_WIDTH)
 	{
 		gv->numOfLinesInUserTextBox = 1;
 	}
-	else if (str.size() > singleLineWidth && str.size() <= twoLineWidth)
+	else if (str.size() > SINGLE_LINE_WIDTH && str.size() <= TWO_LINE_WIDTH)
 	{
 		gv->numOfLinesInUserTextBox = 2;
 	}
-	else if (str.size() > twoLineWidth && str.size() <= threeLineWidth)
+	else if (str.size() > TWO_LINE_WIDTH && str.size() <= THREE_LINE_WIDTH)
 	{
 		gv->numOfLinesInUserTextBox = 3;
 	}
-	else if (str.size() > threeLineWidth && str.size() < fourLineWidth)
+	else if (str.size() > THREE_LINE_WIDTH && str.size() < FOUR_LINE_WIDTH)
 	{
 		gv->numOfLinesInUserTextBox = 4;
 	}
