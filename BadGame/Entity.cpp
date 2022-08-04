@@ -1,6 +1,6 @@
-#include "Entity.h" // подключаем заголовочный файл.
+#include "Entity.h" // header file for entities.
 
-Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name)
+Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // entity constructor.
 {
 	currentVelocity = sf::Vector2f(0.f, 0.f);
 	grayColor.r = 160;
@@ -10,16 +10,16 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name)
 	maxSpeed = 0.f;
 	menuTime = 0;
 	currentPos = startPos;
-	this->name = name; // присваиваем каждой переменной класса Entity то, что пользователь написал в параметрах при вызове объекта.
+	this->name = name;
 	creatorName = L"";
 	isAlive = true;
 	isShoot = false;
 
-	texture.loadFromImage(image); // загружаем картинку котора€ передана в параметры объекта существа.
-	sprite.setTexture(texture); // далее устанавливаем текстуру дл€ заданного объекта.
+	texture.loadFromImage(image);
+	sprite.setTexture(texture);
 	w = static_cast<float>(texture.getSize().x);
 	h = static_cast<float>(texture.getSize().y);
-	sprite.setOrigin(w / 2.f, h / 2.f); // устанавливаем центральную точку дл€ всех преобразований (положение, масштаб, вращение).
+	sprite.setOrigin(w / 2.f, h / 2.f);
 	sprite.setPosition(currentPos);
 
 	rectHitbox.setSize(sf::Vector2f(w, h));
@@ -48,36 +48,36 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name)
 	nameText.setOutlineThickness(2.f);
 }
 
-void Entity::calcDirection()
+void Entity::calcDirection() // function to calculate direction.
 {
-	aimDir = aimPos - currentPos; // рассто€ние от мыши до текущей позиции сущности.
-	aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // направление.
-	currentVelocity = aimDirNorm * maxSpeed; // векторна€ скорость = направление * линейна€ скорость.
+	aimDir = aimPos - currentPos; // distance from the mouse to the current position of the sprite.
+	aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
+	currentVelocity = aimDirNorm * maxSpeed; // vector speed = direction * linear speed.
 }
 
-void Entity::moveToDirection()
+void Entity::moveToDirection() // function to move the sprite in direction.
 {
 	sprite.move(currentVelocity);
 	currentPos = sprite.getPosition();
 }
 
-void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // движение к целевой позиции.
+void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // a function to move the sprite to the target.
 {
-	// рассто€ние от текущей позиции сущности до целевой позиции.
+	// distance from the current position of the sprite to the target position.
 	distance = sqrt(((targetPos.x - currentPos.x) * (targetPos.x - currentPos.x)) + ((targetPos.y - currentPos.y) * (targetPos.y - currentPos.y)));
 
-	// костыль, чтобы игрок не дЄргалс€, когда доходит до цели.
+	// crutch, so that the player does not twitch when reaching the goal.
 	if (distance > 7)
 	{
-		// stepPos - прирост к текущей позиции.
+		// stepPos - increment to the current position.
 		stepPos.x = currentVelocity.x * static_cast<float>(gv->dt) * (targetPos.x - currentPos.x) / distance;
 		stepPos.y = currentVelocity.y * static_cast<float>(gv->dt) * (targetPos.y - currentPos.y) / distance;
 		currentPos += stepPos;
 	}
-	else { isMove = false; } // иначе - не двигаемс€. 
+	else { isMove = false; } // else don`t move.
 }
 
-void Entity::updateHPBar()
+void Entity::updateHPBar() // function to update HP Bar.
 {
 	HPBarOuter.setSize(sf::Vector2f(static_cast<float>(maxHP), 20.f));
 	HPBarOuter.setPosition(currentPos.x - 50.f, currentPos.y - 60.f);

@@ -1,9 +1,10 @@
-#include "Console.h" // подключаем заголовочный файл.
+#include "Console.h" // header file for working with the console.
 
-void consoleSettings() // функция консольных настроек.
+void consoleSettings() // function for console settings.
 {
-	setlocale(LC_ALL, "RUS"); // русская локализация для консоли.
-	// убираем возможность выделения и выполнения различных действий в консоли.
+	setlocale(LC_ALL, "RUS"); // for russian language in the console.
+
+	// remove the ability to select and perform various actions in the console.
 	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
 	DWORD mode;
 	GetConsoleMode(hStdin, &mode);

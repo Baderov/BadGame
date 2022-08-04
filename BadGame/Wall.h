@@ -1,11 +1,11 @@
-#pragma once // защита от повторного включения.
-#include "Variables.h" // подключаем заголовочный файл.
-#include "Entity.h" // подключаем заголовочный файл.
+#pragma once // used to provide additional control at compile time.
+#include "Variables.h" // header file for global variables.
+#include "Entity.h" // header file for entities.
 
-class Wall : public Entity // создаём класс коробки и наследуем его от Entity.
+class Wall : public Entity // create a wall class and inherit it from Entity.
 {
 public:
-	Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name); // конструктор класса.
-	void update(GameVariables* gv); // функция обновления логики объекта. (в параметрах передаем время).
-	void move(GameVariables* gv);
+	Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name); // wall constructor.
+	void update(GameVariables* gv); // wall update function.
+	void move(GameVariables* gv); // wall move function.
 };

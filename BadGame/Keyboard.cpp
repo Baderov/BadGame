@@ -1,4 +1,4 @@
-#include "Keyboard.h"
+#include "Keyboard.h" // header file for handling keyboard events.
 
 const int BACKSPACE_CODE = 8;
 const int SPACE_CODE = 32;
@@ -7,7 +7,7 @@ const int DOUBLE_QUOTES_CODE = 34;
 const int SINGLE_QUOTES_CODE = 39;
 const int BACKSLASH_CODE = 92;
 
-void keyboardEvents(GameVariables* gv)
+void keyboardEventHandler(GameVariables* gv) // keyboard event handling function.
 {
 	if (gv->input == 'n')
 	{

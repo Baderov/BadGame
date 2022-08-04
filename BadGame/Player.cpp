@@ -1,6 +1,6 @@
-#include "Player.h" // подключаем заголовочный файл.
+#include "Player.h" // header file for player.
 
-Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
+Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // player constructor.
 {
 	isMove = false;
 	isReload = false;
@@ -30,10 +30,10 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 	reloadRectInner.setOutlineThickness(2.f);
 	reloadRectInner.setOutlineColor(sf::Color::Black);
 
-	reloadText.setFont(consolasFont); // устанавливаем шрифт.
+	reloadText.setFont(consolasFont);
 	reloadText.setString("RELOAD");
 	reloadText.setCharacterSize(50);
-	reloadText.setFillColor(sf::Color::Black); // устанавливаем цвет текста.
+	reloadText.setFillColor(sf::Color::Black);
 	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);
 
 	nameText.setString(name);
@@ -41,7 +41,7 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 
 }
 
-void Player::update(GameVariables* gv) // функция update (в параметрах передаем время).
+void Player::update(GameVariables* gv) // player update function.
 {
 	if (isAlive == true)
 	{
@@ -65,7 +65,7 @@ void Player::update(GameVariables* gv) // функция update (в параметрах передаем 
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
 
-		if (HP <= 0) // если здоровье игрока равна нулю или меньше, то его жизнь равна False, то есть он мёртв.
+		if (HP <= 0) // if the player's health is zero or less, then he is dead.
 		{
 			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
 			isAlive = false;
@@ -73,30 +73,30 @@ void Player::update(GameVariables* gv) // функция update (в параметрах передаем 
 	}
 }
 
-void Player::rotate(GameVariables* gv)
+void Player::rotate(GameVariables* gv) // player rotate function.
 {
-	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window));//переводим их в игровые (уходим от коорд окна)
-	float dX = gv->mousePos.x - currentPos.x;//вектор , колинеарный прямой, которая пересекает спрайт и курсор
-	float dY = gv->mousePos.y - currentPos.y;//он же, координата y
-	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f;//получаем угол в радианах и переводим его в градусы
+	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
+	float dX = gv->mousePos.x - currentPos.x;
+	float dY = gv->mousePos.y - currentPos.y;
+	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	sprite.setRotation(rotation);
 	gv->aimLaser.setRotation(rotation + 90.f);
 }
 
-void Player::move(GameVariables* gv)
+void Player::move(GameVariables* gv) // player move function.
 {
 	if (isMove == true) { moveToTarget(moveTargetPos, gv); }	
 }
 
-void Player::updateLaser(GameVariables* gv)
+void Player::updateLaser(GameVariables* gv) // laser update function.
 {
-	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window));//переводим их в игровые (уходим от коорд окна)
+	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 	float distance = sqrt(((gv->mousePos.x - currentPos.x) * (gv->mousePos.x - currentPos.x)) + ((gv->mousePos.y - currentPos.y) * (gv->mousePos.y - currentPos.y)));
 	gv->aimLaserLength = distance;
 	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->aimLaserLength));
 }
 
-void Player::updateReloadRect()
+void Player::updateReloadRect() // update reload rect function.
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
 	sf::Int32 tempReloadTime = 0;

@@ -1,19 +1,17 @@
-#pragma once // защита от повторного включения.
-#include "Variables.h" // подключаем заголовочный файл.
-#include "Text.h" // подключаем заголовочный файл.
-#include "GameUpdate.h" // подключаем заголовочный файл.
-#include "Console.h" // подключаем заголовочный файл.
-#include "Item.h"
-#include "Menu.h"
+#pragma once // used to provide additional control at compile time.
+#include "Variables.h" // header file for global variables.
+#include "Text.h" // header file for working with text.
+#include "GameUpdate.h" // game update header file.
+#include "Console.h" // header file for working with the console.
+#include "Item.h" // header file for items.
+#include "Menu.h" // header file for working with the menu.
 
-void updateFPS(GameVariables* gv); // функция обновления FPS.
+void updateTime(GameVariables* gv); // time update function.
 
-void updateTime(GameVariables* gv);
+void updateFPS(GameVariables* gv); // FPS update function.
 
-void eventHandler(sf::Event& event, GameVariables* gv); // функция обработки событий.
+void eventHandler(sf::Event& event, GameVariables* gv); // event handling function.
 
-void singleplayerGame(GameVariables* gv);
+void singleplayerGame(GameVariables* gv); // single player launch function.
 
-void logs(GameVariables* gv);
-
-int main(); // главная функция программы.
+int main(); // the main function of the program.

@@ -1,22 +1,22 @@
-#include "Text.h" // подключаем заголовочный файл.
+#include "Text.h" // header file for working with text.
 
-void setGameInfo(GameVariables* gv, Entity* player, std::list<std::unique_ptr<Entity>>& entities) // функция установки игровой информации.
+void setGameInfo(GameVariables* gv, Entity* player, std::list<std::unique_ptr<Entity>>& entities) // function for setting game information.
 {
-	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window));//переводим их в игровые (уходим от коорд окна)
+	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 
 	gv->gameInfoText.setString("GAME INFO\nMouse X pos: " + std::to_string(gv->mousePos.x) + "\nMouse Y pos: " + std::to_string(gv->mousePos.y) +
 		"\nNumber of entities: " + std::to_string(entities.size()) + "\nFPS: " + std::to_string((int)gv->fps));
 
-	if (player != nullptr)
+	if (player != nullptr) // if the player is alive.
 	{
-		gv->playerInfoText.setString(std::to_string(player->getGoldCoins())); // устанавливаем текст.
+		gv->playerInfoText.setString(std::to_string(player->getGoldCoins()));
 		if (gv->gameLanguage == 'e')
 		{
-			gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo())); // устанавливаем текст.
+			gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo()));
 		}
 		else if (gv->gameLanguage == 'r')
 		{
-			gv->playerAmmoText.setString(L"Патроны: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo())); // устанавливаем текст.
+			gv->playerAmmoText.setString(L"Патроны: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo()));
 		}	
 	}
 
@@ -27,10 +27,10 @@ void setGameInfo(GameVariables* gv, Entity* player, std::list<std::unique_ptr<En
 
 }
 
-void drawGameInfo(GameVariables* gv) // функция рисовки игровой информации.
+void drawGameInfo(GameVariables* gv) // function for drawing game information.
 {
-	if (gv->showLogs == true) { gv->window.draw(gv->gameInfoText); } // рисуем текст.
+	if (gv->showLogs == true) { gv->window.draw(gv->gameInfoText); }
 	gv->window.draw(gv->goldCoinHUDSprite);
-	gv->window.draw(gv->playerInfoText); // рисуем текст.
-	gv->window.draw(gv->playerAmmoText); // рисуем текст.
+	gv->window.draw(gv->playerInfoText);
+	gv->window.draw(gv->playerAmmoText);
 }

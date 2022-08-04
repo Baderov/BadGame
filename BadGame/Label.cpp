@@ -1,6 +1,6 @@
-#include "Label.h"
+#include "Label.h" // header file for working with labels.
 
-Label::Label(std::wstring str, sf::Vector2f labelPos, unsigned int textSize, std::string name)
+Label::Label(std::wstring str, sf::Vector2f labelPos, unsigned int textSize, std::string name) // label constructor.
 {
 	font.loadFromFile("consolas.ttf");
 	this->name = name;
@@ -13,12 +13,12 @@ Label::Label(std::wstring str, sf::Vector2f labelPos, unsigned int textSize, std
 	this->text.setFillColor(sf::Color::Cyan);
 }
 
-std::string& Label::getName()
+std::string& Label::getName() // function to get label name.
 {
 	return name;
 }
 
-sf::Text& Label::getText()
+sf::Text& Label::getText() // function to get label text.
 {
 	return text;
 }

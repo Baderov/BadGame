@@ -1,6 +1,6 @@
-#include "Menu.h"
+#include "Menu.h" // header file for working with the menu.
 
-void errorChecking(GameVariables* gv)
+void errorChecking(GameVariables* gv) // error checking function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -52,7 +52,7 @@ void errorChecking(GameVariables* gv)
 	}
 }
 
-void multiplayerMenu(GameVariables* gv)
+void multiplayerMenu(GameVariables* gv) // multiplayer menu function.
 {
 	multiplayerMenuUpdate(gv);
 	gv->nickname = L"";
@@ -60,10 +60,10 @@ void multiplayerMenu(GameVariables* gv)
 	gv->tempPort = "";
 	gv->serverPort = 0;
 	gv->menuError = MenuErrors::NoErrors;
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen())
 	{
-		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
-		gv->menuNum = 0; // присваиваем номер меню.
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
+		gv->menuNum = 0;
 
 		if (gv->nickname.size() >= 3 && gv->menuError == MenuErrors::NickMustContainMoreChars)
 		{
@@ -82,11 +82,11 @@ void multiplayerMenu(GameVariables* gv)
 		{
 			if (el->getName() == "connectButton" || el->getName() == "backButton")
 			{
-				el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+				el->getSprite().setFillColor(sf::Color::White);
 			}
 			if (gv->allowButtons == false)
 			{
-				el->getSprite().setFillColor(gv->greyColor); // заливаем объект цветом.
+				el->getSprite().setFillColor(gv->greyColor);
 			}
 		}
 
@@ -119,17 +119,17 @@ void multiplayerMenu(GameVariables* gv)
 			}
 		}
 
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
 			{
 				gv->menuNum = 13;
 				gv->buttonsVec.clear();
 				gv->labelsVec.clear();
 				return;
 			}
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->allowButtons == true) // если нажали левую кнопку мыши.	
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; }
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->allowButtons == true)
 			{
 				switch (gv->menuNum)
 				{
@@ -225,10 +225,10 @@ void multiplayerMenu(GameVariables* gv)
 					break;
 				}
 			}
-			keyboardEvents(gv);
+			keyboardEventHandler(gv);
 			errorChecking(gv);
 		}
-		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+		gv->window.clear(sf::Color::Black);
 		for (auto& el : gv->buttonsVec)
 		{
 			gv->window.draw(el->getSprite());
@@ -241,21 +241,21 @@ void multiplayerMenu(GameVariables* gv)
 				gv->window.draw(el->getText());
 			}
 		}
-		gv->window.display(); // отображаем в окне.
+		gv->window.display();
 	}
 }
 
-void graphicsSettingsMenu(GameVariables* gv)
+void graphicsSettingsMenu(GameVariables* gv) // graphics settings menu function.
 {
 	graphicsSettingsMenuUpdate(gv);
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen())
 	{
-		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
-		gv->menuNum = 0; // присваиваем номер меню.
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
+		gv->menuNum = 0;
 
 		for (auto& el : gv->buttonsVec)
 		{
-			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			el->getSprite().setFillColor(sf::Color::White);
 		}
 
 		for (auto& el : gv->buttonsVec)
@@ -329,7 +329,7 @@ void graphicsSettingsMenu(GameVariables* gv)
 		}
 
 
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
@@ -338,10 +338,10 @@ void graphicsSettingsMenu(GameVariables* gv)
 				gv->labelsVec.clear();
 				return;
 			}
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); gv->labelsVec.clear(); return; } // если нажали левую кнопку мыши.	
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; }
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); gv->labelsVec.clear(); return; }
 		}
-		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+		gv->window.clear(sf::Color::Black);
 
 		for (auto& el : gv->buttonsVec)
 		{
@@ -353,21 +353,21 @@ void graphicsSettingsMenu(GameVariables* gv)
 			gv->window.draw(el->getText());
 		}
 
-		gv->window.display(); // отображаем в окне.
+		gv->window.display();
 	}
 }
 
-void settingsMenu(GameVariables* gv)
+void settingsMenu(GameVariables* gv) // settings menu function.
 {
 	settingsMenuUpdate(gv);
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen())
 	{
-		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
-		gv->menuNum = 0; // присваиваем номер меню.
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
+		gv->menuNum = 0;
 
 		for (auto& el : gv->buttonsVec)
 		{
-			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			el->getSprite().setFillColor(sf::Color::White);
 		}
 
 		for (auto& el : gv->buttonsVec)
@@ -386,34 +386,34 @@ void settingsMenu(GameVariables* gv)
 			}
 		}
 
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
 			{
 				gv->menuNum = 13;
 				gv->buttonsVec.clear();
 				return;
 			}
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); return; } // если нажали левую кнопку мыши.	
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; }
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) { gv->buttonsVec.clear(); return; }
 		}
-		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+		gv->window.clear(sf::Color::Black);
 		for (auto& el : gv->buttonsVec)
 		{
 			gv->window.draw(el->getSprite());
 			gv->window.draw(el->getText());
 		}
-		gv->window.display(); // отображаем в окне.
+		gv->window.display();
 	}
 }
 
-void mainMenu(GameVariables* gv, Entity*& player)
+void mainMenu(GameVariables* gv, Entity*& player) // main menu function.
 {
 	mainMenuUpdate(gv, player);
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen())
 	{
-		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
-		gv->menuNum = 0; // присваиваем номер меню.
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
+		gv->menuNum = 0;
 
 		for (auto& el : gv->buttonsVec)
 		{
@@ -456,15 +456,15 @@ void mainMenu(GameVariables* gv, Entity*& player)
 			}
 		}
 
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && (gv->singlePlayerGame == true || gv->multiPlayerGame == true)) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && (gv->singlePlayerGame == true || gv->multiPlayerGame == true))
 			{
 				gv->menuNum = 23;
 				return;
 			}
-			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; } // если состояние события приняло значение "Закрыто" - окно закрывается.
-			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0) // если нажали левую кнопку мыши.
+			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; }
+			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0)
 			{ 
 				if (gv->multiPlayerGame == true && gv->menuNum == 17)
 				{
@@ -479,24 +479,24 @@ void mainMenu(GameVariables* gv, Entity*& player)
 				}
 			} 
 		}
-		gv->window.clear(sf::Color::Black); // очищаем окно черным цветом.
+		gv->window.clear(sf::Color::Black);
 		for (auto& el : gv->buttonsVec)
 		{
 			gv->window.draw(el->getSprite());
 			gv->window.draw(el->getText());
 		}
 
-		gv->window.display(); // отображаем в окне.
+		gv->window.display();
 	}
 }
 
-void menuEventHandler(GameVariables* gv, Entity*& player)
+void menuEventHandler(GameVariables* gv, Entity*& player) // function to handle menu events.
 {
 	gv->exitFromMenu = false;
 	mainMenu(gv, player);
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen())
 	{
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); }
 		}
@@ -530,27 +530,27 @@ void menuEventHandler(GameVariables* gv, Entity*& player)
 			gv->menuNum = 0;
 			if (gv->isFullscreen == true) { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Fullscreen); }
 			else { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Close); }
-			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setFramerateLimit(75); // fps lock.
 			graphicsSettingsMenu(gv);
 			break;
 		case 7:
 			gv->menuNum = 0;
 			if (gv->isFullscreen == true) { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Fullscreen); }
 			else { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Close); }
-			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setFramerateLimit(75); // fps lock.
 			graphicsSettingsMenu(gv);
 			break;
 		case 8:
 			gv->menuNum = 0;
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Close);
-			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setFramerateLimit(75); // fps lock.
 			gv->isFullscreen = false;
 			graphicsSettingsMenu(gv);
 			break;
 		case 9:
 			gv->menuNum = 0;
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Fullscreen);
-			gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+			gv->window.setFramerateLimit(75); // fps lock.
 			gv->isFullscreen = true;
 			graphicsSettingsMenu(gv);
 			break;

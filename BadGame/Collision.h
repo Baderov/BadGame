@@ -1,4 +1,4 @@
-#pragma once // защита от повторного включения.
-#include "GameUpdate.h"
+#pragma once // used to provide additional control at compile time.
+#include "GameUpdate.h" // game update header file.
 
-void collision(Entity* entity, Entity* entity2); // функция обработки коллизий.
+void collisionHandler(Entity* entity, Entity* entity2); // collision handling function.

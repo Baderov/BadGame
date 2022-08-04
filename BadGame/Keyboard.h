@@ -1,4 +1,4 @@
-#pragma once // защита от повторного включения.
-#include "GameUpdate.h" // подключаем библиотеку.
+#pragma once // used to provide additional control at compile time.
+#include "GameUpdate.h" // game update header file.
 
-void keyboardEvents(GameVariables* gv);
+void keyboardEventHandler(GameVariables* gv); // keyboard event handling function.

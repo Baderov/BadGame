@@ -161,7 +161,6 @@
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
-    <ClCompile Include="Resolution.cpp" />
     <ClCompile Include="RichText.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -185,7 +184,6 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Resolution.h" />
     <ClInclude Include="RichText.hpp" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="Text.h" />

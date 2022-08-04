@@ -1,66 +1,64 @@
-#pragma once // защита от повторного включени€.
-#include <iostream> 
-#include <SFML/Graphics.hpp> 
-#include <SFML/Network.hpp>
-#include <memory>
-#include <cmath>
-#include <list>
-#include "Button.h"
-#include "Label.h"
+#pragma once // used to provide additional control at compile time.
+#include <iostream> // header that defines the standard input/output stream objects.
+#include <SFML/Graphics.hpp> // SFML library for working with graphics.
+#include <SFML/Network.hpp> // SFML library for networking.
+#include <list> // header file for working with the list.
+#include "Button.h" // header file for working with buttons.
+#include "Label.h" // header file for working with labels.
 
-enum class MenuErrors
+enum class MenuErrors // enumeration for menu errors.
 {
 	NoErrors, ServerIsNotAvailable, NicknameIsAlreadyTaken, NickMustContainMoreChars
 }; 
 
-struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
+struct GameVariables // declare structure for game variables.
 {
 	MenuErrors menuError;
 
-	sf::RenderWindow window; // главное окно приложени€.
+	sf::RenderWindow window;
 
-	sf::Event event; // объект событи€.
+	sf::Event event;
 
-	sf::Image playerImage; // картинка игрока.
-	sf::Image enemyImage; // картинка врага.
-	sf::Image wallImage; // картинка стены.
-	sf::Image bulletImage; // картинка пули.
-	sf::Image boxImage; // картинка коробки.
-	sf::Image goldCoinImage; // картинка пули.
-	sf::Image goldCoinHUDImage; // картинка пули.
-	sf::Image hpBonusImage; // картинка коробки.
+	sf::Image playerImage;
+	sf::Image enemyImage;
+	sf::Image wallImage;
+	sf::Image bulletImage;
+	sf::Image boxImage;
+	sf::Image goldCoinImage;
+	sf::Image goldCoinHUDImage;
+	sf::Image hpBonusImage;
 
 	sf::Texture goldCoinHUDTexture;
 
 	sf::Sprite goldCoinHUDSprite;
 
-	sf::RectangleShape aimLaser; // прицельный лазер.
+	sf::RectangleShape aimLaser;
 
-	sf::TcpSocket sock; // программный интерфейс дл€ обеспечени€ обмена данными между процессами.
+	sf::TcpSocket sock;
 
-	sf::CircleShape playerDestination; // создаЄм метку передвижени€ игрока.
+	sf::CircleShape playerDestination;
 
 	sf::View view;
 
-	sf::Font consolasFont; // создаЄм объект шрифта Consolas.
+	sf::Font consolasFont;
 	
-	sf::Text gameInfoText; // текст игровой информации.
-	sf::Text playerInfoText; // текст информации об игроке.
-	sf::Text playerAmmoText; // текст информации о патронах игрока.
+	sf::Text gameInfoText;
+	sf::Text playerInfoText;
+	sf::Text playerAmmoText;
 
-	sf::Vector2f mousePos; // позици€ курсора мыши.
-	sf::Vector2f playerStartPos; // стартова€ позици€ игрока.
-	sf::Vector2f boxStartPositions[12]; // стартовые позиции коробок.
+	sf::Vector2f mousePos;
+	sf::Vector2f playerStartPos;
+	sf::Vector2f boxStartPositions[12];
 
-	sf::Color backgroundColor; // цвет фона.
-	sf::Color greyColor; // объ€вл€ем серый цвет.
+	sf::Color backgroundColor;
+	sf::Color greyColor;
 
-	sf::Clock clock; // часы.
-	sf::Clock fpsClock; // часы дл€ FPS.
-	sf::Clock menuClock; // часы дл€ Menu.
+	sf::Clock clock;
+	sf::Clock fpsClock;
+	sf::Clock menuClock;
 
-	sf::Time fpsPreviousTime; // врем€ предыдущего кадра.
-	sf::Time fpsCurrentTime; // врем€ текущего кадра.
+	sf::Time fpsPreviousTime;
+	sf::Time fpsCurrentTime;
 
 	std::vector<std::unique_ptr<Button>> buttonsVec;
 	std::vector<std::unique_ptr<Label>> labelsVec;
@@ -74,27 +72,27 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	std::wstring joinedNick;
 	std::wstring joinedMsg;
 	std::wstring leftMsg;
-	std::string serverIP; // ip адрес сервера.
-	std::string tempPort; // временный порт сервера.
+	std::string serverIP;
+	std::string tempPort;
 
-	float fps; // кадры в секунду.
-	float aimLaserLength; // длина прицельного лазера
+	float fps;
+	float aimLaserLength;
 	float scrollbarDivisor;
 
 	sf::Int32 menuTimer;
-	sf::Int64 dt; // врем€.
-	sf::Int64 divisor; // делитель дл€ времени.
+	sf::Int64 dt;
+	sf::Int64 divisor;
 	int numberOfEnemies;
 	int numberOfPlayers;
-	int menuNum; // номер меню.
-	int serverPort; // порт сервера.
+	int menuNum;
+	int serverPort;
 	int numOfLinesInChat;
 	int numOfLinesInUserTextBox;
 	size_t scrollbarStepNumber;
 
-	bool showHitbox; // показывать хитбокс?
-	bool showAimLaser; // показывать прицельный лазер?
-	bool showLogs; // показывать логи?
+	bool showHitbox;
+	bool showAimLaser;
+	bool showLogs;
 	bool isGameOver;
 	bool isFullscreen; 
 	bool allowButtons;
@@ -117,16 +115,16 @@ struct GameVariables // объ€вл€ем структуру дл€ игровых переменных.
 	char input;
 };
 
-void setColor(GameVariables* gv); // функци€ установки значений дл€ цвета.
+void setColor(GameVariables* gv); // function for setting values for color.
 
-void setFont(GameVariables* gv); // функци€ установки значений дл€ шрифтов.
+void setFont(GameVariables* gv); // function for setting values for fonts.
 
-void setText(GameVariables* gv); // функци€ установки значений дл€ текста.
+void setText(GameVariables* gv); // function for setting values for text.
 
-void setImage(GameVariables* gv); // функци€ установки значений дл€ изображений.
+void setImage(GameVariables* gv); // function for setting values for images.
 
-void setTexture(GameVariables* gv); // функци€ установки значени€ дл€ текстур.
+void setTexture(GameVariables* gv); // function for setting value for textures.
 
-void setSprite(GameVariables* gv); // функци€ установки значени€ дл€ спрайтов.
+void setSprite(GameVariables* gv); // function to set value for sprites.
 
-void setVariables(GameVariables* gv); // обща€ функци€ установки значений.
+void setVariables(GameVariables* gv); // function for setting the values of global variables.

@@ -1,6 +1,6 @@
-#include "Button.h"
+#include "Button.h" // header file for working with buttons.
 
-Button::Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, unsigned int textSize, std::string name, bool textOrigin)
+Button::Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str, unsigned int textSize, std::string name, bool textOrigin) // button constructor.
 {
 	font.loadFromFile("consolas.ttf");
 
@@ -22,17 +22,17 @@ Button::Button(sf::Vector2f buttonSize, sf::Vector2f buttonPos, std::wstring str
 	this->text.setFillColor(sf::Color::Black);
 }
 
-std::string& Button::getName()
-{
-	return name;
-}
-
-sf::RectangleShape& Button::getSprite()
+sf::RectangleShape& Button::getSprite() // function to get button sprite.
 {
 	return sprite;
 }
 
-sf::Text& Button::getText()
+sf::Text& Button::getText() // function to get button text.
 {
 	return text;
+}
+
+std::string& Button::getName() // function to get button name.
+{
+	return name;
 }

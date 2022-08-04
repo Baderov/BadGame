@@ -1,16 +1,16 @@
-#pragma once // защита от повторного включения.
-#include "Variables.h" // подключаем заголовочный файл.
+#pragma once // used to provide additional control at compile time.
+#include "Variables.h" // header file for global variables.
 
-class Entity // общий класс для всех сущностей.
+class Entity // common class for all entities.
 {
 public:
-	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name);
-	virtual void update(GameVariables* gv) = 0; // функция update для всех существ.
-	virtual void move(GameVariables* gv) = 0; // функция move для всех существ.
-	void moveToTarget(sf::Vector2f targetPos, GameVariables* gv);
-	void moveToDirection();
-	void calcDirection();
-	void updateHPBar();
+	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name); // entity constructor.
+	virtual void update(GameVariables* gv) = 0; // update function for all entities.
+	virtual void move(GameVariables* gv) = 0; // move function for all entities.
+	void moveToTarget(sf::Vector2f targetPos, GameVariables* gv); // a function to move the sprite to the target.
+	void moveToDirection(); // function to move the sprite in direction.
+	void calcDirection(); // function to calculate direction.
+	void updateHPBar(); // function to update HP Bar.
 
 	sf::Int32& getShootTime();
 	sf::Int32& getMenuTime();
@@ -90,7 +90,7 @@ public:
 protected:
 	sf::Int32 spawnTime, reloadTime, menuTime, shootTime;
 	float maxSpeed, distance, w, h;
-	int HP, maxHP, goldCoins, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo; // w - ширина спрайта, h - высота спрайта, HP - здоровье, maxHP - максимальное количество HP.
+	int HP, maxHP, goldCoins, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
 	bool isAlive, isMove, isShoot, isReload;
 	sf::Clock reloadClock, shootClock;
 	sf::Font consolasFont;
@@ -98,8 +98,8 @@ protected:
 	sf::Color grayColor;
 	sf::RectangleShape rectHitbox, HPBarInner, HPBarOuter, reloadRectInner, reloadRectOuter;
 	sf::Vector2f moveTargetPos, currentPos, currentVelocity, stepPos, aimPos, aimDir, aimDirNorm;
-	sf::Image image; // создаём изображение.
-	sf::Texture texture; // создаём текстуру.
-	sf::Sprite sprite; // создаём спрайт.
-	std::wstring name, creatorName; // враги могут быть разные, мы не будем делать другой класс для врага.Всего лишь различим врагов по имени и дадим каждому свое действие в update в зависимости от имени.
+	sf::Image image;
+	sf::Texture texture;
+	sf::Sprite sprite;
+	std::wstring name, creatorName;
 };

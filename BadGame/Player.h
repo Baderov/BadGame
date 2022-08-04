@@ -1,14 +1,14 @@
-#pragma once // защита от повторного включения.
-#include "Variables.h" // подключаем заголовочный файл.
-#include "Entity.h" // подключаем заголовочный файл.
+#pragma once // used to provide additional control at compile time.
+#include "Variables.h" // header file for global variables.
+#include "Entity.h" // header file for entities.
 
-class Player : public Entity // создаём класс игрока и наследуем его от Entity.
+class Player : public Entity // create a player class and inherit it from Entity.
 {
 public:
-	Player(sf::Image& image, sf::Vector2f startPos, std::wstring name); // конструктор класса.
-	void update(GameVariables* gv);
-	void move(GameVariables* gv);
-	void rotate(GameVariables* gv);
-	void updateLaser(GameVariables* gv);
-	void updateReloadRect();
+	Player(sf::Image& image, sf::Vector2f startPos, std::wstring name); // player constructor.
+	void update(GameVariables* gv); // player update function.
+	void rotate(GameVariables* gv); // player rotate function.
+	void move(GameVariables* gv); // player move function.
+	void updateLaser(GameVariables* gv); // laser update function.
+	void updateReloadRect(); // update reload rect function.
 };

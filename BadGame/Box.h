@@ -1,11 +1,11 @@
-#pragma once // защита от повторного включения.
-#include "Variables.h" // подключаем заголовочный файл.
-#include "Entity.h" // подключаем заголовочный файл.
+#pragma once // used to provide additional control at compile time.
+#include "Variables.h" // header file for global variables.
+#include "Entity.h" // header file for entities.
 
-class Box : public Entity // создаём класс коробки и наследуем его от Entity.
+class Box : public Entity // create a box class and inherit it from Entity.
 {
 public:
-	Box(sf::Image& image, sf::Vector2f startPos,  std::wstring name); // конструктор класса.
-	void update(GameVariables* gv); // функция обновления логики объекта. (в параметрах передаем время).
-	void move(GameVariables* gv);
+	Box(sf::Image& image, sf::Vector2f startPos,  std::wstring name); // box constructor.
+	void update(GameVariables* gv); // box update function.
+	void move(GameVariables* gv); // box move function.
 };

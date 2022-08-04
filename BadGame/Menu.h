@@ -1,20 +1,19 @@
-#pragma once // защита от повторного включения.
-#include <SFML/Graphics.hpp> // подключаем библиотеку.
-#include "Variables.h" // подключаем заголовочный файл.
-#include "Resolution.h"
-#include "Network.h"
-#include "GameUpdate.h" 
-#include "Keyboard.h"
-#include "Chat.h"
+#pragma once // used to provide additional control at compile time.
+#include <SFML/Graphics.hpp> // SFML library for working with graphics.
+#include "Variables.h" // header file for global variables.
+#include "Network.h" // header file for working with the network.
+#include "GameUpdate.h" // game update header file.
+#include "Keyboard.h" // header file for handling keyboard events.
+#include "Chat.h" // header file for working with chat.
 
-void graphicsSettingsMenu(GameVariables* gv);
+void errorChecking(GameVariables* gv); // error checking function.
 
-void settingsMenu(GameVariables* gv);
+void multiplayerMenu(GameVariables* gv); // multiplayer menu function.
 
-void multiplayerMenu(GameVariables* gv);
+void graphicsSettingsMenu(GameVariables* gv); // graphics settings menu function.
 
-void mainMenu(GameVariables* gv, Entity*& player); // функция запуска меню.
+void settingsMenu(GameVariables* gv); // settings menu function.
 
-void menuEventHandler(GameVariables* gv, Entity*& player);
+void mainMenu(GameVariables* gv, Entity*& player); // main menu function.
 
-void errorChecking(GameVariables* gv);
+void menuEventHandler(GameVariables* gv, Entity*& player); // menu event handling function.

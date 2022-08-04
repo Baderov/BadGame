@@ -1,15 +1,15 @@
-#pragma once
-#include <SFML/Graphics.hpp>
-#include "RichText.hpp"
-#include "Variables.h"
-#include <windows.h>
+#pragma once // used to provide additional control at compile time.
+#include <SFML/Graphics.hpp> // SFML library for working with graphics.
+#include "RichText.hpp" // improved sf::Text.
+#include "Variables.h" // header file for global variables.
+#include <windows.h> // windows-specific header file for the C and C++ programming languages which contains declarations for all of the functions in the Windows API.
 
-class Chat
+class Chat // declare a class for creating a chat.
 {
 public:
-	struct chatStrings
+	struct chatStrings // chatStrings structure.
 	{
-		chatStrings(std::wstring prefix, std::wstring msg, int countOfLines, bool joinedTheServer, bool leftTheServer)
+		chatStrings(std::wstring prefix, std::wstring msg, int countOfLines, bool joinedTheServer, bool leftTheServer) // chatStrings constructor.
 		{
 			this->prefix = prefix;
 			this->msg = msg;
@@ -23,26 +23,25 @@ public:
 		bool joinedTheServer = false;
 		bool leftTheServer = false;
 	};
+	Chat(sf::RenderWindow& window); // chat constructor.
+	sf::RectangleShape& getOuterScrollBar(); // function to get outer scrollbar.
+	sf::RectangleShape& getInnerScrollBar(); // function to get inner scrollbar.
+	sf::RectangleShape& getChatTextBox(); // function to get chat textbox.
+	sf::RectangleShape& getUserTextBox(); // function to get user textbox.
+	std::vector<std::unique_ptr<chatStrings>>& getStrVector(); // function to get string vector.
+	sf::Font& getFont(); // function to get font.
+	sfe::RichText& getChatText(); // function to get chat text.
+	sfe::RichText& getUserText(); // function to get user text.
 
-	Chat(sf::RenderWindow& window);
-	sf::RectangleShape& getOuterScrollBar();
-	sf::RectangleShape& getInnerScrollBar();
-	sf::RectangleShape& getChatTextBox();
-	sf::RectangleShape& getUserTextBox();
-	std::vector<std::unique_ptr<chatStrings>>& getStrVector();
-	sf::Font& getFont();
-	sfe::RichText& getChatText();
-	sfe::RichText& getUserText();
+	void addString(GameVariables* gv, Chat& chat); // function to add a string to a vector.
 
-	void addString(GameVariables* gv, Chat& chat);
+	void addEndLine(GameVariables* gv, Chat& chat); // function to add the end of the line.
 
-	void addNewLine(GameVariables* gv, Chat& chat);
+	void scrollUp(GameVariables* gv, Chat& chat); // function to scroll up the chat.
 
-	void moveUp(GameVariables* gv, Chat& chat);
+	void scrollDown(GameVariables* gv, Chat& chat); // function to scroll down the chat.
 
-	void moveDown(GameVariables* gv, Chat& chat);
-
-	bool trimString(std::wstring& str, GameVariables* gv);
+	bool trimString(std::wstring& str, GameVariables* gv); // string trim function.
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;

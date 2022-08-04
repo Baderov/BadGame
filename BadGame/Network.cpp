@@ -1,4 +1,4 @@
-#include "Network.h"
+#include "Network.h" // header file for working with the network.
 
 //ip - "127.0.0.1";
 //port - 2000;
@@ -24,24 +24,24 @@ const int ESCAPE_CODE = 27;
 const int ENTER_CODE = 13;
 const int MAX_CHAR_NUM = 202;
 
-std::vector<std::unique_ptr<Clients>> clientsVec; // вектор структур для клиентов.
-std::vector<std::unique_ptr<Clients>> tempVec; // вектор структур для клиентов.
+std::vector<std::unique_ptr<Clients>> clientsVec; // vector structures for clients.
+std::vector<std::unique_ptr<Clients>> tempVec; // temp vector structures for clients.
 
-Clients::Clients(int id, std::wstring nickname, sf::Vector2f pos)
+Clients::Clients(int id, std::wstring nickname, sf::Vector2f pos) // first clients constructor.
 {
 	this->id = id;
 	this->nickname = nickname;
 	this->pos = pos;
 }
 
-Clients::Clients()
+Clients::Clients() // second clients constructor.
 {
 	this->id = 0;
 	this->nickname = L"";
 	this->pos = sf::Vector2f(0.f, 0.f);
 }
 
-sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec)
+sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec) // operator >> overload 
 {
 	for (auto& el : clientsVec)
 	{
@@ -50,14 +50,14 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-bool connectToServer(GameVariables* gv)
+bool connectToServer(GameVariables* gv) // function to connect to the server.
 {
-	if (gv->sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done) // подключение к серверу, нужно ввести ip и порт.
+	if (gv->sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done)
 	{
 		sf::Packet packet;
 		std::wstring prefix = L"regNickname"; // regNickname - register a nickname.
 		packet << prefix << gv->nickname;
-		gv->sock.send(packet); // отправка данных
+		gv->sock.send(packet);
 		SetConsoleTextAttribute(handle, 13);
 		return true;
 	}
@@ -67,9 +67,9 @@ bool connectToServer(GameVariables* gv)
 	}
 }
 
-void receive(GameVariables* gv)
+void receiveData(GameVariables* gv) // function to receive data from the server.
 {
-	sf::Packet packet; // для осуществления пакетной передачи данных
+	sf::Packet packet;
 	std::wstring prefix = L"", msg = L"", side = L"";
 	while (true)
 	{
@@ -128,21 +128,21 @@ void receive(GameVariables* gv)
 							{
 								if (side == L"up")
 								{
-									el->playerShape.move(0.f, -5.f);
+									el->rectangleShape.move(0.f, -5.f);
 								}
 								else if (side == L"down")
 								{
-									el->playerShape.move(0.f, 5.f);
+									el->rectangleShape.move(0.f, 5.f);
 								}
 								else if (side == L"left")
 								{
-									el->playerShape.move(-5.f, 0.f);
+									el->rectangleShape.move(-5.f, 0.f);
 								}
 								else if (side == L"right")
 								{
-									el->playerShape.move(5.f, 0.f);
+									el->rectangleShape.move(5.f, 0.f);
 								}
-								el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
+								el->nickText.setPosition(el->rectangleShape.getPosition().x, el->rectangleShape.getPosition().y - 80.f);
 							}
 						}
 					}
@@ -179,54 +179,54 @@ void receive(GameVariables* gv)
 						tempVec.clear();
 						for (int i = 0; i < clientsVecSize; i++)
 						{
-							tempVec.emplace_back(new Clients()); // создание пустых объектов вектора.
+							tempVec.emplace_back(new Clients());
 						}
 						if (packet >> tempVec)
 						{
 							isVectorReceived = true;
 						}
 					}
-					packet.clear(); // чистим пакет
+					packet.clear();
 				}
 				else
 				{
 					std::cout << "Reading error!" << std::endl;
-					packet.clear(); // чистим пакет
+					packet.clear();
 				}
 			}
 		}
 	}
 }
 
-void sendMessage(GameVariables* gv)
+void sendMessage(GameVariables* gv) // function to send message to the server.
 {
-	sf::Packet packet; // для осуществления пакетной передачи данных
-	packet.clear(); // чистим пакет
+	sf::Packet packet;
+	packet.clear();
 	std::wstring prefix = L"msg";
 	packet << prefix << gv->nickname << gv->userStr << gv->numOfLinesInUserTextBox;
 	gv->sock.send(packet);
 }
 
-void moveRequest(GameVariables* gv, std::wstring side)
+void sendMoveRequest(GameVariables* gv, std::wstring side) // sending a move request to the server
 {
-	sf::Packet packet; // для осуществления пакетной передачи данных
-	packet.clear(); // чистим пакет
+	sf::Packet packet;
+	packet.clear();
 	std::wstring prefix = L"move";
 	packet << prefix << side << gv->nickname;
 	gv->sock.send(packet);
 }
 
-void sendPosition(GameVariables* gv)
+void sendPosition(GameVariables* gv) // function to send position to the server.
 {
-	sf::Packet packet; // для осуществления пакетной передачи данных
-	packet.clear(); // чистим пакет
+	sf::Packet packet;
+	packet.clear();
 	std::wstring prefix = L"pos";
 	sf::Vector2f pos;
 	for (auto& el : clientsVec)
 	{
 		if (el->nickname == gv->nickname)
 		{
-			pos = el->playerShape.getPosition();
+			pos = el->rectangleShape.getPosition();
 			break;
 		}
 	}
@@ -234,7 +234,7 @@ void sendPosition(GameVariables* gv)
 	gv->sock.send(packet);
 }
 
-void send(GameVariables* gv)
+void sendData(GameVariables* gv) // function to send data to the server.
 {
 	while (true)
 	{
@@ -250,31 +250,31 @@ void send(GameVariables* gv)
 		if (movement == L"up")
 		{
 			sendPosition(gv);
-			moveRequest(gv, L"up");
+			sendMoveRequest(gv, L"up");
 			movement = L"";
 		}
 		else if (movement == L"down")
 		{
 			sendPosition(gv);
-			moveRequest(gv, L"down");
+			sendMoveRequest(gv, L"down");
 			movement = L"";
 		}
 		else if (movement == L"left")
 		{
 			sendPosition(gv);
-			moveRequest(gv, L"left");
+			sendMoveRequest(gv, L"left");
 			movement = L"";
 		}
 		else if (movement == L"right")
 		{
 			sendPosition(gv);
-			moveRequest(gv, L"right");
+			sendMoveRequest(gv, L"right");
 			movement = L"";
 		}
 	}
 }
 
-void fillClientsVector(GameVariables* gv)
+void addClientsToVector(GameVariables* gv) // function to add clients to the vector.
 {
 	if (isVectorReceived == true)
 	{
@@ -286,10 +286,10 @@ void fillClientsVector(GameVariables* gv)
 
 		for (auto& el : clientsVec)
 		{
-			el->playerShape.setSize(sf::Vector2f(100.f, 100.f));
-			el->playerShape.setFillColor(sf::Color::Black);
-			el->playerShape.setOrigin(el->playerShape.getSize() / 2.f);
-			el->playerShape.setPosition(el->pos);
+			el->rectangleShape.setSize(sf::Vector2f(100.f, 100.f));
+			el->rectangleShape.setFillColor(sf::Color::Black);
+			el->rectangleShape.setOrigin(el->rectangleShape.getSize() / 2.f);
+			el->rectangleShape.setPosition(el->pos);
 
 			el->nickText.setFont(gv->consolasFont);
 			el->nickText.setFillColor(sf::Color::Green);
@@ -297,22 +297,22 @@ void fillClientsVector(GameVariables* gv)
 			el->nickText.setOutlineThickness(2.f);
 			el->nickText.setString(el->nickname);
 			el->nickText.setOrigin(round(el->nickText.getLocalBounds().left + (el->nickText.getLocalBounds().width / 2.f)), round(el->nickText.getLocalBounds().top + (el->nickText.getLocalBounds().height / 2.f)));
-			el->nickText.setPosition(el->playerShape.getPosition().x, el->playerShape.getPosition().y - 80.f);
+			el->nickText.setPosition(el->rectangleShape.getPosition().x, el->rectangleShape.getPosition().y - 80.f);
 		}
 		isVectorReceived = false;
 	}
 }
 
-void startNetwork(GameVariables* gv)
+void startNetwork(GameVariables* gv) // function to start network.
 {
-	std::thread receiveThread([&]() { receive(gv); });
+	std::thread receiveThread([&]() { receiveData(gv); });
 	receiveThread.detach();
 	if (connectToServer(gv) == true)
 	{
 		gv->allowButtons = true;
 		for (auto& el : gv->buttonsVec)
 		{
-			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			el->getSprite().setFillColor(sf::Color::White);
 		}
 	}
 	else
@@ -321,7 +321,7 @@ void startNetwork(GameVariables* gv)
 		gv->menuError = MenuErrors::ServerIsNotAvailable;
 		for (auto& el : gv->buttonsVec)
 		{
-			el->getSprite().setFillColor(sf::Color::White); // заливаем объект цветом.
+			el->getSprite().setFillColor(sf::Color::White);
 		}
 		gv->multiPlayerGame = false;
 	}
@@ -329,7 +329,7 @@ void startNetwork(GameVariables* gv)
 
 }
 
-void resetVariables(GameVariables* gv)
+void resetVariables(GameVariables* gv) // global variable reset function.
 {
 	gv->userStr = L"";
 	gv->chatStr = L"";
@@ -351,22 +351,22 @@ void resetVariables(GameVariables* gv)
 	gv->joinToServer = false;
 }
 
-void multiplayerGame(GameVariables* gv, Entity*& player)
+void multiplayerGame(GameVariables* gv, Entity*& player) // multiplayer game launch function.
 {
 	resetVariables(gv);
 
 	Chat chat(gv->window);
 
-	std::thread receiveThread([&]() { receive(gv); });
-	std::thread sendThread([&]() { send(gv); });
+	std::thread receiveThread([&]() { receiveData(gv); });
+	std::thread sendThread([&]() { sendData(gv); });
 
 	receiveThread.detach();
 	sendThread.detach();
 
-	while (gv->window.isOpen()) // пока меню открыто.
+	while (gv->window.isOpen()) // while window is open.
 	{
-		fillClientsVector(gv);
-		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // получаем коорды мыши.
+		addClientsToVector(gv);
+		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
 
 		if (gv->leftFromServer == true)
@@ -411,9 +411,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			gv->chatContainsMouse = false;
 		}
 
-		while (gv->window.pollEvent(gv->event)) // пока происходят события.
+		while (gv->window.pollEvent(gv->event))
 		{
-			if (gv->event.type == sf::Event::Closed) { clientsVec.clear(); tempVec.clear(); gv->window.close(); } // если состояние события приняло значение "Закрыто" - окно закрывается.
+			if (gv->event.type == sf::Event::Closed) { clientsVec.clear(); tempVec.clear(); gv->window.close(); }
 
 			if (gv->event.type == sf::Event::LostFocus)
 			{
@@ -439,7 +439,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				}
 			}
 
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
 			{
 				menuEventHandler(gv, player);
 				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->isGameOver = true; return; }
@@ -457,7 +457,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				}
 			}
 
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::O && gv->chatEnterText == false) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::O && gv->chatEnterText == false)
 			{
 				hideChat = !hideChat;
 			}
@@ -506,7 +506,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
-						chat.addNewLine(gv, chat);
+						chat.addEndLine(gv, chat);
 						gv->userStr += L"\?";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -516,7 +516,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
-						chat.addNewLine(gv, chat);
+						chat.addEndLine(gv, chat);
 						gv->userStr += L"\"";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -526,7 +526,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
-						chat.addNewLine(gv, chat);
+						chat.addEndLine(gv, chat);
 						gv->userStr += L"\'";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -536,7 +536,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
-						chat.addNewLine(gv, chat);
+						chat.addEndLine(gv, chat);
 						gv->userStr += L"\\";
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -547,7 +547,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 				{
 					if (gv->userStr.size() < MAX_CHAR_NUM)
 					{
-						chat.addNewLine(gv, chat);
+						chat.addEndLine(gv, chat);
 						gv->userStr += gv->event.text.unicode;
 						chat.getUserText().clear();
 						chat.getUserText() << sf::Color::Black << gv->userStr;
@@ -558,13 +558,13 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 		if (gv->scrollbarDir == L"up" && ((chat.getInnerScrollBar().getPosition().y - (chat.getInnerScrollBar().getSize().y / 2.f))) > chat.getOuterScrollBar().getPosition().y - (chat.getOuterScrollBar().getSize().y / 2.f)) // up
 		{
-			chat.moveUp(gv, chat);
+			chat.scrollUp(gv, chat);
 			gv->scrollbarDir = L"";
 		}
 
 		else if (gv->scrollbarDir == L"down" && ((chat.getInnerScrollBar().getPosition().y + (chat.getInnerScrollBar().getSize().y / 2.f))) < chat.getOuterScrollBar().getPosition().y + (chat.getOuterScrollBar().getSize().y / 2.f)) // down
 		{
-			chat.moveDown(gv, chat);
+			chat.scrollDown(gv, chat);
 			gv->scrollbarDir = L"";
 		}
 
@@ -589,7 +589,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 
 		for (auto& el : clientsVec)
 		{
-			gv->window.draw(el->playerShape);
+			gv->window.draw(el->rectangleShape);
 			gv->window.draw(el->nickText);
 		}
 
@@ -602,6 +602,6 @@ void multiplayerGame(GameVariables* gv, Entity*& player)
 			gv->window.draw(chat.getUserText());
 			gv->window.draw(chat.getChatText());
 		}
-		gv->window.display(); // отображаем в окне.
+		gv->window.display();
 	}
 }

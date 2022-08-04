@@ -1,4 +1,4 @@
-#include "Chat.h"
+#include "Chat.h" // header file for working with chat.
 
 const int SINGLE_LINE_WIDTH = 54;
 const int TWO_LINE_WIDTH = 109;
@@ -6,7 +6,7 @@ const int THREE_LINE_WIDTH = 164;
 const int FOUR_LINE_WIDTH = 202;
 const int NUM_OF_DISPLAYED_ROWS = 10;
 
-Chat::Chat(sf::RenderWindow& window)
+Chat::Chat(sf::RenderWindow& window) // chat constructor.
 {
 	greyColor.r = 120;
 	greyColor.g = 120;
@@ -48,40 +48,40 @@ Chat::Chat(sf::RenderWindow& window)
 	innerScrollBar.setOutlineColor(sf::Color::Black);
 }
 
-sf::RectangleShape& Chat::getOuterScrollBar()
+sf::RectangleShape& Chat::getOuterScrollBar() // function to get outer scrollbar.
 {
 	return outerScrollBar;
 }
-sf::RectangleShape& Chat::getInnerScrollBar()
+sf::RectangleShape& Chat::getInnerScrollBar() // function to get inner scrollbar.
 {
 	return innerScrollBar;
 }
-sf::RectangleShape& Chat::getChatTextBox()
+sf::RectangleShape& Chat::getChatTextBox() // function to get chat textbox.
 {
 	return chatTextBox;
 }
-sf::RectangleShape& Chat::getUserTextBox()
+sf::RectangleShape& Chat::getUserTextBox() // function to get user textbox.
 {
 	return userTextBox;
 }
-std::vector<std::unique_ptr<Chat::chatStrings>>& Chat::getStrVector()
+std::vector<std::unique_ptr<Chat::chatStrings>>& Chat::getStrVector() // function to get string vector.
 {
 	return strVector;
 }
-sf::Font& Chat::getFont()
+sf::Font& Chat::getFont() // function to get font.
 {
 	return font;
 }
-sfe::RichText& Chat::getChatText()
+sfe::RichText& Chat::getChatText() // function to get chat text.
 {
 	return chatText;
 }
-sfe::RichText& Chat::getUserText()
+sfe::RichText& Chat::getUserText() // function to get user text.
 {
 	return userText;
 }
 
-void Chat::addString(GameVariables* gv, Chat& chat)
+void Chat::addString(GameVariables* gv, Chat& chat) // function to add a string to a vector.
 {
 	std::wstring tempStr = L"";
 	size_t subStrStep = SINGLE_LINE_WIDTH - gv->chatPrefix.size(), max = 0, min = 0;
@@ -243,7 +243,7 @@ void Chat::addString(GameVariables* gv, Chat& chat)
 	}
 }
 
-void Chat::addNewLine(GameVariables* gv, Chat& chat)
+void Chat::addEndLine(GameVariables* gv, Chat& chat) // function to add the end of the line.
 {
 	if (gv->userStr.size() == SINGLE_LINE_WIDTH || gv->userStr.size() == TWO_LINE_WIDTH || gv->userStr.size() == THREE_LINE_WIDTH)
 	{
@@ -254,7 +254,7 @@ void Chat::addNewLine(GameVariables* gv, Chat& chat)
 	}
 }
 
-void Chat::moveUp(GameVariables* gv, Chat& chat)
+void Chat::scrollUp(GameVariables* gv, Chat& chat) // function to scroll up the chat.
 {
 	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (chat.getStrVector().size() > gv->scrollbarStepNumber)
@@ -294,7 +294,7 @@ void Chat::moveUp(GameVariables* gv, Chat& chat)
 	}
 }
 
-void Chat::moveDown(GameVariables* gv, Chat& chat)
+void Chat::scrollDown(GameVariables* gv, Chat& chat) // function to scroll down the chat.
 {
 	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->scrollbarDivisor));
 	if (gv->scrollbarStepNumber > 0)
@@ -334,9 +334,9 @@ void Chat::moveDown(GameVariables* gv, Chat& chat)
 	}
 }
 
-bool Chat::trimString(std::wstring& str, GameVariables* gv)
+bool Chat::trimString(std::wstring& str, GameVariables* gv) // string trim function.
 {
-	// проверка на строку из пробелов.
+	// checking for a string of spaces.
 	for (size_t i = 0; i < str.size();)
 	{
 		if (str[i] == ' ' || str[i] == '\n')
@@ -352,7 +352,7 @@ bool Chat::trimString(std::wstring& str, GameVariables* gv)
 			return false;
 		}
 	}
-	// проверка на пробелы в начале строки.
+	// checking for spaces at the beginning of the string.
 	size_t subStrPos = 0;
 	while (str[subStrPos] == ' ' || str[subStrPos] == '\n')
 	{
@@ -360,7 +360,7 @@ bool Chat::trimString(std::wstring& str, GameVariables* gv)
 	}
 	str = str.substr(subStrPos, str.size() - subStrPos);
 
-	// проверка на пробелы в конце строки.
+	// checking for spaces at the end of the string.
 	for (size_t i = str.size() - 1; i > 0; i--)
 	{
 		if (str[i] == ' ' || str[i] == '\n')

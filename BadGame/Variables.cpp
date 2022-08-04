@@ -1,69 +1,69 @@
-#include "Variables.h" // подключаем заголовочный файл.
+#include "Variables.h" // header file for global variables.
 
-void setColor(GameVariables* gv) // функция установки значений для цвета. 
+void setColor(GameVariables* gv) // function for setting values for color.
 {
-	gv->backgroundColor.r = 204; // устанавливаем цвет.
-	gv->backgroundColor.g = 153; // устанавливаем цвет.
-	gv->backgroundColor.b = 255; // устанавливаем цвет.
+	gv->backgroundColor.r = 204;
+	gv->backgroundColor.g = 153;
+	gv->backgroundColor.b = 255;
 
 	gv->greyColor.r = 120;
 	gv->greyColor.g = 120;
 	gv->greyColor.b = 120;
 }
 
-void setFont(GameVariables* gv) // функция установки значений для шрифтов.
+void setFont(GameVariables* gv) // function for setting values for fonts.
 {
-	gv->consolasFont.loadFromFile("consolas.ttf"); // загружаем шрифт из файла в переменную.
+	gv->consolasFont.loadFromFile("consolas.ttf");
 }
 
-void setText(GameVariables* gv) // функция установки значений для текста.
+void setText(GameVariables* gv) // function for setting values for text.
 {
-	gv->gameInfoText.setFont(gv->consolasFont); // устанавливаем шрифт.
-	gv->gameInfoText.setFillColor(sf::Color::Black); // устанавливаем цвет текста.
+	gv->gameInfoText.setFont(gv->consolasFont);
+	gv->gameInfoText.setFillColor(sf::Color::Black);
 
-	gv->playerInfoText.setFont(gv->consolasFont); // устанавливаем шрифт.
+	gv->playerInfoText.setFont(gv->consolasFont);
 	gv->playerInfoText.setCharacterSize(60);
-	gv->playerInfoText.setFillColor(sf::Color::Cyan); // устанавливаем цвет текста.
+	gv->playerInfoText.setFillColor(sf::Color::Cyan);
 	gv->playerInfoText.setOutlineThickness(2.f);
 
-	gv->playerAmmoText.setFont(gv->consolasFont); // устанавливаем шрифт.
+	gv->playerAmmoText.setFont(gv->consolasFont);
 	gv->playerAmmoText.setCharacterSize(50);
-	gv->playerAmmoText.setFillColor(sf::Color::Red); // устанавливаем цвет текста.
+	gv->playerAmmoText.setFillColor(sf::Color::Red);
 	gv->playerAmmoText.setOutlineThickness(2.f);
 }
 
-void setImage(GameVariables* gv) // функция установки значений для изображений.
+void setImage(GameVariables* gv) // function for setting values for images.
 {
-	gv->boxImage.loadFromFile("Images/box.png"); // загружаем изображение из файла в переменную.
+	gv->boxImage.loadFromFile("Images/box.png");
 
-	gv->wallImage.loadFromFile("Images/wall.png"); // загружаем изображение из файла в переменную.
+	gv->wallImage.loadFromFile("Images/wall.png");
 
-	gv->playerImage.loadFromFile("Images/player.png"); // загружаем изображение из файла в переменную.
+	gv->playerImage.loadFromFile("Images/player.png");
 
-	gv->enemyImage.loadFromFile("Images/enemy.png"); // загружаем изображение из файла в переменную.
+	gv->enemyImage.loadFromFile("Images/enemy.png");
 
-	gv->bulletImage.loadFromFile("Images/bullet.png"); // загружаем изображение из файла в переменную.
-	gv->bulletImage.createMaskFromColor(sf::Color(0, 0, 0)); // создаём маску по цвету.
+	gv->bulletImage.loadFromFile("Images/bullet.png");
+	gv->bulletImage.createMaskFromColor(sf::Color(0, 0, 0));
 
-	gv->goldCoinImage.loadFromFile("Images/goldCoin.png"); // загружаем изображение из файла в переменную.
-	gv->goldCoinHUDImage.loadFromFile("Images/goldCoinHUD.png"); // загружаем изображение из файла в переменную.
+	gv->goldCoinImage.loadFromFile("Images/goldCoin.png");
+	gv->goldCoinHUDImage.loadFromFile("Images/goldCoinHUD.png");
 
-	gv->hpBonusImage.loadFromFile("Images/hpBonus.png"); // загружаем изображение из файла в переменную.
+	gv->hpBonusImage.loadFromFile("Images/hpBonus.png");
 
 }
 
-void setTexture(GameVariables* gv) // функция установки значения для текстур.
+void setTexture(GameVariables* gv) // function for setting value for textures.
 {
 	gv->goldCoinHUDTexture.loadFromImage(gv->goldCoinHUDImage);
 }
 
-void setSprite(GameVariables* gv) // функция установки значения для спрайтов.
+void setSprite(GameVariables* gv) // function to set value for sprites.
 {
-	gv->playerDestination.setRadius(20.f); // устанавливаем радиус спрайта.
-	gv->playerDestination.setOrigin(gv->playerDestination.getRadius(), gv->playerDestination.getRadius()); // устанавливаем центр спрайта.
-	gv->playerDestination.setFillColor(sf::Color::Transparent); // устанавливаем цвет спрайта.
-	gv->playerDestination.setOutlineThickness(5.f); // устанавливаем размер контура спрайта.
-	gv->playerDestination.setOutlineColor(gv->backgroundColor); // устанавливаем цвет контура спрайта.
+	gv->playerDestination.setRadius(20.f);
+	gv->playerDestination.setOrigin(gv->playerDestination.getRadius(), gv->playerDestination.getRadius());
+	gv->playerDestination.setFillColor(sf::Color::Transparent);
+	gv->playerDestination.setOutlineThickness(5.f);
+	gv->playerDestination.setOutlineColor(gv->backgroundColor);
 
 	gv->goldCoinHUDSprite.setTexture(gv->goldCoinHUDTexture);
 
@@ -71,27 +71,27 @@ void setSprite(GameVariables* gv) // функция установки значения для спрайтов.
 	gv->aimLaser.setFillColor(sf::Color::Red);
 }
 
-void setVariables(GameVariables* gv) // общая функция установки значений.
+void setVariables(GameVariables* gv) // function for setting the values of global variables.
 {
-	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна и стиль окна.
-	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна и стиль окна.
+	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Fullscreen);
+	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen);
 
-	//gv->window.create(sf::VideoMode(1366, 768), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen); // создаём окно и устанавливаем видеорежим, заголовок окна.
+	//gv->window.create(sf::VideoMode(1366, 768), "BadGame");
+	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close);
+	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen);
 
-	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame"); // создаём окно и устанавливаем видеорежим, заголовок окна.
-	gv->window.setFramerateLimit(75); // ставим ограничение на фпс.
+	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close);
+	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame");
+	gv->window.setFramerateLimit(75); // fps lock (75).
 
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	setColor(gv); // вызов функции установки значений для цвета. 
-	setFont(gv); // вызов функции установки значений для шрифтов.
-	setText(gv); // вызов функции установки значений для текста.
-	setImage(gv); // вызов функции установки значений для изображений.
-	setTexture(gv); // вызов функции установки значений для текстур.
-	setSprite(gv); // вызов функции установки значения для спрайтов.
+	setColor(gv);
+	setFont(gv);
+	setText(gv);
+	setImage(gv);
+	setTexture(gv);
+	setSprite(gv);
 
 	gv->playerStartPos = sf::Vector2f(1500.f, 1500.f);
 
@@ -118,8 +118,8 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->chatStr = L"";
 	gv->userStr = L"";
 	gv->chatPrefix = L"";
-	gv->serverIP = ""; // ip адрес сервера.
-	gv->tempPort = ""; // временный порт сервера.
+	gv->serverIP = "";
+	gv->tempPort = "";
 	gv->scrollbarDir = L"";
 	gv->leftNick = L"";
 	gv->joinedNick = L"";
@@ -141,7 +141,7 @@ void setVariables(GameVariables* gv) // общая функция установки значений.
 	gv->showAimLaser = false;
 	gv->showLogs = false;
 	gv->isGameOver = false; 
-	gv->isFullscreen = false; 
+	gv->isFullscreen = true; 
 	gv->allowButtons = true;
 	gv->focusEvent = true;
 	gv->multiPlayerGame = false;

@@ -1,6 +1,6 @@
-#include "Wall.h" // подключаем заголовочный файл.
+#include "Wall.h" // header file for walls.
 
-Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name)
+Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // wall constructor.
 {
 	sprite.setOrigin(0.f, 0.f);
 	rectHitbox.setOrigin(0.f, 0.f);
@@ -13,13 +13,13 @@ Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(
 	rectHitbox.setFillColor(sf::Color::Magenta);
 }
 
-void Wall::update(GameVariables* gv) // функция update (в параметрах передаем время).
+void Wall::update(GameVariables* gv) // wall update function.
 {
 	rectHitbox.setPosition(currentPos);
 	sprite.setPosition(currentPos);
 }
 
-void Wall::move(GameVariables* gv)
+void Wall::move(GameVariables* gv) // wall move function.
 {
 	
 }

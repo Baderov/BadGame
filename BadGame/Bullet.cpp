@@ -1,6 +1,6 @@
-#include "Bullet.h" // подключаем заголовочный файл.
+#include "Bullet.h" // header file for bullets.
 
-Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::wstring creatorName, sf::Vector2f aimPos) : Entity(image, startPos, name)
+Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::wstring creatorName, sf::Vector2f aimPos) : Entity(image, startPos, name) // bullet constructor.
 {
 	this->creatorName = creatorName;
 	isMove = true;
@@ -12,9 +12,9 @@ Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::
 	calcDirection();
 }
 
-void Bullet::update(GameVariables* gv)
+void Bullet::update(GameVariables* gv) // bullet update function.
 {
-	if (isAlive == true) // если пуля жива, то:
+	if (isAlive == true) // if bullet is alive, then:
 	{
 		move(gv);
 		if ((currentPos.x <= 0) || (currentPos.y <= 0) || (currentPos.x >= 2936.f) || (currentPos.y >= 2936.f))
@@ -26,7 +26,7 @@ void Bullet::update(GameVariables* gv)
 	}
 }
 
-void Bullet::move(GameVariables* gv)
+void Bullet::move(GameVariables* gv) // bullet move function.
 {
 	moveToDirection();
 }
