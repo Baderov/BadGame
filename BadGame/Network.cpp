@@ -4,7 +4,7 @@
 //port - 2000;
 
 HANDLE handle;
-
+sf::TcpSocket sock;
 std::wstring senderNickname = L"";
 sf::Uint64 clientsVecSize = 0;
 
@@ -52,12 +52,12 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 
 bool connectToServer(GameVariables* gv) // function to connect to the server.
 {
-	if (gv->sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done)
+	if (sock.connect(gv->serverIP, gv->serverPort) == sf::Socket::Done)
 	{
 		sf::Packet packet;
 		std::wstring prefix = L"regNickname"; // regNickname - register a nickname.
 		packet << prefix << gv->nickname;
-		gv->sock.send(packet);
+		sock.send(packet);
 		SetConsoleTextAttribute(handle, 13);
 		return true;
 	}
@@ -77,7 +77,7 @@ void receiveData(GameVariables* gv) // function to receive data from the server.
 		{
 			break;
 		}
-		if (gv->sock.receive(packet) == sf::Socket::Done)
+		if (sock.receive(packet) == sf::Socket::Done)
 		{
 			msg = L"";
 			prefix = L"";
@@ -92,7 +92,7 @@ void receiveData(GameVariables* gv) // function to receive data from the server.
 				else if (prefix == L"conSuccess")
 				{
 					isNickTaken = false;
-					gv->menuError = MenuErrors::NoErrors;
+					gv->menuError = MenuErrors::NoErrors;	
 					gv->multiPlayerGame = true;
 				}
 				else if (prefix == L"con") // con - connected.
@@ -198,27 +198,24 @@ void receiveData(GameVariables* gv) // function to receive data from the server.
 	}
 }
 
-void sendMessage(GameVariables* gv) // function to send message to the server.
+void sendMessage(GameVariables* gv, sf::Packet& packet) // function to send message to the server.
 {
-	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"msg";
 	packet << prefix << gv->nickname << gv->userStr << gv->numOfLinesInUserTextBox;
-	gv->sock.send(packet);
+	sock.send(packet);
 }
 
-void sendMoveRequest(GameVariables* gv, std::wstring side) // sending a move request to the server
+void sendMoveRequest(GameVariables* gv, std::wstring side, sf::Packet& packet) // sending a move request to the server
 {
-	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"move";
 	packet << prefix << side << gv->nickname;
-	gv->sock.send(packet);
+	sock.send(packet);
 }
 
-void sendPosition(GameVariables* gv) // function to send position to the server.
+void sendPosition(GameVariables* gv, sf::Packet& packet) // function to send position to the server.
 {
-	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"pos";
 	sf::Vector2f pos;
@@ -231,44 +228,47 @@ void sendPosition(GameVariables* gv) // function to send position to the server.
 		}
 	}
 	packet << prefix << gv->nickname << pos.x << pos.y;
-	gv->sock.send(packet);
+	sock.send(packet);
 }
 
 void sendData(GameVariables* gv) // function to send data to the server.
 {
+	sf::Packet packet;
+	packet.clear();
 	while (true)
 	{
 		if (gv->isGameOver == true)
 		{
 			break;
 		}
+
 		if (gv->sendMsg == true)
 		{
 			gv->sendMsg = false;
-			sendMessage(gv);
+			sendMessage(gv, packet);
 		}
 		if (movement == L"up")
 		{
-			sendPosition(gv);
-			sendMoveRequest(gv, L"up");
+			sendPosition(gv, packet);
+			sendMoveRequest(gv, L"up", packet);
 			movement = L"";
 		}
 		else if (movement == L"down")
 		{
-			sendPosition(gv);
-			sendMoveRequest(gv, L"down");
+			sendPosition(gv, packet);
+			sendMoveRequest(gv, L"down", packet);
 			movement = L"";
 		}
 		else if (movement == L"left")
 		{
-			sendPosition(gv);
-			sendMoveRequest(gv, L"left");
+			sendPosition(gv, packet);
+			sendMoveRequest(gv, L"left", packet);
 			movement = L"";
 		}
 		else if (movement == L"right")
 		{
-			sendPosition(gv);
-			sendMoveRequest(gv, L"right");
+			sendPosition(gv, packet);
+			sendMoveRequest(gv, L"right", packet);
 			movement = L"";
 		}
 	}
@@ -326,7 +326,6 @@ void startNetwork(GameVariables* gv) // function to start network.
 		gv->multiPlayerGame = false;
 	}
 	gv->isGameOver = true;
-
 }
 
 void resetVariables(GameVariables* gv) // global variable reset function.
@@ -365,6 +364,9 @@ void multiplayerGame(GameVariables* gv, Entity*& player) // multiplayer game lau
 
 	while (gv->window.isOpen()) // while window is open.
 	{
+#ifdef _DEBUG
+		gv->funcName = "void multiplayerGame(GameVariables* gv, Entity*& player)";
+#endif
 		addClientsToVector(gv);
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
@@ -442,7 +444,7 @@ void multiplayerGame(GameVariables* gv, Entity*& player) // multiplayer game lau
 			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
 			{
 				menuEventHandler(gv, player);
-				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->isGameOver = true; return; }
+				if (gv->multiPlayerGame == false) { gv->exitFromMenu = true; gv->isGameOver = true; sock.disconnect(); return; }
 			}
 
 			if (gv->event.type == sf::Event::MouseWheelMoved && chat.getStrVector().size() > 10 && gv->chatContainsMouse == true)
@@ -556,6 +558,8 @@ void multiplayerGame(GameVariables* gv, Entity*& player) // multiplayer game lau
 			}
 		}
 
+	
+
 		if (gv->scrollbarDir == L"up" && ((chat.getInnerScrollBar().getPosition().y - (chat.getInnerScrollBar().getSize().y / 2.f))) > chat.getOuterScrollBar().getPosition().y - (chat.getOuterScrollBar().getSize().y / 2.f)) // up
 		{
 			chat.scrollUp(gv, chat);
@@ -604,4 +608,6 @@ void multiplayerGame(GameVariables* gv, Entity*& player) // multiplayer game lau
 		}
 		gv->window.display();
 	}
+
+
 }

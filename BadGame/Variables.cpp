@@ -76,9 +76,9 @@ void setVariables(GameVariables* gv) // function for setting the values of globa
 	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Fullscreen);
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen);
 
-	//gv->window.create(sf::VideoMode(1366, 768), "BadGame");
+	gv->window.create(sf::VideoMode(1366, 768), "BadGame");
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close);
-	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen);
+	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen);
 
 	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close);
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame");
@@ -125,6 +125,9 @@ void setVariables(GameVariables* gv) // function for setting the values of globa
 	gv->joinedNick = L"";
 	gv->joinedMsg = L"";
 	gv->leftMsg = L"";
+#ifdef _DEBUG
+	gv->funcName = "";
+#endif
 
 	// INT, SIZE_T, sf::INT8,sf::INT16, sf::INT32, sf::INT64.
 	gv->numberOfEnemies = 0;

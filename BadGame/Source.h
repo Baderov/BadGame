@@ -14,4 +14,6 @@ void eventHandler(sf::Event& event, GameVariables* gv); // event handling functi
 
 void singleplayerGame(GameVariables* gv); // single player launch function.
 
+void logsFunc(GameVariables* gv); // function for logs in DEBUG mode.
+
 int main(); // the main function of the program.

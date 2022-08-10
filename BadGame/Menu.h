@@ -6,6 +6,8 @@
 #include "Keyboard.h" // header file for handling keyboard events.
 #include "Chat.h" // header file for working with chat.
 
+std::string GetClipboardText(); // function to get text from clipboard.
+
 void errorChecking(GameVariables* gv); // error checking function.
 
 void multiplayerMenu(GameVariables* gv); // multiplayer menu function.

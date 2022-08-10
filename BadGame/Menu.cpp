@@ -1,5 +1,35 @@
 #include "Menu.h" // header file for working with the menu.
 
+std::string GetClipboardText()
+{
+	if (!OpenClipboard(nullptr))
+	{
+		CloseClipboard();
+		return "";
+	}
+
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	if (hData == nullptr)
+	{
+		CloseClipboard();
+		return "";
+	}
+
+	char* pszText = static_cast<char*>(GlobalLock(hData));
+	if (pszText == nullptr)
+	{
+		CloseClipboard();
+		return "";
+	}
+
+	std::string text(pszText);
+
+	GlobalUnlock(hData);
+	CloseClipboard();
+
+	return text;
+}
+
 void errorChecking(GameVariables* gv) // error checking function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
@@ -60,8 +90,12 @@ void multiplayerMenu(GameVariables* gv) // multiplayer menu function.
 	gv->tempPort = "";
 	gv->serverPort = 0;
 	gv->menuError = MenuErrors::NoErrors;
+	bool ctrlPressed = false;
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void multiplayerMenu(GameVariables* gv)";
+#endif
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
 
@@ -127,6 +161,34 @@ void multiplayerMenu(GameVariables* gv) // multiplayer menu function.
 				gv->buttonsVec.clear();
 				gv->labelsVec.clear();
 				return;
+			}
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::LControl)
+			{
+				ctrlPressed = true;
+			}
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::V && ctrlPressed == true)
+			{
+				std::string clipboardText = GetClipboardText();
+				if (clipboardText.size() > 15)
+				{
+					clipboardText = clipboardText.substr(0, 15);
+				}			
+				if (gv->input == 'i')
+				{
+					gv->serverIP = clipboardText;
+					for (auto& el : gv->buttonsVec)
+					{
+						if (el->getName() == "ipFieldButton")
+						{
+							el->getText().setString(gv->serverIP);
+							el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
+						}
+					}
+				}
+			}
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::LControl)
+			{
+				ctrlPressed = false;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); gv->labelsVec.clear(); return; }
 			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->allowButtons == true)
@@ -218,7 +280,7 @@ void multiplayerMenu(GameVariables* gv) // multiplayer menu function.
 					gv->allowButtons = false;
 					gv->isGameOver = false;
 					std::thread networkThread([&]()
-						{						
+						{
 							startNetwork(gv);
 						});
 					networkThread.detach();
@@ -243,6 +305,7 @@ void multiplayerMenu(GameVariables* gv) // multiplayer menu function.
 		}
 		gv->window.display();
 	}
+	std::cout << "multiplayerMenu end" << std::endl;
 }
 
 void graphicsSettingsMenu(GameVariables* gv) // graphics settings menu function.
@@ -250,6 +313,9 @@ void graphicsSettingsMenu(GameVariables* gv) // graphics settings menu function.
 	graphicsSettingsMenuUpdate(gv);
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void graphicsSettingsMenu(GameVariables* gv)";
+#endif
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
 
@@ -362,6 +428,9 @@ void settingsMenu(GameVariables* gv) // settings menu function.
 	settingsMenuUpdate(gv);
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void settingsMenu(GameVariables* gv)";
+#endif
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
 
@@ -405,6 +474,7 @@ void settingsMenu(GameVariables* gv) // settings menu function.
 		}
 		gv->window.display();
 	}
+	std::cout << "settingsMenu end" << std::endl;
 }
 
 void mainMenu(GameVariables* gv, Entity*& player) // main menu function.
@@ -412,6 +482,9 @@ void mainMenu(GameVariables* gv, Entity*& player) // main menu function.
 	mainMenuUpdate(gv, player);
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void mainMenu(GameVariables* gv, Entity*& player)";
+#endif
 		gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
 		gv->menuNum = 0;
 
@@ -465,7 +538,7 @@ void mainMenu(GameVariables* gv, Entity*& player) // main menu function.
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); gv->buttonsVec.clear(); return; }
 			if (gv->event.type == sf::Event::MouseButtonPressed && gv->event.mouseButton.button == sf::Mouse::Left && gv->menuNum > 0)
-			{ 
+			{
 				if (gv->multiPlayerGame == true && gv->menuNum == 17)
 				{
 					gv->menuNum = 23;
@@ -477,7 +550,7 @@ void mainMenu(GameVariables* gv, Entity*& player) // main menu function.
 					gv->buttonsVec.clear();
 					return;
 				}
-			} 
+			}
 		}
 		gv->window.clear(sf::Color::Black);
 		for (auto& el : gv->buttonsVec)
@@ -496,6 +569,9 @@ void menuEventHandler(GameVariables* gv, Entity*& player) // function to handle 
 	mainMenu(gv, player);
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void menuEventHandler(GameVariables* gv, Entity*& player)";
+#endif
 		while (gv->window.pollEvent(gv->event))
 		{
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); }
@@ -586,7 +662,6 @@ void menuEventHandler(GameVariables* gv, Entity*& player) // function to handle 
 			{
 				gv->multiPlayerGame = false;
 				gv->isGameOver = true;
-				gv->sock.disconnect();
 			}
 			return;
 			break;
@@ -600,9 +675,8 @@ void menuEventHandler(GameVariables* gv, Entity*& player) // function to handle 
 			return;
 			break;
 		}
-
 		if (gv->exitFromMenu == true)
-		{		
+		{
 			return;
 		}
 	}

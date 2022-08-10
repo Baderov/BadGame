@@ -34,8 +34,6 @@ struct GameVariables // declare structure for game variables.
 
 	sf::RectangleShape aimLaser;
 
-	sf::TcpSocket sock;
-
 	sf::CircleShape playerDestination;
 
 	sf::View view;
@@ -72,6 +70,9 @@ struct GameVariables // declare structure for game variables.
 	std::wstring joinedNick;
 	std::wstring joinedMsg;
 	std::wstring leftMsg;
+#ifdef _DEBUG
+	std::string funcName;
+#endif
 	std::string serverIP;
 	std::string tempPort;
 

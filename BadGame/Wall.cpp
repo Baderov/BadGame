@@ -21,5 +21,4 @@ void Wall::update(GameVariables* gv) // wall update function.
 
 void Wall::move(GameVariables* gv) // wall move function.
 {
-	
 }

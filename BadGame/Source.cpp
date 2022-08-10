@@ -128,6 +128,9 @@ void singleplayerGame(GameVariables* gv) // single player launch function.
 	gv->clock.restart();
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "void singleplayerGame(GameVariables* gv)";
+#endif
 		if (gv->restartGame == true)
 		{
 			restartGame(gv, entities, player);
@@ -150,15 +153,32 @@ void singleplayerGame(GameVariables* gv) // single player launch function.
 	}
 }
 
+void logsFunc(GameVariables* gv)
+{
+#ifdef _DEBUG
+	while (gv != nullptr)
+	{
+		std::cout << "function name: " << gv->funcName << std::endl;
+	}
+#endif
+}
+
 int main() // the main function of the program.
 {
-	setlocale(LC_ALL, "RUS"); // for Cyrillic in the console.
 	consoleSettings(); // call the function for setting settings for the console.
 	GameVariables* gv = new GameVariables(); // initialized "gv" object to hold global variables.
 	setVariables(gv); // setting values of global variables.
+#ifdef _DEBUG
+	std::thread logsThread([&]() { logsFunc(gv); });
+	logsThread.detach();
+#endif
 	menuEventHandler(gv, player); // calling the menu event handling function.
+
 	while (gv->window.isOpen())
 	{
+#ifdef _DEBUG
+		gv->funcName = "int main()";
+#endif
 		while (gv->window.pollEvent(gv->event))
 		{
 			if (gv->event.type == sf::Event::Closed)

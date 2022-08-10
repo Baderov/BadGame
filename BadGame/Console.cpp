@@ -2,8 +2,7 @@
 
 void consoleSettings() // function for console settings.
 {
-	setlocale(LC_ALL, "RUS"); // for russian language in the console.
-
+	setlocale(LC_ALL, "RUS"); // for Cyrillic in the console.
 	// remove the ability to select and perform various actions in the console.
 	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
 	DWORD mode;

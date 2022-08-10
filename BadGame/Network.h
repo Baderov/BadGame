@@ -7,6 +7,7 @@
 #include "Variables.h" // header file for global variables.
 #include "Menu.h" // header file for working with the menu.
 #include "Chat.h" // header file for working with chat.
+#include "Entity.h"
 
 struct Clients // structure for clients.
 {
@@ -25,11 +26,11 @@ bool connectToServer(GameVariables* gv); // function to connect to the server.
 
 void receiveData(GameVariables* gv); // function to receive data from the server.
 
-void sendMessage(GameVariables* gv); // function to send message to the server.
+void sendMessage(GameVariables* gv, sf::Packet& packet); // function to send message to the server.
 
-void sendMoveRequest(GameVariables* gv, std::wstring side); // sending a move request to the server.
+void sendMoveRequest(GameVariables* gv, std::wstring side, sf::Packet& packet); // sending a move request to the server.
 
-void sendPosition(GameVariables* gv); // function to send position to the server.
+void sendPosition(GameVariables* gv, sf::Packet& packet); // function to send position to the server.
 
 void sendData(GameVariables* gv); // function to send data to the server.
 

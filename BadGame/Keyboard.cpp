@@ -118,7 +118,7 @@ void keyboardEventHandler(GameVariables* gv) // keyboard event handling function
 			else if (gv->input == 'p' && gv->tempPort.size() < 15 && gv->symbol != ' ')
 			{
 				gv->tempPort += gv->symbol;
-				gv->serverPort = atoi(gv->tempPort.c_str());
+				gv->serverPort = atoi(gv->tempPort.c_str());			
 			}
 		}
 
