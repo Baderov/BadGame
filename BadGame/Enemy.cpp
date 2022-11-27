@@ -6,9 +6,9 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	maxSpeed = 5.f;
 	HP = 100;
 	maxHP = HP;
-	shootDelay = 2000;
-	shootTime = 0;
-	shootOffset = 0 + rand() % (shootDelay / 2);
+	shootDelay = 2.f;
+	shootTime = 0.f;
+	shootOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // random number generation from 0.0 to 1.0.
 	moveTargetPos.x = static_cast<float>(0 + rand() % 3000);
 	moveTargetPos.y = static_cast<float>(0 + rand() % 3000);
 
@@ -17,19 +17,19 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
 }
 
-void Enemy::update(GameVariables* gv) // enemy update function.
+void Enemy::update(GameVariable* gv) // enemy update function.
 {
 	if (isAlive == true)
 	{
 		updateHPBar();
-		shootTime = (shootClock.getElapsedTime().asMilliseconds() + shootOffset) - menuTime;		
+		shootTime = (shootClock.getElapsedTime().asSeconds() + shootOffset) - menuTime;
 		if (shootTime >= shootDelay)
 		{
 			isShoot = true;
 			menuTime = 0;
 			shootClock.restart();
-			moveTargetPos.x = static_cast < float>(0 + rand() % 3000);
-			moveTargetPos.y = static_cast < float>(0 + rand() % 3000);
+			moveTargetPos.x = static_cast<float>(0 + rand() % 3000);
+			moveTargetPos.y = static_cast<float>(0 + rand() % 3000);
 		}
 		rotate();
 		move(gv);
@@ -49,7 +49,7 @@ void Enemy::rotate() // enemy rotate function.
 	sprite.setRotation(rotation);
 }
 
-void Enemy::move(GameVariables* gv) // enemy move function.
+void Enemy::move(GameVariable* gv) // enemy move function.
 {
-	moveToTarget(moveTargetPos, gv);	
+	moveToTarget(moveTargetPos, gv);
 }

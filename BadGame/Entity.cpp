@@ -7,8 +7,9 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 	grayColor.g = 160;
 	grayColor.b = 160;
 	distance = 0.f;
+	DTMultiplier = 1000.f;
 	maxSpeed = 0.f;
-	menuTime = 0;
+	menuTime = 0.f;
 	currentPos = startPos;
 	this->name = name;
 	creatorName = L"";
@@ -61,7 +62,7 @@ void Entity::moveToDirection() // function to move the sprite in direction.
 	currentPos = sprite.getPosition();
 }
 
-void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // a function to move the sprite to the target.
+void Entity::moveToTarget(sf::Vector2f targetPos, GameVariable* gv) // a function to move the sprite to the target.
 {
 	// distance from the current position of the sprite to the target position.
 	distance = sqrt(((targetPos.x - currentPos.x) * (targetPos.x - currentPos.x)) + ((targetPos.y - currentPos.y) * (targetPos.y - currentPos.y)));
@@ -70,8 +71,8 @@ void Entity::moveToTarget(sf::Vector2f targetPos, GameVariables* gv) // a functi
 	if (distance > 7)
 	{
 		// stepPos - increment to the current position.
-		stepPos.x = currentVelocity.x * static_cast<float>(gv->dt) * (targetPos.x - currentPos.x) / distance;
-		stepPos.y = currentVelocity.y * static_cast<float>(gv->dt) * (targetPos.y - currentPos.y) / distance;
+		stepPos.x = round((currentVelocity.x * (gv->getDT() * DTMultiplier) * (targetPos.x - currentPos.x)) / distance);
+		stepPos.y = round((currentVelocity.y * (gv->getDT() * DTMultiplier) * (targetPos.y - currentPos.y)) / distance);
 		currentPos += stepPos;
 	}
 	else { isMove = false; } // else don`t move.
@@ -99,10 +100,12 @@ void Entity::updateHPBar() // function to update HP Bar.
 	}
 }
 
-sf::Int32& Entity::getMenuTime() { return menuTime; }
-sf::Int32& Entity::getShootTime() { return shootTime; }
-sf::Int32& Entity::getSpawnTime() { return spawnTime; }
-sf::Int32& Entity::getReloadTime() { return reloadTime; }
+float& Entity::getMenuTime() { return menuTime; }
+float& Entity::getShootTime() { return shootTime; }
+float& Entity::getSpawnTime() { return spawnTime; }
+float& Entity::getReloadTime() { return reloadTime; }
+float& Entity::getShootDelay() { return shootDelay; }
+float& Entity::getShootOffset() { return shootOffset; }
 int& Entity::getHP() { return HP; }
 int& Entity::getMaxHP() { return maxHP; }
 int& Entity::getGoldCoins() { return goldCoins; }
@@ -110,8 +113,6 @@ int& Entity::getCurrentAmmo() { return currentAmmo; }
 int& Entity::getMaxAmmo() { return maxAmmo; }
 int& Entity::getMissingAmmo() { return missingAmmo; }
 int& Entity::getMagazineAmmo() { return magazineAmmo; }
-int& Entity::getShootDelay() { return shootDelay; }
-int& Entity::getShootOffset() { return shootOffset; }
 bool& Entity::getIsAlive() { return isAlive; }
 bool& Entity::getIsMove() { return isMove; }
 bool& Entity::getIsShoot() { return isShoot; }
@@ -138,14 +139,14 @@ std::wstring& Entity::getName() { return name; }
 std::wstring& Entity::getCreatorName() { return creatorName; }
 
 
-void Entity::setMenuTime(sf::Int32 menuTime) { this->menuTime = menuTime; }
-void Entity::setSpawnTime(sf::Int32 spawnTime) { this->spawnTime = spawnTime; }
-void Entity::setReloadTime(sf::Int32 reloadTime) { this->reloadTime = reloadTime; }
-void Entity::setShootTime(sf::Int32 shootTime) { this->shootTime = shootTime; }
+void Entity::setMenuTime(float menuTime) { this->menuTime = menuTime; }
+void Entity::setSpawnTime(float spawnTime) { this->spawnTime = spawnTime; }
+void Entity::setReloadTime(float reloadTime) { this->reloadTime = reloadTime; }
+void Entity::setShootTime(float shootTime) { this->shootTime = shootTime; }
+void Entity::setShootDelay(float shootDelay) { this->shootDelay = shootDelay; }
+void Entity::setShootOffset(float shootOffset) { this->shootOffset = shootOffset; }
 void Entity::setHP(int HP) { this->HP = HP; }
 void Entity::setMaxHP(int maxHP) { this->maxHP = maxHP; }
-void Entity::setShootDelay(int shootDelay) { this->shootDelay = shootDelay; }
-void Entity::setShootOffset(int shootOffset) { this->shootOffset = shootOffset; }
 void Entity::setGoldCoins(int goldCoins) { this->goldCoins = goldCoins; }
 void Entity::setCurrentAmmo(int currentAmmo) { this->currentAmmo = currentAmmo; }
 void Entity::setMaxAmmo(int maxAmmo) { this->maxAmmo = maxAmmo; }

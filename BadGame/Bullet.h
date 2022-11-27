@@ -6,6 +6,6 @@ class Bullet : public Entity // create a bullet class and inherit it from Entity
 {
 public:
 	Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::wstring creatorName, sf::Vector2f aimPos); // bullet constructor.
-	void update(GameVariables* gv); // bullet update function.
-	void move(GameVariables* gv); // bullet move function.
+	void update(GameVariable* gv); // bullet update function.
+	void move(GameVariable* gv); // bullet move function.
 };

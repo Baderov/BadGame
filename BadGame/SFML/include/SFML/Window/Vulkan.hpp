@@ -22,88 +22,93 @@
 //
 ////////////////////////////////////////////////////////////
 
-#ifndef SFML_GLRESOURCE_HPP
-#define SFML_GLRESOURCE_HPP
+#ifndef SFML_VULKAN_HPP
+#define SFML_VULKAN_HPP
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/Window/Export.hpp>
-#include <SFML/System/NonCopyable.hpp>
+#include <SFML/Window/WindowHandle.hpp>
+#include <vector>
+#include <stdint.h>
+
+
+typedef struct VkInstance_T* VkInstance;
+
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+
+typedef struct VkSurfaceKHR_T* VkSurfaceKHR;
+
+#else
+
+typedef uint64_t VkSurfaceKHR;
+
+#endif
+
+struct VkAllocationCallbacks;
 
 
 namespace sf
 {
 
-class Context;
-
-typedef void(*ContextDestroyCallback)(void*);
+typedef void (*VulkanFunctionPointer)();
 
 ////////////////////////////////////////////////////////////
-/// \brief Base class for classes that require an OpenGL context
+/// \brief Vulkan helper functions
 ///
 ////////////////////////////////////////////////////////////
-class SFML_WINDOW_API GlResource
+class SFML_WINDOW_API Vulkan
 {
-protected:
+public:
 
     ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
+    /// \brief Tell whether or not the system supports Vulkan
+    ///
+    /// This function should always be called before using
+    /// the Vulkan features. If it returns false, then
+    /// any attempt to use Vulkan will fail.
+    ///
+    /// If only compute is required, set \a requireGraphics
+    /// to false to skip checking for the extensions necessary
+    /// for graphics rendering.
+    ///
+    /// \param requireGraphics
+    ///
+    /// \return True if Vulkan is supported, false otherwise
     ///
     ////////////////////////////////////////////////////////////
-    GlResource();
+    static bool isAvailable(bool requireGraphics = true);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Destructor
+    /// \brief Get the address of a Vulkan function
+    ///
+    /// \param name Name of the function to get the address of
+    ///
+    /// \return Address of the Vulkan function, 0 on failure
     ///
     ////////////////////////////////////////////////////////////
-    ~GlResource();
+    static VulkanFunctionPointer getFunction(const char* name);
 
     ////////////////////////////////////////////////////////////
-    /// \brief Register a function to be called when a context is destroyed
+    /// \brief Get Vulkan instance extensions required for graphics
     ///
-    /// This is used for internal purposes in order to properly
-    /// clean up OpenGL resources that cannot be shared between
-    /// contexts.
-    ///
-    /// \param callback Function to be called when a context is destroyed
-    /// \param arg      Argument to pass when calling the function
+    /// \return Vulkan instance extensions required for graphics
     ///
     ////////////////////////////////////////////////////////////
-    static void registerContextDestroyCallback(ContextDestroyCallback callback, void* arg);
-
-    ////////////////////////////////////////////////////////////
-    /// \brief RAII helper class to temporarily lock an available context for use
-    ///
-    ////////////////////////////////////////////////////////////
-    class SFML_WINDOW_API TransientContextLock : NonCopyable
-    {
-    public:
-        ////////////////////////////////////////////////////////////
-        /// \brief Default constructor
-        ///
-        ////////////////////////////////////////////////////////////
-        TransientContextLock();
-
-        ////////////////////////////////////////////////////////////
-        /// \brief Destructor
-        ///
-        ////////////////////////////////////////////////////////////
-        ~TransientContextLock();
-    };
+    static const std::vector<const char*>& getGraphicsRequiredInstanceExtensions();
 };
 
 } // namespace sf
 
 
-#endif // SFML_GLRESOURCE_HPP
+#endif // SFML_VULKAN_HPP
+
 
 ////////////////////////////////////////////////////////////
-/// \class sf::GlResource
+/// \class sf::Vulkan
 /// \ingroup window
 ///
-/// This class is for internal use only, it must be the base
-/// of every class that requires a valid OpenGL context in
-/// order to work.
+/// 
 ///
 ////////////////////////////////////////////////////////////

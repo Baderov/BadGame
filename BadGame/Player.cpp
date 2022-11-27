@@ -16,7 +16,7 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 	maxAmmo = 500;
 	missingAmmo = 0;
 
-	reloadTime = 0;
+	reloadTime = 0.f;
 
 	rectHitbox.setFillColor(sf::Color::Red);
 	rectHitbox.setSize(sf::Vector2f(h, h));
@@ -41,14 +41,14 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 
 }
 
-void Player::update(GameVariables* gv) // player update function.
+void Player::update(GameVariable* gv) // player update function.
 {
 	if (isAlive == true)
 	{
-		if (isReload == true) 
+		if (isReload == true)
 		{
-			reloadTime = reloadClock.getElapsedTime().asMilliseconds() - menuTime;
-			if (reloadTime < 0) { reloadTime = 0; }
+			reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
+			if (reloadTime < 0.f) { reloadTime = 0.f; }
 			updateReloadRect();
 		}
 		nameText.setPosition(currentPos.x, currentPos.y - 90.f);
@@ -59,8 +59,10 @@ void Player::update(GameVariables* gv) // player update function.
 		move(gv);
 		sprite.setPosition(currentPos);
 		rectHitbox.setPosition(currentPos);
+
 		gv->aimLaser.setPosition(currentPos);
-		gv->view.setCenter(currentPos);
+
+		gv->setViewCenter(currentPos);
 
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
@@ -73,49 +75,49 @@ void Player::update(GameVariables* gv) // player update function.
 	}
 }
 
-void Player::rotate(GameVariables* gv) // player rotate function.
+void Player::rotate(GameVariable* gv) // player rotate function.
 {
-	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
-	float dX = gv->mousePos.x - currentPos.x;
-	float dY = gv->mousePos.y - currentPos.y;
+	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
+	float dX = gv->getMousePos().x - currentPos.x;
+	float dY = gv->getMousePos().y - currentPos.y;
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	sprite.setRotation(rotation);
 	gv->aimLaser.setRotation(rotation + 90.f);
 }
 
-void Player::move(GameVariables* gv) // player move function.
+void Player::move(GameVariable* gv) // player move function.
 {
-	if (isMove == true) { moveToTarget(moveTargetPos, gv); }	
+	if (isMove == true) { moveToTarget(moveTargetPos, gv); }
 }
 
-void Player::updateLaser(GameVariables* gv) // laser update function.
+void Player::updateLaser(GameVariable* gv) // laser update function.
 {
-	gv->mousePos = gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)); // get mouse coordinates.
-	float distance = sqrt(((gv->mousePos.x - currentPos.x) * (gv->mousePos.x - currentPos.x)) + ((gv->mousePos.y - currentPos.y) * (gv->mousePos.y - currentPos.y)));
-	gv->aimLaserLength = distance;
-	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->aimLaserLength));
+	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
+	float dist = sqrt(((gv->getMousePos().x - currentPos.x) * (gv->getMousePos().x - currentPos.x)) + ((gv->getMousePos().y - currentPos.y) * (gv->getMousePos().y - currentPos.y)));
+	gv->setAimLaserLength(dist);
+	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->getAimLaserLength()));
 }
 
 void Player::updateReloadRect() // update reload rect function.
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
-	sf::Int32 tempReloadTime = 0;
-	if (reloadTime > 0)
+	float tempReloadTime = 0.f;
+	if (reloadTime > 0.f)
 	{
-		tempReloadTime = reloadTime / static_cast<sf::Int32>(10);
+		tempReloadTime = (reloadTime * 1000.f) / 10.f;
 	}
 
-	sf::Int32 reloadRectOuterSizeX = static_cast<sf::Int32>(reloadRectOuter.getSize().x);
-	
+	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
+
 	if (tempReloadTime < reloadRectOuterSizeX)
 	{
-		reloadRectInner.setSize(sf::Vector2f(static_cast<float>(tempReloadTime), reloadRectOuter.getSize().y));
+		reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y));
 	}
 	else
 	{
 		reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y));
 	}
-	
+
 	reloadRectOuter.setPosition(currentPos.x - 90.f, currentPos.y + 300.f);
 	reloadRectInner.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y);
 	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);

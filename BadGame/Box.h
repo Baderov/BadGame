@@ -6,6 +6,6 @@ class Box : public Entity // create a box class and inherit it from Entity.
 {
 public:
 	Box(sf::Image& image, sf::Vector2f startPos,  std::wstring name); // box constructor.
-	void update(GameVariables* gv); // box update function.
-	void move(GameVariables* gv); // box move function.
+	void update(GameVariable* gv); // box update function.
+	void move(GameVariable* gv); // box move function.
 };

@@ -5,12 +5,12 @@ Item::Item(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(
 
 }
 
-void Item::update(GameVariables* gv) // item update function.
+void Item::update(GameVariable* gv) // item update function.
 {
 
 }
 
-void Item::move(GameVariables* gv) // item move function.
+void Item::move(GameVariable* gv) // item move function.
 {
 
 }

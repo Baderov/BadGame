@@ -6,6 +6,6 @@ class Item : public Entity // create an Item class and inherit it from Entity.
 {
 public:
 	Item(sf::Image& image, sf::Vector2f startPos, std::wstring name); // item constructor.
-	void update(GameVariables* gv); // item update function.
-	void move(GameVariables* gv); // item move function.
+	void update(GameVariable* gv); // item update function.
+	void move(GameVariable* gv); // item move function.
 };

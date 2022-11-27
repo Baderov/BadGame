@@ -12,7 +12,7 @@ Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::
 	calcDirection();
 }
 
-void Bullet::update(GameVariables* gv) // bullet update function.
+void Bullet::update(GameVariable* gv) // bullet update function.
 {
 	if (isAlive == true) // if bullet is alive, then:
 	{
@@ -26,7 +26,7 @@ void Bullet::update(GameVariables* gv) // bullet update function.
 	}
 }
 
-void Bullet::move(GameVariables* gv) // bullet move function.
+void Bullet::move(GameVariable* gv) // bullet move function.
 {
 	moveToDirection();
 }

@@ -13,12 +13,12 @@ Wall::Wall(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(
 	rectHitbox.setFillColor(sf::Color::Magenta);
 }
 
-void Wall::update(GameVariables* gv) // wall update function.
+void Wall::update(GameVariable* gv) // wall update function.
 {
 	rectHitbox.setPosition(currentPos);
 	sprite.setPosition(currentPos);
 }
 
-void Wall::move(GameVariables* gv) // wall move function.
+void Wall::move(GameVariable* gv) // wall move function.
 {
 }

@@ -6,9 +6,9 @@ class Player : public Entity // create a player class and inherit it from Entity
 {
 public:
 	Player(sf::Image& image, sf::Vector2f startPos, std::wstring name); // player constructor.
-	void update(GameVariables* gv); // player update function.
-	void rotate(GameVariables* gv); // player rotate function.
-	void move(GameVariables* gv); // player move function.
-	void updateLaser(GameVariables* gv); // laser update function.
+	void update(GameVariable* gv); // player update function.
+	void rotate(GameVariable* gv); // player rotate function.
+	void move(GameVariable* gv); // player move function.
+	void updateLaser(GameVariable* gv); // laser update function.
 	void updateReloadRect(); // update reload rect function.
 };

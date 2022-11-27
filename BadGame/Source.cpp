@@ -6,21 +6,22 @@ std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing
 
 Entity* player = nullptr; // create a pointer to the player.
 
-void updateTime(GameVariables* gv) // time update function.
-{
-	gv->dt = gv->clock.getElapsedTime().asMicroseconds(); // gv->dt is set to the elapsed microseconds since gv->clock was created.
-	gv->clock.restart();
-	gv->dt = gv->dt / gv->divisor; // game speed, the larger the divisor, the slower and vice versa.
-}
+#ifdef _DEBUG
+#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
+#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
+#else
+#define DEBUG_SET_FUNC_NAME
+#define DEBUG_MSG(str) do { } while (false)
+#endif
 
-void updateFPS(GameVariables* gv) // FPS update function.
+void updateFPS(GameVariable* gv) // FPS update function.
 {
 	gv->fpsCurrentTime = gv->fpsClock.getElapsedTime(); // assign the variable gv->fpsPreviousTime variable to elapsed time.
-	gv->fps = floor(1.0f / (gv->fpsCurrentTime.asSeconds() - gv->fpsPreviousTime.asSeconds())); // calculate fps.
+	gv->setFPS(floor(1.0f / (gv->fpsCurrentTime.asSeconds() - gv->fpsPreviousTime.asSeconds()))); // calculate fps.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void eventHandler(sf::Event& event, GameVariables* gv) // event handling function.
+void eventHandler(GameVariable* gv) // event handling function.
 {
 	switch (gv->event.type) // check by event type.
 	{
@@ -48,18 +49,18 @@ void eventHandler(sf::Event& event, GameVariables* gv) // event handling functio
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Z:
-			if (gv->showLogs == false) { gv->showLogs = true; } // if the logs were not shown - show.
-			else { gv->showLogs = false; } // if the logs were shown - don't show them.
+			if (gv->getShowLogs() == false) { gv->setShowLogs(true); } // if the logs were not shown - show.
+			else { gv->setShowLogs(false); } // if the logs were shown - don't show them.
 			break;
 
 		case sf::Keyboard::X:
-			if (gv->showHitbox == false) { gv->showHitbox = true; } // if hitboxes weren't shown - show them.
-			else { gv->showHitbox = false; } // if hitboxes were shown, don't show them.
+			if (gv->getShowHitbox() == false) { gv->setShowHitbox(true); } // if hitboxes weren't shown - show them.
+			else { gv->setShowHitbox(false); } // if hitboxes were shown, don't show them.
 			break;
 
 		case sf::Keyboard::C:
-			if (gv->showAimLaser == false) { gv->showAimLaser = true; } // if the aiming laser was not shown - show.
-			else { gv->showAimLaser = false; } // if the aiming laser was shown - don't show it.
+			if (gv->getShowAimLaser() == false) { gv->setShowAimLaser(true); } // if the aiming laser was not shown - show.
+			else { gv->setShowAimLaser(false); } // if the aiming laser was shown - don't show it.
 			break;
 
 		case sf::Keyboard::R:
@@ -67,83 +68,66 @@ void eventHandler(sf::Event& event, GameVariables* gv) // event handling functio
 			{
 				player->setIsReload(true);
 				player->getReloadClock().restart();
-				player->setReloadTime(0);
-				player->setMenuTime(0);
+				player->setReloadTime(0.f);
+				player->setMenuTime(0.f);
 			}
 			break;
 		}
 		break;
-
 	case sf::Event::KeyPressed:
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Escape:
-			sf::Vector2f oldViewSize(gv->view.getSize());
-			sf::Vector2f oldViewCenter(gv->view.getCenter());
+			sf::Vector2f oldViewSize(gv->getViewSize());
+			sf::Vector2f oldViewCenter(gv->getViewCenter());
 
-			gv->view.setSize(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y));
-			gv->view.setCenter(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f);
-			gv->window.setView(gv->view);
+			gv->setViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+			gv->setViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+			gv->window.setView(gv->getView());
 
 			gv->menuClock.restart();
 			menuEventHandler(gv, player);
-			gv->menuTimer = gv->menuClock.getElapsedTime().asMilliseconds();
+			gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
 
 			for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 			{
 				Entity* entity = (*it).get();
 				if (player != nullptr && (dynamic_cast<Enemy*>(entity) || dynamic_cast<Player*>(entity)))
 				{
-					entity->setMenuTime(gv->menuTimer + entity->getMenuTime());
+					entity->setMenuTime(gv->getMenuTimer() + entity->getMenuTime());
 				}
 			}
-
-			gv->clock.restart();
-			if (gv->singlePlayerGame == false) { return; }
-
-			gv->view.setSize(oldViewSize);
-			gv->view.setCenter(oldViewCenter);
-			gv->window.setView(gv->view);
-
+			gv->gameClock.restart();
+			if (gv->getSinglePlayerGame() == false) { return; }
+			gv->setViewSize(oldViewSize);
+			gv->setViewCenter(oldViewCenter);
+			gv->window.setView(gv->getView());
 			break;
 		}
 		break;
-		//case sf::Event::MouseWheelScrolled:
-		//{
-		//	if (gv->event.mouseWheelScroll.delta < 0)
-		//	{
-		//		gv->view.zoom(1.1f);
-		//	}
-		//	else if (gv->event.mouseWheelScroll.delta > 0)
-		//	{
-		//		gv->view.zoom(0.9f);
-		//	}
-		//	break;
-		//}
 	}
 }
 
-void singleplayerGame(GameVariables* gv) // single player launch function.
+void singleplayerGame(GameVariable* gv) // single player launch function.
 {
-	gv->clock.restart();
+	gv->setNickname(L"");
+	gv->gameClock.restart();
 	while (gv->window.isOpen())
 	{
-#ifdef _DEBUG
-		gv->funcName = "void singleplayerGame(GameVariables* gv)";
-#endif
-		if (gv->restartGame == true)
+		DEBUG_SET_FUNC_NAME;
+		if (gv->getRestartGame() == true)
 		{
 			restartGame(gv, entities, player);
-			gv->restartGame = false;
+			gv->setRestartGame(false);
 		}
-		updateTime(gv); // call the time update function.
+		gv->setDT(gv->gameClock.restart().asSeconds());
 		setGameInfo(gv, player, entities); // call the function for setting game information.
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandler(gv->event, gv); // call the event handling function.
-			if (gv->singlePlayerGame == false) { return; }
+			eventHandler(gv); // call the event handling function.
+			if (gv->getSinglePlayerGame() == false) { return; }
 		}
-		gv->window.setView(gv->view);
+		gv->window.setView(gv->getView());
 		updateEntities(gv, entities, it, it2, player); // calling the entity update function.
 		gv->window.clear(gv->backgroundColor);
 		drawEntities(gv, entities, it); // calling the entity drawing function.
@@ -153,55 +137,37 @@ void singleplayerGame(GameVariables* gv) // single player launch function.
 	}
 }
 
-void logsFunc(GameVariables* gv)
+void logsFunc(GameVariable* gv)
 {
-#ifdef _DEBUG
-	while (gv != nullptr)
+	while (gv->window.isOpen())
 	{
-		std::cout << "function name: " << gv->funcName << std::endl;
+		DEBUG_MSG("function name: " << gv->getFuncName());
 	}
-#endif
 }
 
 int main() // the main function of the program.
 {
 	consoleSettings(); // call the function for setting settings for the console.
-	GameVariables* gv = new GameVariables(); // initialized "gv" object to hold global variables.
+	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
 	setVariables(gv); // setting values of global variables.
+	std::thread recvThread([&]() { receiveData(gv); });
+	std::thread sendThread([&]() { sendData(gv); });
+	recvThread.detach();
+	sendThread.detach();
 #ifdef _DEBUG
-	std::thread logsThread([&]() { logsFunc(gv); });
-	logsThread.detach();
+	//std::thread logsThread([&]() { logsFunc(gv); });
+	//logsThread.detach();
 #endif
 	menuEventHandler(gv, player); // calling the menu event handling function.
-
 	while (gv->window.isOpen())
 	{
-#ifdef _DEBUG
-		gv->funcName = "int main()";
-#endif
-		while (gv->window.pollEvent(gv->event))
-		{
-			if (gv->event.type == sf::Event::Closed)
-			{
-				gv->window.close();
-			}
-		}
-		if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
-		{
-			singleplayerGame(gv);
-		}
-
-		if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
-		{
-			multiplayerGame(gv, player);
-		}
-
-		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
-		{
-			menuEventHandler(gv, player);
-		}
+		DEBUG_SET_FUNC_NAME;
+		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
+		if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false) { singleplayerGame(gv); }
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getNetworkEnd() == true) { multiplayerGame(gv, player); }
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false) { menuEventHandler(gv, player); }
 	}
 	delete gv; // clear memory.
-	std::cout << "Memory cleared!\n"; // send message in console.
-	return 0; // function termination.
+	DEBUG_MSG("Memory cleared!"); // send message in console.
+	return 1; // function termination.
 }

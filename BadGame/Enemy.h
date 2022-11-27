@@ -6,7 +6,7 @@ class Enemy : public Entity // create a enemy class and inherit it from Entity.
 {
 public:
 	Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name); // enemy constructor.
-	void update(GameVariables* gv); // enemy update function.
+	void update(GameVariable* gv); // enemy update function.
 	void rotate(); // enemy rotate function.
-	void move(GameVariables* gv); // enemy move function.
+	void move(GameVariable* gv); // enemy move function.
 };

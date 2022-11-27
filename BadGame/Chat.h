@@ -23,7 +23,7 @@ public:
 		bool joinedTheServer = false;
 		bool leftTheServer = false;
 	};
-	Chat(sf::RenderWindow& window); // chat constructor.
+	Chat(); // chat constructor.
 	sf::RectangleShape& getOuterScrollBar(); // function to get outer scrollbar.
 	sf::RectangleShape& getInnerScrollBar(); // function to get inner scrollbar.
 	sf::RectangleShape& getChatTextBox(); // function to get chat textbox.
@@ -33,15 +33,19 @@ public:
 	sfe::RichText& getChatText(); // function to get chat text.
 	sfe::RichText& getUserText(); // function to get user text.
 
-	void addString(GameVariables* gv, Chat& chat); // function to add a string to a vector.
+	void setOuterScrollBarPos(float posX, float posY);
+	void setInnerScrollBarPos(float posX, float posY);
+	void setChatTextBoxPos(float posX, float posY);
+	void setUserTextBoxPos(float posX, float posY);
+	void setChatTextPos(float posX, float posY);
+	void setUserTextPos(float posX, float posY);
 
-	void addEndLine(GameVariables* gv, Chat& chat); // function to add the end of the line.
 
-	void scrollUp(GameVariables* gv, Chat& chat); // function to scroll up the chat.
-
-	void scrollDown(GameVariables* gv, Chat& chat); // function to scroll down the chat.
-
-	bool trimString(std::wstring& str, GameVariables* gv); // string trim function.
+	void addString(GameVariable* gv, Chat& chat); // function to add a string to a vector.
+	void addEndLine(GameVariable* gv, Chat& chat); // function to add the end of the line.
+	void scrollUp(GameVariable* gv, Chat& chat); // function to scroll up the chat.
+	void scrollDown(GameVariable* gv, Chat& chat); // function to scroll down the chat.
+	bool trimString(std::wstring& str, GameVariable* gv); // string trim function.
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;
@@ -49,3 +53,9 @@ private:
 	sf::Font font;
 	sfe::RichText chatText, userText;
 };
+
+void chatUpdate(GameVariable* gv, Chat& chat);
+
+void updateUserTextBox(GameVariable* gv, Chat& chat);
+
+void updateScrollbarDir(GameVariable* gv, Chat& chat);

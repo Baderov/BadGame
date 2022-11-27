@@ -5,19 +5,19 @@ class Entity // common class for all entities.
 {
 public:
 	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name); // entity constructor.
-	virtual void update(GameVariables* gv) = 0; // update function for all entities.
-	virtual void move(GameVariables* gv) = 0; // move function for all entities.
-	void moveToTarget(sf::Vector2f targetPos, GameVariables* gv); // a function to move the sprite to the target.
+	virtual void update(GameVariable* gv) = 0; // update function for all entities.
+	virtual void move(GameVariable* gv) = 0; // move function for all entities.
+	void moveToTarget(sf::Vector2f targetPos, GameVariable* gv); // a function to move the sprite to the target.
 	void moveToDirection(); // function to move the sprite in direction.
 	void calcDirection(); // function to calculate direction.
 	void updateHPBar(); // function to update HP Bar.
 
-	sf::Int32& getShootTime();
-	sf::Int32& getMenuTime();
-	sf::Int32& getSpawnTime();
-	sf::Int32& getReloadTime();
-	int& getShootDelay();
-	int& getShootOffset();
+	float& getShootTime();
+	float& getMenuTime();
+	float& getSpawnTime();
+	float& getReloadTime();
+	float& getShootDelay();
+	float& getShootOffset();
 	int& getHP();
 	int& getMaxHP();
 	int& getGoldCoins();
@@ -50,12 +50,12 @@ public:
 	std::wstring& getName();
 	std::wstring& getCreatorName();
 
-	void setShootTime(sf::Int32 shootTime);
-	void setMenuTime(sf::Int32 menuTime);
-	void setSpawnTime(sf::Int32 spawnTime);
-	void setReloadTime(sf::Int32 reloadTime);
-	void setShootDelay(int shootDelay);
-	void setShootOffset(int shootOffset);
+	void setShootTime(float shootTime);
+	void setMenuTime(float menuTime);
+	void setSpawnTime(float spawnTime);
+	void setReloadTime(float reloadTime);
+	void setShootDelay(float shootDelay);
+	void setShootOffset(float shootOffset);
 	void setHP(int HP);
 	void setMaxHP(int maxHP);
 	void setGoldCoins(int goldCoins);
@@ -88,9 +88,8 @@ public:
 	void setCreatorName(std::wstring creatorName);
 
 protected:
-	sf::Int32 spawnTime, reloadTime, menuTime, shootTime;
-	float maxSpeed, distance, w, h;
-	int HP, maxHP, goldCoins, shootDelay, shootOffset, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
+	float DTMultiplier, maxSpeed, distance, w, h, spawnTime, reloadTime, menuTime, shootTime, shootDelay, shootOffset;
+	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
 	bool isAlive, isMove, isShoot, isReload;
 	sf::Clock reloadClock, shootClock;
 	sf::Font consolasFont;

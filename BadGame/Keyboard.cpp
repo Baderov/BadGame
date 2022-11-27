@@ -7,47 +7,60 @@ const int DOUBLE_QUOTES_CODE = 34;
 const int SINGLE_QUOTES_CODE = 39;
 const int BACKSLASH_CODE = 92;
 
-void keyboardEventHandler(GameVariables* gv) // keyboard event handling function.
+#ifdef _DEBUG
+#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
+#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
+#else
+#define DEBUG_SET_FUNC_NAME
+#define DEBUG_MSG(str) do { } while (false)
+#endif
+
+void keyboardEventHandler(GameVariable* gv) // keyboard event handling function.
 {
-	if (gv->input == 'n')
+	if (gv->getInput() == 'n')
 	{
 		if (gv->event.type == sf::Event::TextEntered)
 		{
 			if (gv->event.text.unicode == BACKSPACE_CODE)
 			{
-				if (gv->nickname.size() > 0)
+				if (gv->getNickname().size() > 0)
 				{
-					gv->nickname.resize(gv->nickname.size() - 1);
+					std::wstring tempNick = gv->getNickname();
+					tempNick.resize(tempNick.size() - 1);
+					gv->setNickname(tempNick);
 				}
 			}
 			else if (gv->event.text.unicode == QUESTION_MARK_CODE)
 			{
-				gv->nickname += L"\?";
+				gv->setNickname(gv->getNickname() + L"\?");
 			}
 			else if (gv->event.text.unicode == DOUBLE_QUOTES_CODE)
 			{
-				gv->nickname += L"\"";
+				gv->setNickname(gv->getNickname() + L"\"");
 			}
 			else if (gv->event.text.unicode == SINGLE_QUOTES_CODE)
 			{
-				gv->nickname += L"\'";
+				gv->setNickname(gv->getNickname() + L"\'");
 			}
 			else if (gv->event.text.unicode == BACKSLASH_CODE)
 			{
-				gv->nickname += L"\\";
+				gv->setNickname(gv->getNickname() + L"\\");
 			}
-			else 
+			else
 			{
-				if (gv->nickname.size() < 15 && gv->event.text.unicode != SPACE_CODE)
+				if (gv->getNickname().size() < 15 && gv->event.text.unicode != SPACE_CODE)
 				{
-					gv->nickname += gv->event.text.unicode;
+					//gv->nickname += gv->event.text.unicode;
+					std::wstring tempNick = gv->getNickname();
+					tempNick += gv->event.text.unicode;
+					gv->setNickname(tempNick);
 				}
 			}
 			for (auto& el : gv->buttonsVec)
 			{
 				if (el->getName() == "nicknameFieldButton")
 				{
-					el->getText().setString(gv->nickname);
+					el->getText().setString(gv->getNickname());
 					el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
 					break;
 				}
@@ -58,14 +71,18 @@ void keyboardEventHandler(GameVariables* gv) // keyboard event handling function
 	{
 		if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Backspace)
 		{
-			if (gv->input == 'i' && gv->serverIP.size() > 0)
+			if (gv->getInput() == 'i' && gv->getServerIP().size() > 0)
 			{
-				gv->serverIP.resize(gv->serverIP.size() - 1);
+				std::string tempServerIP = gv->getServerIP();
+				tempServerIP.resize(tempServerIP.size() - 1);
+				gv->setServerIP(tempServerIP);
 			}
-			else if (gv->input == 'p' && gv->tempPort.size() > 0)
+			else if (gv->getInput() == 'p' && gv->getTempPort().size() > 0)
 			{
-				gv->tempPort.resize(gv->tempPort.size() - 1);
-				gv->serverPort = atoi(gv->tempPort.c_str());
+				std::string tempPort = gv->getTempPort();
+				tempPort.resize(tempPort.size() - 1);
+				gv->setServerPort(atoi(tempPort.c_str()));
+				gv->setTempPort(tempPort);
 			}
 		}
 
@@ -74,51 +91,58 @@ void keyboardEventHandler(GameVariables* gv) // keyboard event handling function
 			switch (gv->event.key.code)
 			{
 			case sf::Keyboard::Num0:
-				gv->symbol = '0';
+				gv->setSymbol('0');
 				break;
 			case sf::Keyboard::Num1:
-				gv->symbol = '1';
+				gv->setSymbol('1');
 				break;
 			case sf::Keyboard::Num2:
-				gv->symbol = '2';
+				gv->setSymbol('2');
 				break;
 			case sf::Keyboard::Num3:
-				gv->symbol = '3';
+				gv->setSymbol('3');
 				break;
 			case sf::Keyboard::Num4:
-				gv->symbol = '4';
+				gv->setSymbol('4');
 				break;
 			case sf::Keyboard::Num5:
-				gv->symbol = '5';
+				gv->setSymbol('5');
 				break;
 			case sf::Keyboard::Num6:
-				gv->symbol = '6';
+				gv->setSymbol('6');
 				break;
 			case sf::Keyboard::Num7:
-				gv->symbol = '7';
+				gv->setSymbol('7');
 				break;
 			case sf::Keyboard::Num8:
-				gv->symbol = '8';
+				gv->setSymbol('8');
 				break;
 			case sf::Keyboard::Num9:
-				gv->symbol = '9';
+				gv->setSymbol('9');
 				break;
 			case sf::Keyboard::Period:
-				gv->symbol = '.';
+				if (gv->getInput() == 'i')
+				{
+					gv->setSymbol('.');
+				}
+				else if (gv->getInput() == 'p')
+				{
+					gv->setSymbol(' ');
+				}
 				break;
 			default:
-				gv->symbol = ' ';
+				gv->setSymbol(' ');
 				break;
 			}
 
-			if (gv->input == 'i' && gv->serverIP.size() < 15 && gv->symbol != ' ')
+			if (gv->getInput() == 'i' && gv->getServerIP().size() < 15 && gv->getSymbol() != ' ')
 			{
-				gv->serverIP += gv->symbol;
+				gv->setServerIP(gv->getServerIP() + gv->getSymbol());
 			}
-			else if (gv->input == 'p' && gv->tempPort.size() < 15 && gv->symbol != ' ')
+			else if (gv->getInput() == 'p' && gv->getTempPort().size() < 15 && gv->getSymbol() != ' ')
 			{
-				gv->tempPort += gv->symbol;
-				gv->serverPort = atoi(gv->tempPort.c_str());			
+				gv->setTempPort(gv->getTempPort() + gv->getSymbol());
+				gv->setServerPort(atoi(gv->getTempPort().c_str()));
 			}
 		}
 
@@ -126,12 +150,12 @@ void keyboardEventHandler(GameVariables* gv) // keyboard event handling function
 		{
 			if (el->getName() == "ipFieldButton")
 			{
-				el->getText().setString(gv->serverIP);
+				el->getText().setString(gv->getServerIP());
 				el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
 			}
 			else if (el->getName() == "portFieldButton")
 			{
-				el->getText().setString(gv->tempPort);
+				el->getText().setString(gv->getTempPort());
 				el->getText().setPosition(el->getSprite().getGlobalBounds().left + 11.f, el->getSprite().getPosition().y - (el->getSprite().getGlobalBounds().height / 2.f) - 5.f);
 			}
 		}

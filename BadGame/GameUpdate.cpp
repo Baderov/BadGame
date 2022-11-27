@@ -1,6 +1,6 @@
 #include "GameUpdate.h" // game update header file.
 
-void graphicsSettingsMenuUpdate(GameVariables* gv) // graphic settings menu update function.
+void graphicsSettingsMenuUpdate(GameVariable* gv) // graphic settings menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -10,7 +10,7 @@ void graphicsSettingsMenuUpdate(GameVariables* gv) // graphic settings menu upda
 
 	gv->buttonsVec.clear();
 	gv->labelsVec.clear();
-	if (gv->gameLanguage == 'e')
+	if (gv->getGameLanguage() == 'e')
 	{
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1366x768", static_cast<unsigned int>(round(winSizeX / 40.f)), "HDResolutionButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1920x1080", static_cast<unsigned int>(round(winSizeX / 40.f)), "fullHDResolutionButton", true));
@@ -24,7 +24,7 @@ void graphicsSettingsMenuUpdate(GameVariables* gv) // graphic settings menu upda
 		gv->labelsVec.emplace_back(new Label(L"SELECT WINDOW STYLE", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 10.f)), static_cast<unsigned int>(round(winSizeX / 27.f)), "selectWindowStyleLabel"));
 		gv->labelsVec.emplace_back(new Label(L"SELECT LANGUAGE", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 32.f)), static_cast<unsigned int>(round(winSizeX / 27.f)), "selectLanguageLabel"));
 	}
-	else if (gv->gameLanguage == 'r')
+	else if (gv->getGameLanguage() == 'r')
 	{
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX - round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1366x768", static_cast<unsigned int>(round(winSizeX / 40.f)), "HDResolutionButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.4f), round(winSizeY / 11.f)), sf::Vector2f(halfWinSizeX + round(winSizeX / 10.f), halfWinSizeY - round(winSizeX / 6.f)), L"1920x1080", static_cast<unsigned int>(round(winSizeX / 40.f)), "fullHDResolutionButton", true));
@@ -41,7 +41,7 @@ void graphicsSettingsMenuUpdate(GameVariables* gv) // graphic settings menu upda
 
 }
 
-void settingsMenuUpdate(GameVariables* gv) // settings menu update function.
+void settingsMenuUpdate(GameVariable* gv) // settings menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -49,19 +49,19 @@ void settingsMenuUpdate(GameVariables* gv) // settings menu update function.
 	float halfWinSizeX = gv->window.getSize().x / 2.f;
 	float halfWinSizeY = gv->window.getSize().y / 2.f;
 	gv->buttonsVec.clear();
-	if (gv->gameLanguage == 'e')
+	if (gv->getGameLanguage() == 'e')
 	{
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.5f), round(winSizeX / 12.75f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 21.f)), L"GRAPHICS\nSETTINGS", static_cast<unsigned int>(round(winSizeX / 45.f)), "graphicsSettingsButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 9.5f), round(winSizeX / 19.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f)), L"BACK", static_cast<unsigned int>(round(winSizeX / 45.f)), "backButton", true));
 	}
-	else if (gv->gameLanguage == 'r')
+	else if (gv->getGameLanguage() == 'r')
 	{
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 6.5f), round(winSizeX / 12.75f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 21.f)), L"Õ¿—“–Œ… »\n √–¿‘» »", static_cast<unsigned int>(round(winSizeX / 45.f)), "graphicsSettingsButton", true));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 9.5f), round(winSizeX / 19.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f)), L"Õ¿«¿ƒ", static_cast<unsigned int>(round(winSizeX / 45.f)), "backButton", true));
 	}
 }
 
-void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update function.
+void mainMenuUpdate(GameVariable* gv, Entity*& player) // main menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -69,16 +69,16 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update func
 	float halfWinSizeX = static_cast<float>(gv->window.getSize().x) / 2.f;
 	float halfWinSizeY = static_cast<float>(gv->window.getSize().y) / 2.f;
 	gv->buttonsVec.clear();
-	if (gv->gameLanguage == 'e')
+	if (gv->getGameLanguage() == 'e')
 	{
-		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false)
 		{
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"SINGLEPLAYER", static_cast<unsigned int>(round(winSizeX / 45.f)), "singlePlayerButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"MULTIPLAYER", static_cast<unsigned int>(round(winSizeX / 45.f)), "multiPlayerButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"SETTINGS", static_cast<unsigned int>(round(winSizeX / 45.f)), "settingsButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", static_cast<unsigned int>(round(winSizeX / 45.f)), "exitButton", true));
 		}
-		else if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
+		else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
 		{
 			if (player == nullptr)
 			{
@@ -93,7 +93,7 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update func
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", static_cast<unsigned int>(round(winSizeX / 45.f)), "exitButton", true));
 
 		}
-		else if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
+		else if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true)
 		{
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"CONTINUE", static_cast<unsigned int>(round(winSizeX / 45.f)), "continueButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"BACK TO MENU", static_cast<unsigned int>(round(winSizeX / 45.f)), "backToMenuButton", true));
@@ -101,16 +101,16 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update func
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"EXIT", static_cast<unsigned int>(round(winSizeX / 45.f)), "exitButton", true));
 		}
 	}
-	else if (gv->gameLanguage == 'r')
+	else if (gv->getGameLanguage() == 'r')
 	{
-		if (gv->singlePlayerGame == false && gv->multiPlayerGame == false)
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false)
 		{
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"Œƒ»ÕŒ◊Õ¿ﬂ »√–¿", static_cast<unsigned int>(round(winSizeX / 45.f)), "singlePlayerButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"—≈“≈¬¿ﬂ »√–¿", static_cast<unsigned int>(round(winSizeX / 45.f)), "multiPlayerButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"Õ¿—“–Œ… »", static_cast<unsigned int>(round(winSizeX / 45.f)), "settingsButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"¬€’Œƒ", static_cast<unsigned int>(round(winSizeX / 45.f)), "exitButton", true));
 		}
-		else if (gv->singlePlayerGame == true && gv->multiPlayerGame == false)
+		else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
 		{
 			if (player == nullptr)
 			{
@@ -124,7 +124,7 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update func
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f)), L"Õ¿—“–Œ… »", static_cast<unsigned int>(round(winSizeX / 45.f)), "settingsButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f)), L"¬€’Œƒ", static_cast<unsigned int>(round(winSizeX / 45.f)), "exitButton", true));
 		}
-		else if (gv->singlePlayerGame == false && gv->multiPlayerGame == true)
+		else if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true)
 		{
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"œ–ŒƒŒÀ∆»“‹", static_cast<unsigned int>(round(winSizeX / 45.f)), "continueButton", true));
 			gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY), L"Õ¿«¿ƒ ¬ Ã≈Õﬁ", static_cast<unsigned int>(round(winSizeX / 45.f)), "backToMenuButton", true));
@@ -134,7 +134,7 @@ void mainMenuUpdate(GameVariables* gv, Entity*& player) // main menu update func
 	}
 }
 
-void multiplayerMenuUpdate(GameVariables* gv) // multiplayer menu update function.
+void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -145,7 +145,7 @@ void multiplayerMenuUpdate(GameVariables* gv) // multiplayer menu update functio
 	gv->buttonsVec.clear();
 	gv->labelsVec.clear();
 
-	if (gv->gameLanguage == 'e')
+	if (gv->getGameLanguage() == 'e')
 	{
 		gv->labelsVec.emplace_back(new Label(L"ENTER NICKNAME", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 9.1f)), static_cast<unsigned int>(round(winSizeX / 38.f)), "enterNicknameLabel"));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 12.75f)), L"", static_cast<unsigned int>(round(winSizeX / 43.f)), "nicknameFieldButton", false));
@@ -162,7 +162,7 @@ void multiplayerMenuUpdate(GameVariables* gv) // multiplayer menu update functio
 		gv->labelsVec.emplace_back(new Label(L"", sf::Vector2f(halfWinSizeX, halfWinSizeY + round(winSizeX / 5.f)), static_cast<unsigned int>(round(winSizeX / 38.f)), "errorLabel"));
 		gv->labelsVec.back()->getText().setFillColor(sf::Color::Red);
 	}
-	else if (gv->gameLanguage == 'r')
+	else if (gv->getGameLanguage() == 'r')
 	{
 		gv->labelsVec.emplace_back(new Label(L"¬¬≈ƒ»“≈ Õ» Õ≈…Ã", sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 9.1f)), static_cast<unsigned int>(round(winSizeX / 38.f)), "enterNicknameLabel"));
 		gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.6f), round(winSizeX / 38.f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 12.75f)), L"", static_cast<unsigned int>(round(winSizeX / 43.f)), "nicknameFieldButton", false));
@@ -181,7 +181,7 @@ void multiplayerMenuUpdate(GameVariables* gv) // multiplayer menu update functio
 	}
 }
 
-void boxSpawn(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities) // box spawn function.
+void boxSpawn(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) // box spawn function.
 {
 	for (int i = 0; i < std::size(gv->boxStartPositions); i++)
 	{
@@ -189,27 +189,27 @@ void boxSpawn(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities) /
 	}
 }
 
-void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player) // game restart function.
+void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player) // game restart function.
 {
-	gv->view.setSize(1920.f, 1080.f);
+	gv->setViewSize(sf::Vector2f(1920.f, 1080.f));
 
 	entities.clear();
 
-	gv->numberOfPlayers = 0;
-	gv->numberOfEnemies = 0;
-	gv->menuTimer = 0;
+	gv->setNumberOfPlayers(0);
+	gv->setNumberOfEnemies(0);
+	gv->setMenuTimer(0.f);
 
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall")); // create a left wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall")); // create a right wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall")); // create a top wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall")); // create a bottom wall and throw it into the list of entities.
-	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->playerStartPos), gv->nickname)); // create a player and throw it into the list of entities.
+	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the list of entities.
 	player = entities.back().get(); // assign the value of the pointer to the player.
 
 	for (int i = 0; i < 10 + rand() % 21; i++)
 	{
 		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"Enemy"));
-		gv->numberOfEnemies++;
+		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
 	}
 
 	for (int i = 0; i < 20 + rand() % 31; i++)
@@ -217,12 +217,11 @@ void restartGame(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities
 		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"HPBonus"));
 	}
 
-	gv->numberOfPlayers++;
-
+	gv->setNumberOfPlayers(gv->getNumberOfPlayers() + 1);
 	boxSpawn(gv, entities);
 }
 
-void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2, Entity*& player) // entity update function. 
+void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2, Entity*& player) // entity update function. 
 {
 	for (it = entities.begin(); it != entities.end();) // iterate through the list from beginning to end.
 	{
@@ -241,7 +240,7 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			}
 		}
 
-		if (player != nullptr && player->getCurrentAmmo() < 30 && player->getIsReload() == true && player->getReloadTime() >= 2000)
+		if (player != nullptr && player->getCurrentAmmo() < 30 && player->getIsReload() == true && player->getReloadTime() >= 2.f)
 		{
 			player->setMissingAmmo(player->getMagazineAmmo() - player->getCurrentAmmo());
 			if (player->getMaxAmmo() < player->getMagazineAmmo())
@@ -258,13 +257,13 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			player->setIsReload(false);
 		}
 
-		if (gv->numberOfEnemies == 0 && player != nullptr)
+		if (gv->getNumberOfEnemies() == 0 && player != nullptr)
 		{
 			int gc = player->getGoldCoins();
 			restartGame(gv, entities, player);
 			player->setGoldCoins(gc);
 			return;
-		}		
+		}
 		if (entity->getIsShoot() == true)
 		{
 			if (dynamic_cast<Player*>(entity)) // if the entity is a player.
@@ -312,12 +311,12 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 			}
 			if (dynamic_cast<Player*>(entity)) // if the entity is a player.
 			{
-				gv->numberOfPlayers--; // reduce the number of players.
+				gv->setNumberOfPlayers(gv->getNumberOfPlayers() - 1);
 				player = nullptr;
 			}
 			if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
 			{
-				gv->numberOfEnemies--; // reduce the number of enemies.		
+				gv->setNumberOfEnemies(gv->getNumberOfEnemies() - 1);
 				for (int i = 0; i < 0 + rand() % 6; i++)
 				{
 					entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin"));
@@ -329,15 +328,11 @@ void updateEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entit
 	}
 }
 
-void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it) // entity drawing function.
-{	
-	if (gv->showAimLaser == true) // if we show the aiming laser.
-	{
-		gv->window.draw(gv->aimLaser); // draw aiming laser.
-	}
+void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it) // entity drawing function.
+{
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (gv->showHitbox == true) // if we show hitboxes.
+		if (gv->getShowHitbox() == true) // if we show hitboxes.
 		{
 			gv->window.draw((*it)->getRectHitbox()); // draw rectangular hitboxes.
 		}
@@ -349,6 +344,10 @@ void drawEntities(GameVariables* gv, std::list<std::unique_ptr<Entity>>& entitie
 		if ((*it)->getIsMove() == true && dynamic_cast<Player*>((*it).get())) // if the player is moving.
 		{
 			gv->window.draw(gv->playerDestination); // draw a label.
+		}
+		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && dynamic_cast<Player*>((*it).get())) // if we show the aiming laser.
+		{
+			gv->window.draw(gv->aimLaser); // draw aiming laser.
 		}
 	}
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.

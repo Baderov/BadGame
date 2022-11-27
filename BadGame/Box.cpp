@@ -7,7 +7,7 @@ Box::Box(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(im
 	rectHitbox.setFillColor(sf::Color::Blue);
 }
 
-void Box::update(GameVariables* gv) // box update function.
+void Box::update(GameVariable* gv) // box update function.
 {
 	if (isAlive == true) // if box is alive, then:
 	{
@@ -17,7 +17,7 @@ void Box::update(GameVariables* gv) // box update function.
 	}
 }
 
-void Box::move(GameVariables* gv) // box move function.
+void Box::move(GameVariable* gv) // box move function.
 {
 	
 }

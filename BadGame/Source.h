@@ -6,14 +6,12 @@
 #include "Item.h" // header file for items.
 #include "Menu.h" // header file for working with the menu.
 
-void updateTime(GameVariables* gv); // time update function.
+void updateFPS(GameVariable* gv); // FPS update function.
 
-void updateFPS(GameVariables* gv); // FPS update function.
+void eventHandler(GameVariable* gv); // event handling function.
 
-void eventHandler(sf::Event& event, GameVariables* gv); // event handling function.
+void singleplayerGame(GameVariable* gv); // single player launch function.
 
-void singleplayerGame(GameVariables* gv); // single player launch function.
-
-void logsFunc(GameVariables* gv); // function for logs in DEBUG mode.
+void logsFunc(GameVariable* gv); // function for logs in DEBUG mode.
 
 int main(); // the main function of the program.
