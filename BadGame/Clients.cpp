@@ -6,6 +6,8 @@ Clients::Clients(GameVariable* gv) // second clients constructor.
 {
 	id = 0;
 	HP = 100;
+	ping = 0;
+	pingClock.restart();
 	distance = 0.f;
 	maxSpeed = 5.f;
 	DTMultiplier = 1000.f;
@@ -71,6 +73,20 @@ void Clients::moveToTarget(GameVariable* gv) // a function to move the sprite to
 	else { isMove = false; } // else don`t move.
 }
 
+sf::Int32 Clients::getClientPing()
+{
+	c_mtx.lock();
+	sf::Int32 tempPing = currentClient->ping;
+	c_mtx.unlock();
+	return tempPing;
+}
+
+void Clients::setClientPing(sf::Int32 tempPing)
+{
+	c_mtx.lock();
+	currentClient->ping = tempPing;
+	c_mtx.unlock();
+}
 
 sf::Vector2f getClientPos()
 {
@@ -151,3 +167,4 @@ void setIsShoot(bool tempIsShoot)
 	currentClient->isShoot = tempIsShoot;
 	c_mtx.unlock();
 }
+

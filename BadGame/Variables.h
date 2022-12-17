@@ -27,7 +27,6 @@ private:
 		std::wstring chatStr;
 		std::wstring userStr;
 		std::wstring chatPrefix;
-		std::wstring scrollbarDir;
 		std::wstring leftNick;
 		std::wstring joinedNick;
 		std::wstring joinedMsg;
@@ -39,7 +38,6 @@ private:
 
 		float fps;
 		float aimLaserLength;
-		float scrollbarDivisor;
 		float dt;
 		float menuTimer;
 
@@ -49,7 +47,8 @@ private:
 		unsigned short serverPort;
 		int numOfLinesInChat;
 		int numOfLinesInUserTextBox;
-		size_t scrollbarStepNumber;
+		sf::Int32 ping;
+		sf::Int32 pingDelay;
 
 		bool showHitbox;
 		bool showAimLaser;
@@ -110,42 +109,34 @@ public:
 
 	// GETTERS.
 	sf::View getView();
-
 	sf::Vector2f getViewCenter();
 	sf::Vector2f getViewSize();
 	sf::Vector2f getMousePos();
 	sf::Vector2f getPlayerStartPos();
-
 	std::wstring getSenderNickname();
 	std::wstring getMoveDir();
 	std::wstring getNickname();
 	std::wstring getUserStr();
 	std::wstring getChatStr();
 	std::wstring getChatPrefix();
-	std::wstring getScrollbarDir();
 	std::wstring getLeftNick();
 	std::wstring getJoinedNick();
 	std::wstring getLeftMsg();
 	std::wstring getJoinedMsg();
-
 	std::string getFuncName();
 	std::string getServerIP();
 	std::string getTempPort();
-
 	float getFPS();
 	float getAimLaserLength();
-	float getScrollbarDivisor();
 	float getDT();
 	float getMenuTimer();
-
 	int getNumberOfEnemies();
 	int getNumberOfPlayers();
 	int getMenuNum();
 	unsigned short getServerPort();
 	int getNumOfLinesInChat();
 	int getNumOfLinesInUserTextBox();
-	size_t getScrollbarStepNumber();
-
+	sf::Int32 getPingDelay();
 	bool getInMenu();
 	bool getHideChat();
 	bool getNetworkEnd();
@@ -165,7 +156,6 @@ public:
 	bool getSendMsg();
 	bool getLeftFromServer();
 	bool getJoinToServer();
-
 	char getGameLanguage();
 	char getSymbol();
 	char getInput();
@@ -181,7 +171,6 @@ public:
 	void setUserStr(std::wstring tempUserStr);
 	void setChatStr(std::wstring tempChatStr);
 	void setChatPrefix(std::wstring tempChatPrefix);
-	void setScrollbarDir(std::wstring tempScrollbarDir);
 	void setLeftNick(std::wstring tempLeftNick);
 	void setJoinedNick(std::wstring tempJoinedNick);
 	void setLeftMsg(std::wstring tempLefMsg);
@@ -191,7 +180,6 @@ public:
 	void setTempPort(std::string temporaryPort);
 	void setFPS(float tempFPS);
 	void setAimLaserLength(float tempAimLaserLength);
-	void setScrollbarDivisor(float tempScrollbarDivisor);
 	void setDT(float tempDT);
 	void setMenuTimer(float tempMenuTimer);
 	void setNumberOfEnemies(int tempNumberOfEnemies);
@@ -200,7 +188,7 @@ public:
 	void setServerPort(unsigned short tempServerPort);
 	void setNumOfLinesInChat(int tempNumOfLinesInChat);
 	void setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox);
-	void setScrollbarStepNumber(size_t tempScrollbarStepNumber);
+	void setPingDelay(sf::Int32 tempPingDelay);
 	void setInMenu(bool tempInMenu);
 	void setHideChat(bool tempHideChat);
 	void setNetworkEnd(bool tempNetworkEnd);

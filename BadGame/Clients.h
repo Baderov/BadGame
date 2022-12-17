@@ -12,15 +12,23 @@ struct Clients // structure for clients.
 	void update(GameVariable* gv);
 	void moveToTarget(GameVariable* gv); // a function to move the sprite to the target.
 
+	void setClientPing(sf::Int32 tempPing);
+	sf::Int32 getClientPing();
+
 	std::wstring nickname; // client nickname.
 	sf::Text nickText; // text for client nickname.
 	sf::Image image;
 	sf::Texture texture;
 	sf::Sprite sprite;
 	sf::Vector2f moveTargetPos, currentVelocity, stepPos;
+
+	sf::Clock pingClock;
 	int id, HP;
 	float maxSpeed, distance, w, h, DTMultiplier;
 	bool isAlive, isMove, isShoot, isReload;
+
+private:
+	sf::Int32 ping;
 };
 
 sf::Vector2f getClientPos();

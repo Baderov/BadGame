@@ -8,6 +8,7 @@
 #endif
 
 const int BACKSPACE_CODE = 8;
+const int TABULATION_CODE = 9;
 const int QUESTION_MARK_CODE = 63;
 const int DOUBLE_QUOTES_CODE = 34;
 const int SINGLE_QUOTES_CODE = 39;
@@ -24,17 +25,8 @@ std::vector<std::unique_ptr<Clients>> clientsVec; // vector unique pointers for 
 std::mutex cVec_mtx;
 std::mutex g_mtx;
 
-//void updateChatPos(GameVariable* gv, Chat& chat)
-//{
-//	chat.setChatTextBoxPos(getClientPos().x - 910.f, getClientPos().y - 229.f);
-//	chat.setUserTextBoxPos(chat.getChatTextBox().getPosition().x, (chat.getChatTextBox().getPosition().y + chat.getChatTextBox().getSize().y) + 2.f);
-//	chat.setChatTextPos(chat.getChatTextBox().getPosition().x + 10.f, chat.getChatTextBox().getPosition().y + 7.f);
-//	chat.setUserTextPos(chat.getUserTextBox().getPosition().x + 10.f, chat.getUserTextBox().getPosition().y + 7.f);
-//	chat.setOuterScrollBarPos((chat.getChatTextBox().getPosition().x + chat.getChatTextBox().getSize().x + (chat.getOuterScrollBar().getSize().x / 2.f)) + 2.f, (chat.getChatTextBox().getPosition().y + (chat.getOuterScrollBar().getSize().y / 2.f)));
-//
-//
-//	chat.setInnerScrollBarPos(getClientPos().x - chat.getInnerScrollBar().getPosition().x, getClientPos().y - chat.getInnerScrollBar().getPosition().y);
-//}
+PlayersList* playersListPtr = nullptr;
+bool playerListEnabled = false;
 
 void setSocketBlocking(bool blocking)
 {
@@ -167,11 +159,8 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->setChatPrefix(L"");
 	gv->setJoinedMsg(L"");
 	gv->setLeftMsg(L"");
-	gv->setScrollbarDir(L"");
 	gv->setNumOfLinesInChat(1);
 	gv->setNumOfLinesInUserTextBox(1);
-	gv->setScrollbarDivisor(1);
-	gv->setScrollbarStepNumber(0);
 	gv->setChatEnterText(false);
 	gv->setChatContainsMouse(false);
 	gv->setRecvMsg(false);
@@ -196,6 +185,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 		gv->window.close();
 		break;
 	case sf::Event::LostFocus:
+		playerListEnabled = false;
 		gv->setFocusEvent(false);
 		break;
 	case sf::Event::GainedFocus:
@@ -233,6 +223,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Escape:
+			playerListEnabled = false;
 			gv->setInMenu(true);
 			enterMenu(gv, player);
 			gv->gameClock.restart();
@@ -243,6 +234,9 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			break;
 		case sf::Keyboard::P:
 			if (gv->getChatEnterText() == false) { /*gv->autoScroll = !gv->autoScroll;*/ }
+			break;
+		case sf::Keyboard::Tab:
+			if (playerListEnabled == false) { playerListEnabled = true; }
 			break;
 		}
 		break;
@@ -257,19 +251,34 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 				else { gv->setShowAimLaser(false); } // if the aiming laser was shown - don't show it.
 			}
 			break;
+		case sf::Keyboard::Tab:
+			if (playerListEnabled == true) { playerListEnabled = false; }
+			break;
 		}
 		break;
 
 	case sf::Event::MouseWheelMoved:
-		if (chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
+
+		if (gv->event.mouseWheel.delta == 1)
 		{
-			if (gv->event.mouseWheel.delta == 1 && chat.getStrVector().size() - gv->getScrollbarStepNumber() > 10)
+			if ((chat.getStrVector().size() - chat.scrollbarStepNumber > 10) && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
 			{
-				gv->setScrollbarDir(L"up");
+				chat.scrollbarDir = L"up";
 			}
-			else if (gv->event.mouseWheel.delta == -1 && gv->getScrollbarStepNumber() > 0)
+			if (playersListPtr != nullptr && (clientsVec.size() - playersListPtr->getScrollbarStepNumber() > NUM_OF_DISPLAYED_PLAYERS))
 			{
-				gv->setScrollbarDir(L"down");
+				playersListPtr->setScrollbarDir(L"up");
+			}
+		}
+		else if (gv->event.mouseWheel.delta == -1)
+		{
+			if (chat.scrollbarStepNumber > 0 && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
+			{
+				chat.scrollbarDir = L"down";
+			}
+			if (playersListPtr != nullptr && playersListPtr->getScrollbarStepNumber() > 0)
+			{
+				playersListPtr->setScrollbarDir(L"down");
 			}
 		}
 		break;
@@ -355,7 +364,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 					chat.getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
-			else if (gv->event.text.unicode != BACKSPACE_CODE && gv->event.text.unicode != ESCAPE_CODE)
+			else if (gv->event.text.unicode != BACKSPACE_CODE && gv->event.text.unicode != ESCAPE_CODE && gv->event.text.unicode != TABULATION_CODE)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
@@ -451,11 +460,25 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 
 		if (prefix == L"ping")
 		{
-			packet.clear();
-			packet << prefix << gv->getNickname();
-			sock.send(packet, gv->getServerIP(), gv->getServerPort());
-		}
+			std::wstring tempNick = L"";
+			if (!(packet >> tempNick)) { DEBUG_MSG("prefix_ping_error!"); continue; }
 
+			cVec_mtx.lock();
+			for (auto& client : clientsVec)
+			{
+				if (tempNick == client->nickname)
+				{
+					client->setClientPing(client->pingClock.restart().asMilliseconds() - gv->getPingDelay());
+					if (client->getClientPing() < 0) { client->setClientPing(0); }
+
+					packet.clear();
+					packet << prefix << gv->getNickname();
+					sock.send(packet, gv->getServerIP(), gv->getServerPort());
+					break;
+				}
+			}
+			cVec_mtx.unlock();
+		}
 		else if (prefix == L"conError_nickExists")
 		{
 			gv->multiplayerError = MultiplayerErrors::NicknameIsAlreadyTaken;
@@ -485,12 +508,12 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			}
 			cVec_mtx.unlock();
 		}
-
 		else if (prefix == L"move")
 		{
 			std::wstring tempNick = L"";
 			sf::Vector2f tempStepPos;
 			if (!(packet >> tempNick && packet >> tempStepPos.x && packet >> tempStepPos.y)) { DEBUG_MSG("prefix_move_error!"); continue; }
+
 			cVec_mtx.lock();
 			for (auto& client : clientsVec)
 			{
@@ -498,13 +521,17 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 				{
 					client->sprite.move(tempStepPos);
 					client->nickText.setPosition(client->sprite.getPosition().x, client->sprite.getPosition().y - 80.f);
-					if (gv->getInMenu() == false) { setWindowView(gv); }
 					break;
 				}
 			}
 			cVec_mtx.unlock();
-		}
 
+			if (tempNick == gv->getNickname() && gv->getInMenu() == false)
+			{
+				if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
+				setWindowView(gv);
+			}
+		}
 		else if (prefix == L"connected")
 		{
 			std::wstring tempJoinedMsg = L"", tempJoinedNick = L"";
@@ -515,6 +542,8 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			gv->setJoinedNick(tempJoinedNick);
 			gv->setJoinedMsg(gv->getJoinedNick() + tempJoinedMsg);
 			gv->setJoinToServer(true);
+
+			if (playersListPtr != nullptr && tempJoinedNick != gv->getNickname()) { playersListPtr->updatePLScrollbar(); }
 		}
 		else if (prefix == L"disconnected")
 		{
@@ -527,11 +556,15 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			gv->setLeftMsg(gv->getLeftNick() + tempLeftMsg);
 
 			cVec_mtx.lock();
-			clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client.get()->nickname == gv->getLeftNick(); }), clientsVec.end());
+			clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client->nickname == gv->getLeftNick(); }), clientsVec.end());
 			cVec_mtx.unlock();
 
-			gv->setChatStr(gv->getLeftMsg());
-			gv->setLeftFromServer(true);
+			if (tempLeftNick != gv->getNickname())
+			{
+				gv->setChatStr(gv->getLeftMsg());
+				gv->setLeftFromServer(true);
+				if (playersListPtr != nullptr) { playersListPtr->updatePLScrollbar(); }
+			}
 		}
 		else if (prefix == L"msg")
 		{
@@ -584,13 +617,12 @@ void gameUpdate(GameVariable* gv, Chat& chat, Entity*& player)
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 	gv->setMenuNum(0);
-
 	gv->setDT(gv->gameClock.restart().asSeconds());
-
 	chatUpdate(gv, chat);
 	updateUserTextBox(gv, chat);
 	updateScrollbarDir(gv, chat);
 	callUpdateLaser(gv);
+	if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
 	gv->aimLaser.setPosition(getClientPos());
 }
 
@@ -620,12 +652,25 @@ void gameDraw(GameVariable* gv, Chat& chat)
 		gv->window.draw(chat.getUserText());
 		gv->window.draw(chat.getChatText());
 	}
+
+	if (playersListPtr != nullptr && playerListEnabled == true)
+	{
+		playersListPtr->PL_mtx.lock();
+		gv->window.draw(playersListPtr->outerScrollBar);
+		gv->window.draw(playersListPtr->innerScrollBar);
+		gv->window.draw(playersListPtr->RS);
+		gv->window.draw(playersListPtr->text);
+		playersListPtr->PL_mtx.unlock();
+	}
 	gv->window.display();
 }
 
 void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game launch function.
 {
+	std::wcout << "Your nickname is " << gv->getNickname() << std::endl;
 	Chat chat;
+	PlayersList playersList;
+	playersListPtr = &playersList;
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;

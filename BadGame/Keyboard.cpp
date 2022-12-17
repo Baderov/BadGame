@@ -1,6 +1,7 @@
 #include "Keyboard.h" // header file for handling keyboard events.
 
 const int BACKSPACE_CODE = 8;
+const int TABULATION_CODE = 9;
 const int SPACE_CODE = 32;
 const int QUESTION_MARK_CODE = 63;
 const int DOUBLE_QUOTES_CODE = 34;
@@ -48,9 +49,8 @@ void keyboardEventHandler(GameVariable* gv) // keyboard event handling function.
 			}
 			else
 			{
-				if (gv->getNickname().size() < 15 && gv->event.text.unicode != SPACE_CODE)
+				if (gv->getNickname().size() < 15 && gv->event.text.unicode != SPACE_CODE && gv->event.text.unicode != TABULATION_CODE)
 				{
-					//gv->nickname += gv->event.text.unicode;
 					std::wstring tempNick = gv->getNickname();
 					tempNick += gv->event.text.unicode;
 					gv->setNickname(tempNick);

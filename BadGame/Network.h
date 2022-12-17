@@ -9,6 +9,7 @@
 #include "Chat.h" // header file for working with chat.
 #include "Clients.h"
 #include "Entity.h"
+#include "PlayersList.h"
 
 void setSocketBlocking(bool blocking); // socket blocking function.
 

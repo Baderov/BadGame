@@ -8,6 +8,10 @@ const int NUM_OF_DISPLAYED_ROWS = 10;
 
 Chat::Chat() // chat constructor.
 {
+	scrollbarDivisor = 1.f;
+	scrollbarDir = L"";
+	scrollbarStepNumber = 0;
+
 	greyColor.r = 120;
 	greyColor.g = 120;
 	greyColor.b = 120;
@@ -179,64 +183,64 @@ void Chat::addString(GameVariable* gv, Chat& chat) // function to add a string t
 		}
 
 		chat.getChatText().clear();
-		max = chat.getStrVector().size() - gv->getScrollbarStepNumber();
+		max = chat.getStrVector().size() - scrollbarStepNumber;
 		if (max > NUM_OF_DISPLAYED_ROWS)
 		{
 			min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
-				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
+				if (chat.getStrVector()[min]->joinedTheServer == true && chat.getStrVector()[min]->leftTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min]->msg << '\n';
 				}
-				else if (chat.getStrVector()[min].get()->leftTheServer == true && chat.getStrVector()[min].get()->joinedTheServer == false)
+				else if (chat.getStrVector()[min]->leftTheServer == true && chat.getStrVector()[min]->joinedTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min]->msg << '\n';
 				}
 				else
 				{
-					if (chat.getStrVector()[min].get()->countOfLines == 1)
+					if (chat.getStrVector()[min]->countOfLines == 1)
 					{
-						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min]->prefix << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 					else
 					{
-						chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 				}
 			}
 
-			if (gv->getScrollbarStepNumber() >= 0)
+			if (scrollbarStepNumber >= 0)
 			{
-				gv->setScrollbarStepNumber(0);
+				scrollbarStepNumber = 0;
 
-				gv->setScrollbarDivisor(static_cast<float>(chat.getStrVector().size()) - 9.f);
-				if (gv->getScrollbarDivisor() <= 0.f) { gv->setScrollbarDivisor(1.f); }
-				chat.getInnerScrollBar().setSize(sf::Vector2f(30.f, chat.getOuterScrollBar().getSize().y / gv->getScrollbarDivisor()));
+				scrollbarDivisor = static_cast<float>(chat.getStrVector().size()) - 9.f;
+				if (scrollbarDivisor <= 0.f) { scrollbarDivisor = 1.f; }
+				chat.getInnerScrollBar().setSize(sf::Vector2f(30.f, chat.getOuterScrollBar().getSize().y / scrollbarDivisor));
 				chat.getInnerScrollBar().setOrigin(chat.getInnerScrollBar().getSize() / 2.f);
 				chat.getInnerScrollBar().setPosition(chat.getOuterScrollBar().getPosition().x, (chat.getOuterScrollBar().getPosition().y + chat.getOuterScrollBar().getSize().y / 2.f) - chat.getInnerScrollBar().getSize().y / 2.f);
 				chat.getChatText().clear();
-				max = chat.getStrVector().size() - gv->getScrollbarStepNumber();
+				max = chat.getStrVector().size() - scrollbarStepNumber;
 				min = max - NUM_OF_DISPLAYED_ROWS;
 				for (; min < max; min++)
 				{
-					if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
+					if (chat.getStrVector()[min]->joinedTheServer == true && chat.getStrVector()[min]->leftTheServer == false)
 					{
-						chat.getChatText() << sf::Color::Green << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Green << chat.getStrVector()[min]->msg << '\n';
 					}
-					else if (chat.getStrVector()[min].get()->leftTheServer == true && chat.getStrVector()[min].get()->joinedTheServer == false)
+					else if (chat.getStrVector()[min]->leftTheServer == true && chat.getStrVector()[min]->joinedTheServer == false)
 					{
-						chat.getChatText() << sf::Color::Red << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Red << chat.getStrVector()[min]->msg << '\n';
 					}
 					else
 					{
-						if (chat.getStrVector()[min].get()->countOfLines == 1)
+						if (chat.getStrVector()[min]->countOfLines == 1)
 						{
-							chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+							chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min]->prefix << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 						}
 						else
 						{
-							chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+							chat.getChatText() << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 						}
 					}
 				}
@@ -247,23 +251,23 @@ void Chat::addString(GameVariable* gv, Chat& chat) // function to add a string t
 			chat.getChatText().clear();
 			for (size_t a = 0; a < chat.getStrVector().size(); a++)
 			{
-				if (chat.getStrVector()[a].get()->joinedTheServer == true && chat.getStrVector()[a].get()->leftTheServer == false)
+				if (chat.getStrVector()[a]->joinedTheServer == true && chat.getStrVector()[a]->leftTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Green << chat.getStrVector()[a].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Green << chat.getStrVector()[a]->msg << '\n';
 				}
-				else if (chat.getStrVector()[a].get()->leftTheServer == true && chat.getStrVector()[a].get()->joinedTheServer == false)
+				else if (chat.getStrVector()[a]->leftTheServer == true && chat.getStrVector()[a]->joinedTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Red << chat.getStrVector()[a].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Red << chat.getStrVector()[a]->msg << '\n';
 				}
 				else
 				{
-					if (chat.getStrVector()[a].get()->countOfLines == 1)
+					if (chat.getStrVector()[a]->countOfLines == 1)
 					{
-						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[a].get()->prefix << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[a]->prefix << sf::Color::White << chat.getStrVector()[a]->msg << '\n';
 					}
 					else
 					{
-						chat.getChatText() << sf::Color::White << chat.getStrVector()[a].get()->msg << '\n';
+						chat.getChatText() << sf::Color::White << chat.getStrVector()[a]->msg << '\n';
 					}
 				}
 			}
@@ -284,37 +288,37 @@ void Chat::addEndLine(GameVariable* gv, Chat& chat) // function to add the end o
 
 void Chat::scrollUp(GameVariable* gv, Chat& chat) // function to scroll up the chat.
 {
-	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / gv->getScrollbarDivisor()));
-	if (chat.getStrVector().size() > gv->getScrollbarStepNumber())
+	chat.getInnerScrollBar().move(0.f, -(chat.getOuterScrollBar().getSize().y / scrollbarDivisor));
+	if (chat.getStrVector().size() > scrollbarStepNumber)
 	{
-		if (chat.getStrVector().size() - gv->getScrollbarStepNumber() > NUM_OF_DISPLAYED_ROWS)
+		if (chat.getStrVector().size() - scrollbarStepNumber > NUM_OF_DISPLAYED_ROWS)
 		{
-			gv->setScrollbarStepNumber(gv->getScrollbarStepNumber() + 1);
+			scrollbarStepNumber++;
 		}
-		size_t max = chat.getStrVector().size() - gv->getScrollbarStepNumber();
+		size_t max = chat.getStrVector().size() - scrollbarStepNumber;
 		if (max >= NUM_OF_DISPLAYED_ROWS)
 		{
 			chat.getChatText().clear();
 			size_t min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
-				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
+				if (chat.getStrVector()[min]->joinedTheServer == true && chat.getStrVector()[min]->leftTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min]->msg << '\n';
 				}
-				else if (chat.getStrVector()[min].get()->leftTheServer == true && chat.getStrVector()[min].get()->joinedTheServer == false)
+				else if (chat.getStrVector()[min]->leftTheServer == true && chat.getStrVector()[min]->joinedTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min]->msg << '\n';
 				}
 				else
 				{
-					if (chat.getStrVector()[min].get()->countOfLines == 1)
+					if (chat.getStrVector()[min]->countOfLines == 1)
 					{
-						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min]->prefix << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 					else
 					{
-						chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 				}
 			}
@@ -324,37 +328,37 @@ void Chat::scrollUp(GameVariable* gv, Chat& chat) // function to scroll up the c
 
 void Chat::scrollDown(GameVariable* gv, Chat& chat) // function to scroll down the chat.
 {
-	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / gv->getScrollbarDivisor()));
-	if (gv->getScrollbarStepNumber() > 0)
+	chat.getInnerScrollBar().move(0.f, (chat.getOuterScrollBar().getSize().y / scrollbarDivisor));
+	if (scrollbarStepNumber > 0)
 	{
 		if (chat.getStrVector().size() > NUM_OF_DISPLAYED_ROWS)
 		{
-			gv->setScrollbarStepNumber(gv->getScrollbarStepNumber() - 1);
+			scrollbarStepNumber--;
 		}
-		size_t max = chat.getStrVector().size() - gv->getScrollbarStepNumber();
+		size_t max = chat.getStrVector().size() - scrollbarStepNumber;
 		if (max >= NUM_OF_DISPLAYED_ROWS)
 		{
 			chat.getChatText().clear();
 			size_t min = max - NUM_OF_DISPLAYED_ROWS;
 			for (; min < max; min++)
 			{
-				if (chat.getStrVector()[min].get()->joinedTheServer == true && chat.getStrVector()[min].get()->leftTheServer == false)
+				if (chat.getStrVector()[min]->joinedTheServer == true && chat.getStrVector()[min]->leftTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Green << chat.getStrVector()[min]->msg << '\n';
 				}
-				else if (chat.getStrVector()[min].get()->leftTheServer == true && chat.getStrVector()[min].get()->joinedTheServer == false)
+				else if (chat.getStrVector()[min]->leftTheServer == true && chat.getStrVector()[min]->joinedTheServer == false)
 				{
-					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min].get()->msg << '\n';
+					chat.getChatText() << sf::Color::Red << chat.getStrVector()[min]->msg << '\n';
 				}
 				else
 				{
-					if (chat.getStrVector()[min].get()->countOfLines == 1)
+					if (chat.getStrVector()[min]->countOfLines == 1)
 					{
-						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min].get()->prefix << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::Cyan << chat.getStrVector()[min]->prefix << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 					else
 					{
-						chat.getChatText() << sf::Color::White << chat.getStrVector()[min].get()->msg << '\n';
+						chat.getChatText() << sf::Color::White << chat.getStrVector()[min]->msg << '\n';
 					}
 				}
 			}
@@ -421,7 +425,6 @@ bool Chat::trimString(std::wstring& str, GameVariable* gv) // string trim functi
 	return true;
 }
 
-
 void chatUpdate(GameVariable* gv, Chat& chat)
 {
 	if (gv->getLeftFromServer() == true)
@@ -454,15 +457,15 @@ void chatUpdate(GameVariable* gv, Chat& chat)
 
 void updateScrollbarDir(GameVariable* gv, Chat& chat)
 {
-	if (gv->getScrollbarDir() == L"up" && ((chat.getInnerScrollBar().getPosition().y - (chat.getInnerScrollBar().getSize().y / 2.f))) > chat.getOuterScrollBar().getPosition().y - (chat.getOuterScrollBar().getSize().y / 2.f)) // up
+	if (chat.scrollbarDir == L"up" && ((chat.getInnerScrollBar().getPosition().y - (chat.getInnerScrollBar().getSize().y / 2.f))) > chat.getOuterScrollBar().getPosition().y - (chat.getOuterScrollBar().getSize().y / 2.f)) // up
 	{
 		chat.scrollUp(gv, chat);
-		gv->setScrollbarDir(L"");
+		chat.scrollbarDir = L"";
 	}
-	else if (gv->getScrollbarDir() == L"down" && ((chat.getInnerScrollBar().getPosition().y + (chat.getInnerScrollBar().getSize().y / 2.f))) < chat.getOuterScrollBar().getPosition().y + (chat.getOuterScrollBar().getSize().y / 2.f)) // down
+	else if (chat.scrollbarDir == L"down" && ((chat.getInnerScrollBar().getPosition().y + (chat.getInnerScrollBar().getSize().y / 2.f))) < chat.getOuterScrollBar().getPosition().y + (chat.getOuterScrollBar().getSize().y / 2.f)) // down
 	{
 		chat.scrollDown(gv, chat);
-		gv->setScrollbarDir(L"");
+		chat.scrollbarDir = L"";
 	}
 }
 

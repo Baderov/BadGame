@@ -46,6 +46,10 @@ public:
 	void scrollUp(GameVariable* gv, Chat& chat); // function to scroll up the chat.
 	void scrollDown(GameVariable* gv, Chat& chat); // function to scroll down the chat.
 	bool trimString(std::wstring& str, GameVariable* gv); // string trim function.
+
+	float scrollbarDivisor;
+	size_t scrollbarStepNumber;
+	std::wstring scrollbarDir;
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;

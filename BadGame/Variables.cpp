@@ -69,12 +69,8 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
-	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
-	gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
-	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Close, settings));
-	//gv->window.create(sf::VideoMode(600, 600), "BadGame", sf::Style::Close, settings));
-	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", settings));
-
+	gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
+	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
 	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen, settings));
 	gv->window.setVerticalSyncEnabled(true);
 
@@ -104,7 +100,6 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
 
 	// FLOAT.
-	gv->setScrollbarDivisor(1.f);
 	gv->setAimLaserLength(100.f);
 	gv->setMenuTimer(0.f);
 	gv->setDT(0.f);
@@ -117,7 +112,6 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setChatPrefix(L"");
 	gv->setServerIP("");
 	gv->setTempPort("");
-	gv->setScrollbarDir(L"");
 	gv->setLeftNick(L"");
 	gv->setJoinedNick(L"");
 	gv->setJoinedMsg(L"");
@@ -128,10 +122,9 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setNumberOfEnemies(0);
 	gv->setNumberOfPlayers(0);
 	gv->setMenuNum(0);
-
 	gv->setNumOfLinesInChat(1);
 	gv->setNumOfLinesInUserTextBox(1);
-	gv->setScrollbarStepNumber(0);
+	gv->setPingDelay(100);
 
 	// BOOL.
 	gv->setInMenu(false);
@@ -161,6 +154,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 
 }
 
+// GETTERS.
 sf::Vector2f GameVariable::getViewCenter()
 {
 	mtx_gv.lock();
@@ -249,14 +243,6 @@ std::wstring GameVariable::getChatPrefix()
 	return tempChatPrefix;
 }
 
-std::wstring GameVariable::getScrollbarDir()
-{
-	mtx_gv.lock();
-	std::wstring tempScrollbarDir = gVars.scrollbarDir;
-	mtx_gv.unlock();
-	return tempScrollbarDir;
-}
-
 std::wstring GameVariable::getLeftNick()
 {
 	mtx_gv.lock();
@@ -320,19 +306,13 @@ float GameVariable::getFPS()
 	mtx_gv.unlock();
 	return tempFPS;
 }
+
 float GameVariable::getAimLaserLength()
 {
 	mtx_gv.lock();
 	float tempAimLaserLength = gVars.aimLaserLength;
 	mtx_gv.unlock();
 	return tempAimLaserLength;
-}
-float GameVariable::getScrollbarDivisor()
-{
-	mtx_gv.lock();
-	float tempScrollbarDivisor = gVars.scrollbarDivisor;
-	mtx_gv.unlock();
-	return tempScrollbarDivisor;
 }
 
 float GameVariable::getMenuTimer()
@@ -342,6 +322,7 @@ float GameVariable::getMenuTimer()
 	mtx_gv.unlock();
 	return tempMenuTimer;
 }
+
 float GameVariable::getDT()
 {
 	mtx_gv.lock();
@@ -398,13 +379,14 @@ int GameVariable::getNumOfLinesInUserTextBox()
 	return tempNumOfLinesInUserTextBox;
 }
 
-size_t GameVariable::getScrollbarStepNumber()
+sf::Int32 GameVariable::getPingDelay()
 {
 	mtx_gv.lock();
-	size_t tempScrollbarStepNumber = gVars.scrollbarStepNumber;
+	sf::Int32 tempPingDelay = gVars.pingDelay;
 	mtx_gv.unlock();
-	return tempScrollbarStepNumber;
+	return tempPingDelay;
 }
+
 
 bool GameVariable::getInMenu()
 {
@@ -584,7 +566,6 @@ char GameVariable::getInput()
 
 
 // SETTERS.
-
 void GameVariable::setViewCenter(sf::Vector2f tempViewCenter)
 {
 	mtx_gv.lock();
@@ -655,13 +636,6 @@ void GameVariable::setChatPrefix(std::wstring tempChatPrefix)
 	mtx_gv.unlock();
 }
 
-void GameVariable::setScrollbarDir(std::wstring tempScrollbarDir)
-{
-	mtx_gv.lock();
-	gVars.scrollbarDir = tempScrollbarDir;
-	mtx_gv.unlock();
-}
-
 void GameVariable::setLeftNick(std::wstring tempLeftNick)
 {
 	mtx_gv.lock();
@@ -723,12 +697,6 @@ void GameVariable::setAimLaserLength(float tempAimLaserLength)
 	gVars.aimLaserLength = tempAimLaserLength;
 	mtx_gv.unlock();
 }
-void GameVariable::setScrollbarDivisor(float tempScrollbarDivisor)
-{
-	mtx_gv.lock();
-	gVars.scrollbarDivisor = tempScrollbarDivisor;
-	mtx_gv.unlock();
-}
 
 void GameVariable::setMenuTimer(float tempMenuTimer)
 {
@@ -736,6 +704,7 @@ void GameVariable::setMenuTimer(float tempMenuTimer)
 	gVars.menuTimer = tempMenuTimer;
 	mtx_gv.unlock();
 }
+
 void GameVariable::setDT(float tempDT)
 {
 	mtx_gv.lock();
@@ -785,10 +754,10 @@ void GameVariable::setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox)
 	mtx_gv.unlock();
 }
 
-void GameVariable::setScrollbarStepNumber(size_t tempScrollbarStepNumber)
+void GameVariable::setPingDelay(sf::Int32 tempPingDelay)
 {
 	mtx_gv.lock();
-	gVars.scrollbarStepNumber = tempScrollbarStepNumber;
+	gVars.pingDelay = tempPingDelay;
 	mtx_gv.unlock();
 }
 
