@@ -69,9 +69,9 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
-	gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
+	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
-	//gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen, settings));
+	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen, settings);
 	gv->window.setVerticalSyncEnabled(true);
 
 	srand(static_cast<unsigned int>(time(NULL)));

@@ -65,7 +65,7 @@ void errorChecking(GameVariable* gv) // error checking function.
 void updateFields(GameVariable* gv) // function for update fields in multiplayer menu.
 {
 	gv->setNickname(L"Baderov");
-	gv->setServerIP("192.168.1.34");
+	gv->setServerIP(sf::IpAddress::getLocalAddress().toString());
 	gv->setTempPort("2000");
 	gv->setServerPort(2000);
 
