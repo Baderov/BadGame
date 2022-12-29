@@ -200,7 +200,6 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 
 						gv->setAllowButtons(false);
 						resetVariables(gv);
-						gv->setViewSize(sf::Vector2f(1920.f, 1080.f));
 						gv->setMultiPlayerGame(true);
 						std::thread networkThread([&]() { startNetwork(gv); });
 						networkThread.detach();
@@ -412,19 +411,13 @@ void mainMenu(GameVariable* gv, Entity*& player) // main menu function.
 	}
 }
 
-void setMenuView(GameVariable* gv) // menu view setting function.
-{
-	gv->setViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
-	gv->setViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
-	gv->window.setView(gv->getView());
-}
-
 void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle menu events.
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
-	setMenuView(gv);
+	gv->window.setView(gv->getMenuView());
+
 	mainMenu(gv, player);
 	while (gv->window.isOpen())
 	{
@@ -444,6 +437,8 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			break;
 		case 3:
 			gv->setMenuNum(0);
+			gv->setSinglePlayerGame(false);
+			gv->setMultiPlayerGame(false);
 			gv->window.close();
 			return;
 		case 4:

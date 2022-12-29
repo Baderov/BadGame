@@ -50,9 +50,9 @@ void PlayersList::updateText(GameVariable* gv, std::vector<std::unique_ptr<Clien
 		{
 			scrollbarDivisor = static_cast<float>(clientsVec.size()) - 9.f;
 			if (scrollbarDivisor <= 0.f) { scrollbarDivisor = 1.f; }
-			innerScrollBar.setSize(sf::Vector2f(30.f, outerScrollBar.getSize().y / scrollbarDivisor));
+			innerScrollBar.setSize(sf::Vector2f(30.f, std::round(outerScrollBar.getSize().y / scrollbarDivisor)));
 			innerScrollBar.setOrigin(innerScrollBar.getSize() / 2.f);
-			innerScrollBar.setPosition(outerScrollBar.getPosition().x, (((outerScrollBar.getPosition().y + outerScrollBar.getSize().y / 2.f) - innerScrollBar.getSize().y / 2.f) + scrollbarYPos));
+			innerScrollBar.setPosition(outerScrollBar.getPosition().x, std::round((((outerScrollBar.getPosition().y + outerScrollBar.getSize().y / 2.f) - innerScrollBar.getSize().y / 2.f) + scrollbarYPos)));
 		}
 
 		size_t current = max - NUM_OF_DISPLAYED_PLAYERS;

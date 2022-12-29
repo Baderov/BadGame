@@ -191,8 +191,6 @@ void boxSpawn(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) //
 
 void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player) // game restart function.
 {
-	gv->setViewSize(sf::Vector2f(1920.f, 1080.f));
-
 	entities.clear();
 
 	gv->setNumberOfPlayers(0);

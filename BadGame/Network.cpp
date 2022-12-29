@@ -26,7 +26,6 @@ std::mutex cVec_mtx;
 std::mutex g_mtx;
 
 PlayersList* playersListPtr = nullptr;
-bool playerListEnabled = false;
 
 void setSocketBlocking(bool blocking)
 {
@@ -56,12 +55,14 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 
 void enterMenu(GameVariable* gv, Entity*& player)
 {
-	sf::Vector2f oldViewSize(gv->getViewSize());
-	sf::Vector2f oldViewCenter(gv->getViewCenter());
+	gv->setShowPlayersList(false);
+	gv->setInMenu(true);
+
 	menuEventHandler(gv, player);
-	gv->setViewSize(oldViewSize);
-	gv->setViewCenter(oldViewCenter);
-	gv->window.setView(gv->getView());
+
+	gv->window.setView(gv->getGameView());
+	gv->gameClock.restart();
+	gv->setInMenu(false);
 }
 
 void connectToServer(GameVariable* gv) // function to connect to the server.
@@ -167,8 +168,6 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->setSendMsg(false);
 	gv->setLeftFromServer(false);
 	gv->setJoinToServer(true);
-	gv->setViewCenter(sf::Vector2f(960.f, 540.f));
-	//setSocketBlocking(false);
 	gv->gameClock.restart();
 }
 
@@ -179,13 +178,11 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 	{
 	case sf::Event::Closed:
 		gv->setMultiPlayerGame(false);
-		cVec_mtx.lock();
 		clientsVec.clear();
-		cVec_mtx.unlock();
 		gv->window.close();
 		break;
 	case sf::Event::LostFocus:
-		playerListEnabled = false;
+		gv->setShowPlayersList(false);
 		gv->setFocusEvent(false);
 		break;
 	case sf::Event::GainedFocus:
@@ -223,11 +220,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Escape:
-			playerListEnabled = false;
-			gv->setInMenu(true);
 			enterMenu(gv, player);
-			gv->gameClock.restart();
-			gv->setInMenu(false);
 			break;
 		case sf::Keyboard::O:
 			if (gv->getChatEnterText() == false) { gv->setHideChat(!(gv->getHideChat())); }
@@ -236,7 +229,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			if (gv->getChatEnterText() == false) { /*gv->autoScroll = !gv->autoScroll;*/ }
 			break;
 		case sf::Keyboard::Tab:
-			if (playerListEnabled == false) { playerListEnabled = true; }
+			if (gv->getShowPlayersList() == false) { gv->setShowPlayersList(true); }
 			break;
 		}
 		break;
@@ -252,7 +245,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			}
 			break;
 		case sf::Keyboard::Tab:
-			if (playerListEnabled == true) { playerListEnabled = false; }
+			if (gv->getShowPlayersList() == true) { gv->setShowPlayersList(false); }
 			break;
 		}
 		break;
@@ -261,11 +254,11 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 
 		if (gv->event.mouseWheel.delta == 1)
 		{
-			if ((chat.getStrVector().size() - chat.scrollbarStepNumber > 10) && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
+			if (((chat.getStrVector().size() - chat.scrollbarStepNumber) > 10) && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
 			{
 				chat.scrollbarDir = L"up";
 			}
-			if (playersListPtr != nullptr && (clientsVec.size() - playersListPtr->getScrollbarStepNumber() > NUM_OF_DISPLAYED_PLAYERS))
+			if (playersListPtr != nullptr && ((clientsVec.size() - playersListPtr->getScrollbarStepNumber()) > NUM_OF_DISPLAYED_PLAYERS))
 			{
 				playersListPtr->setScrollbarDir(L"up");
 			}
@@ -385,40 +378,29 @@ void sendData(GameVariable* gv) // function to send data to the server.
 {
 	while (true)
 	{
-		if (gv == nullptr)
+		if ((gv == nullptr) || (gv->getInMenu() == true) || (gv->getFocusEvent() == false) || (gv->getMultiPlayerGame() == false) || (clientIsNullptr() == true))
 		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("sendData: gv nullptr!"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
-		if (gv->getMultiPlayerGame() == false && gv->getFuncName() == "multiplayerGame")
-		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("sendData: multiPlayerGame false!"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
-		if (clientIsNullptr() == true && gv->getFuncName() == "multiplayerGame")
-		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("sendData: currentClient == nullptr!"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("sendData: gv == nullptr"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv->getInMenu() == true) { DEBUG_MSG("sendData: gv->getInMenu() == true"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv->getFocusEvent() == false) { DEBUG_MSG("sendData: gv->getFocusEvent() == false"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv->getMultiPlayerGame() == false) { DEBUG_MSG("sendData: gv->getMultiPlayerGame() == false"); }
+			if (gv->getFuncName() == "multiplayerGame" && clientIsNullptr() == true) { DEBUG_MSG("sendData: clientIsNullptr() == true"); }
 			sf::sleep(sf::milliseconds(1));
 			continue;
 		}
 
-		if (gv->getInMenu() == false && gv->getFocusEvent() == true && gv != nullptr && gv->getMultiPlayerGame() == true && clientIsNullptr() == false)
+		sendMousePos(gv);
+		if (gv->getSendMsg() == true)
 		{
-			sendMousePos(gv);
-
-			if (gv->getSendMsg() == true)
-			{
-				gv->setSendMsg(false);
-				sendMessage(gv);
-			}
-			if (getClientIsMove() == true)
-			{
-				callMoveToTarget(gv);
-				sendMoveRequest(gv);
-			}
+			gv->setSendMsg(false);
+			sendMessage(gv);
 		}
+		if (getClientIsMove() == true)
+		{
+			callMoveToTarget(gv);
+			sendMoveRequest(gv);
+		}
+
 		sf::sleep(sf::milliseconds(1));
 	}
 }
@@ -433,27 +415,12 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 		packet.clear();
 		std::wstring prefix = L"";
 
-		if (gv == nullptr)
+		if ((gv == nullptr) || (gv->getMultiPlayerGame() == false) || (sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) || (!(packet >> prefix)))
 		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("receiveData: gv nullptr!"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
-		if (gv->getMultiPlayerGame() == false)
-		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("receiveData: multiPlayerGame false!"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
-		if (sock.receive(packet, serverIP, serverPort) != sf::Socket::Done)
-		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("sock receive error!"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
-		if (!(packet >> prefix))
-		{
-			if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("prefix_error!"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("recvData: gv == nullptr"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv->getMultiPlayerGame() == false) { DEBUG_MSG("recvData: gv->getMultiPlayerGame() == false"); }
+			if (gv->getFuncName() == "multiplayerGame" && sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) { DEBUG_MSG("recvData: sock receive error"); }
+			if (gv->getFuncName() == "multiplayerGame" && (!(packet >> prefix))) { DEBUG_MSG("recvData: packet >> prefix error"); }
 			sf::sleep(sf::milliseconds(1));
 			continue;
 		}
@@ -526,10 +493,11 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			}
 			cVec_mtx.unlock();
 
-			if (tempNick == gv->getNickname() && gv->getInMenu() == false)
+			if (tempNick == gv->getNickname())
 			{
 				if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
-				setWindowView(gv);
+				gv->setGameViewCenter(getClientPos());
+				if (gv->getInMenu() == false) { gv->window.setView(gv->getGameView()); }
 			}
 		}
 		else if (prefix == L"connected")
@@ -605,14 +573,6 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 	}
 }
 
-void setWindowView(GameVariable* gv)
-{
-	g_mtx.lock();
-	gv->setViewCenter(getClientPos());
-	gv->window.setView(gv->getView());
-	g_mtx.unlock();
-}
-
 void gameUpdate(GameVariable* gv, Chat& chat, Entity*& player)
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
@@ -653,7 +613,7 @@ void gameDraw(GameVariable* gv, Chat& chat)
 		gv->window.draw(chat.getChatText());
 	}
 
-	if (playersListPtr != nullptr && playerListEnabled == true)
+	if (playersListPtr != nullptr && gv->getShowPlayersList() == true)
 	{
 		playersListPtr->PL_mtx.lock();
 		gv->window.draw(playersListPtr->outerScrollBar);
@@ -667,16 +627,19 @@ void gameDraw(GameVariable* gv, Chat& chat)
 
 void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game launch function.
 {
-	std::wcout << "Your nickname is " << gv->getNickname() << std::endl;
+	DEBUG_MSG("Your nickname is " << gv->getNickname());
 	Chat chat;
 	PlayersList playersList;
 	playersListPtr = &playersList;
+
+	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
+	gv->setGameViewCenter(sf::Vector2f(960.f, 540.f));
+	gv->window.setView(gv->getGameView());
+
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
-		if (clientIsNullptr() == true) { DEBUG_MSG("client is nullptr!\n"); continue; }
-
-		gameUpdate(gv, chat, player);
+		if (clientIsNullptr() == true) { DEBUG_MSG("client is nullptr!"); continue; }
 
 		while (gv->window.pollEvent(gv->event))
 		{
@@ -684,7 +647,7 @@ void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game laun
 			if (checkConnection(gv) == false) { return; }
 		}
 
-		setWindowView(gv);
+		gameUpdate(gv, chat, player);
 		gameDraw(gv, chat);
 	}
 }

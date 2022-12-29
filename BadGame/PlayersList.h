@@ -5,7 +5,7 @@
 #include <mutex>
 #include "Clients.h"
 
-const int NUM_OF_DISPLAYED_PLAYERS = 10;
+const size_t NUM_OF_DISPLAYED_PLAYERS = 10;
 
 class PlayersList
 {

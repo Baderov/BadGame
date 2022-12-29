@@ -69,9 +69,9 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
+
+	gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
 	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
-	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
-	gv->window.create(sf::VideoMode::getDesktopMode(), "BadGame", sf::Style::Fullscreen, settings);
 	gv->window.setVerticalSyncEnabled(true);
 
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -82,6 +82,12 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	setImage(gv);
 	setTexture(gv);
 	setSprite(gv);
+
+	gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+	gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+
+	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
+	gv->setGameViewCenter(sf::Vector2f(960.f, 540.f));
 
 	gv->setPlayerStartPos(sf::Vector2f(1500.f, 1500.f));
 
@@ -127,6 +133,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setPingDelay(100);
 
 	// BOOL.
+	gv->setShowPlayersList(false);
 	gv->setInMenu(false);
 	gv->setShowHitbox(false);
 	gv->setShowAimLaser(false);
@@ -155,26 +162,50 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 }
 
 // GETTERS.
-sf::Vector2f GameVariable::getViewCenter()
+sf::Vector2f GameVariable::getGameViewCenter()
 {
 	mtx_gv.lock();
-	sf::Vector2f tempViewCenter = gVars.view.getCenter();
+	sf::Vector2f tempViewCenter = gVars.gameView.getCenter();
 	mtx_gv.unlock();
 	return tempViewCenter;
 }
 
-sf::Vector2f GameVariable::getViewSize()
+sf::Vector2f GameVariable::getGameViewSize()
 {
 	mtx_gv.lock();
-	sf::Vector2f tempViewSize = gVars.view.getSize();
+	sf::Vector2f tempViewSize = gVars.gameView.getSize();
 	mtx_gv.unlock();
 	return tempViewSize;
 }
 
-sf::View GameVariable::getView()
+sf::Vector2f GameVariable::getMenuViewCenter()
 {
 	mtx_gv.lock();
-	sf::View tempView = gVars.view;
+	sf::Vector2f tempViewCenter = gVars.menuView.getCenter();
+	mtx_gv.unlock();
+	return tempViewCenter;
+}
+
+sf::Vector2f GameVariable::getMenuViewSize()
+{
+	mtx_gv.lock();
+	sf::Vector2f tempViewSize = gVars.menuView.getSize();
+	mtx_gv.unlock();
+	return tempViewSize;
+}
+
+sf::View GameVariable::getGameView()
+{
+	mtx_gv.lock();
+	sf::View tempView = gVars.gameView;
+	mtx_gv.unlock();
+	return tempView;
+}
+
+sf::View GameVariable::getMenuView()
+{
+	mtx_gv.lock();
+	sf::View tempView = gVars.menuView;
 	mtx_gv.unlock();
 	return tempView;
 }
@@ -387,6 +418,13 @@ sf::Int32 GameVariable::getPingDelay()
 	return tempPingDelay;
 }
 
+bool GameVariable::getShowPlayersList()
+{
+	mtx_gv.lock();
+	bool tempShowPlayersList = gVars.showPlayersList;
+	mtx_gv.unlock();
+	return tempShowPlayersList;
+}
 
 bool GameVariable::getInMenu()
 {
@@ -566,17 +604,32 @@ char GameVariable::getInput()
 
 
 // SETTERS.
-void GameVariable::setViewCenter(sf::Vector2f tempViewCenter)
+
+void GameVariable::setGameViewCenter(sf::Vector2f tempViewCenter)
 {
 	mtx_gv.lock();
-	gVars.view.setCenter(tempViewCenter);
+	gVars.gameView.setCenter(tempViewCenter);
 	mtx_gv.unlock();
 }
 
-void GameVariable::setViewSize(sf::Vector2f tempViewSize)
+void GameVariable::setGameViewSize(sf::Vector2f tempViewSize)
 {
 	mtx_gv.lock();
-	gVars.view.setSize(tempViewSize);
+	gVars.gameView.setSize(tempViewSize);
+	mtx_gv.unlock();
+}
+
+void GameVariable::setMenuViewCenter(sf::Vector2f tempViewCenter)
+{
+	mtx_gv.lock();
+	gVars.menuView.setCenter(tempViewCenter);
+	mtx_gv.unlock();
+}
+
+void GameVariable::setMenuViewSize(sf::Vector2f tempViewSize)
+{
+	mtx_gv.lock();
+	gVars.menuView.setSize(tempViewSize);
 	mtx_gv.unlock();
 }
 
@@ -758,6 +811,13 @@ void GameVariable::setPingDelay(sf::Int32 tempPingDelay)
 {
 	mtx_gv.lock();
 	gVars.pingDelay = tempPingDelay;
+	mtx_gv.unlock();
+}
+
+void GameVariable::setShowPlayersList(bool tempShowPlayersList)
+{
+	mtx_gv.lock();
+	gVars.showPlayersList = tempShowPlayersList;
 	mtx_gv.unlock();
 }
 

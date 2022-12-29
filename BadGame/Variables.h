@@ -20,7 +20,8 @@ private:
 		sf::Vector2f mousePos;
 		sf::Vector2f playerStartPos;
 
-		sf::View view;
+		sf::View gameView;
+		sf::View menuView;
 
 		std::wstring senderNickname;
 		std::wstring nickname;
@@ -50,6 +51,7 @@ private:
 		sf::Int32 ping;
 		sf::Int32 pingDelay;
 
+		bool showPlayersList;
 		bool showHitbox;
 		bool showAimLaser;
 		bool showLogs;
@@ -108,9 +110,14 @@ public:
 	sf::Time fpsCurrentTime;
 
 	// GETTERS.
-	sf::View getView();
-	sf::Vector2f getViewCenter();
-	sf::Vector2f getViewSize();
+	sf::View getGameView();
+	sf::Vector2f getGameViewCenter();
+	sf::Vector2f getGameViewSize();
+
+	sf::View getMenuView();
+	sf::Vector2f getMenuViewCenter();
+	sf::Vector2f getMenuViewSize();
+
 	sf::Vector2f getMousePos();
 	sf::Vector2f getPlayerStartPos();
 	std::wstring getSenderNickname();
@@ -137,6 +144,7 @@ public:
 	int getNumOfLinesInChat();
 	int getNumOfLinesInUserTextBox();
 	sf::Int32 getPingDelay();
+	bool getShowPlayersList();
 	bool getInMenu();
 	bool getHideChat();
 	bool getNetworkEnd();
@@ -161,8 +169,13 @@ public:
 	char getInput();
 
 	// SETTERS.
-	void setViewCenter(sf::Vector2f tempViewCenter);
-	void setViewSize(sf::Vector2f tempViewSize);
+
+	void setGameViewCenter(sf::Vector2f tempGameViewCenter);
+	void setGameViewSize(sf::Vector2f tempGameViewSize);
+
+	void setMenuViewCenter(sf::Vector2f tempMenuViewCenter);
+	void setMenuViewSize(sf::Vector2f tempMenuViewSize);
+
 	void setMousePos(sf::Vector2f tempMousePos);
 	void setPlayerStartPos(sf::Vector2f tempPlayerStartPos);
 	void setSenderNickname(std::wstring tempSenderNickname);
@@ -189,6 +202,7 @@ public:
 	void setNumOfLinesInChat(int tempNumOfLinesInChat);
 	void setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox);
 	void setPingDelay(sf::Int32 tempPingDelay);
+	void setShowPlayersList(bool tempShowPlayersList);
 	void setInMenu(bool tempInMenu);
 	void setHideChat(bool tempHideChat);
 	void setNetworkEnd(bool tempNetworkEnd);

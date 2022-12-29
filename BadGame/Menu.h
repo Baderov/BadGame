@@ -18,6 +18,4 @@ void settingsMenu(GameVariable* gv); // settings menu function.
 
 void mainMenu(GameVariable* gv, Entity*& player); // main menu function.
 
-void setMenuView(GameVariable* gv); // menu view setting function.
-
 void menuEventHandler(GameVariable* gv, Entity*& player); // menu event handling function.

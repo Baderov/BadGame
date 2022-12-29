@@ -20,10 +20,10 @@ void setGameInfo(GameVariable* gv, Entity* player, std::list<std::unique_ptr<Ent
 		}	
 	}
 
-	gv->gameInfoText.setPosition(gv->getViewCenter().x - 600.f, gv->getViewCenter().y - 350.f);
-	gv->playerInfoText.setPosition(gv->getViewCenter().x + 700.f, gv->getViewCenter().y - 400.f);
-	gv->goldCoinHUDSprite.setPosition(gv->getViewCenter().x + 600.f, gv->getViewCenter().y - 400.f);
-	gv->playerAmmoText.setPosition(gv->getViewCenter().x + 500.f, gv->getViewCenter().y + 300.f);
+	gv->gameInfoText.setPosition(gv->getGameViewCenter().x - 600.f, gv->getGameViewCenter().y - 350.f);
+	gv->playerInfoText.setPosition(gv->getGameViewCenter().x + 700.f, gv->getGameViewCenter().y - 400.f);
+	gv->goldCoinHUDSprite.setPosition(gv->getGameViewCenter().x + 600.f, gv->getGameViewCenter().y - 400.f);
+	gv->playerAmmoText.setPosition(gv->getGameViewCenter().x + 500.f, gv->getGameViewCenter().y + 300.f);
 
 }
 

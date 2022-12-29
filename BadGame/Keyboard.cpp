@@ -10,7 +10,7 @@ const int BACKSLASH_CODE = 92;
 
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
-#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
+#define DEBUG_MSG(str) do { std::wcout << str << std::endl; } while(false)
 #else
 #define DEBUG_SET_FUNC_NAME
 #define DEBUG_MSG(str) do { } while (false)

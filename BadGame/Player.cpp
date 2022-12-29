@@ -62,7 +62,7 @@ void Player::update(GameVariable* gv) // player update function.
 
 		gv->aimLaser.setPosition(currentPos);
 
-		gv->setViewCenter(currentPos);
+		gv->setGameViewCenter(currentPos);
 
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);

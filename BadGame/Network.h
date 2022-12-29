@@ -35,8 +35,6 @@ void sendData(GameVariable* gv); // function to send data to the server.
 
 void receiveData(GameVariable* gv); // function to receive data from the server.
 
-void setWindowView(GameVariable* gv); // function to set window view.
-
 void gameUpdate(GameVariable* gv, Chat& chat, Entity*& player); // multiplayer game update function.
 
 void gameDraw(GameVariable* gv, Chat& chat); // multiplayer game draw function.

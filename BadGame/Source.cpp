@@ -78,13 +78,6 @@ void eventHandler(GameVariable* gv) // event handling function.
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Escape:
-			sf::Vector2f oldViewSize(gv->getViewSize());
-			sf::Vector2f oldViewCenter(gv->getViewCenter());
-
-			gv->setViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
-			gv->setViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
-			gv->window.setView(gv->getView());
-
 			gv->menuClock.restart();
 			menuEventHandler(gv, player);
 			gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
@@ -99,9 +92,8 @@ void eventHandler(GameVariable* gv) // event handling function.
 			}
 			gv->gameClock.restart();
 			if (gv->getSinglePlayerGame() == false) { return; }
-			gv->setViewSize(oldViewSize);
-			gv->setViewCenter(oldViewCenter);
-			gv->window.setView(gv->getView());
+
+			gv->window.setView(gv->getGameView());
 			break;
 		}
 		break;
@@ -127,7 +119,7 @@ void singleplayerGame(GameVariable* gv) // single player launch function.
 			eventHandler(gv); // call the event handling function.
 			if (gv->getSinglePlayerGame() == false) { return; }
 		}
-		gv->window.setView(gv->getView());
+		gv->window.setView(gv->getGameView());
 		updateEntities(gv, entities, it, it2, player); // calling the entity update function.
 		gv->window.clear(gv->backgroundColor);
 		drawEntities(gv, entities, it); // calling the entity drawing function.
