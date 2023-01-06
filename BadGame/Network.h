@@ -29,14 +29,14 @@ void sendMousePos(GameVariable* gv); // function to send the mouse position to t
 
 void resetVariables(GameVariable* gv); // global variable reset function.
 
-void eventHandler(GameVariable* gv, Chat& chat, Entity*& player); // event handling function.
+void eventHandler(GameVariable* gv, Entity*& player); // event handling function.
 
 void sendData(GameVariable* gv); // function to send data to the server.
 
 void receiveData(GameVariable* gv); // function to receive data from the server.
 
-void gameUpdate(GameVariable* gv, Chat& chat, Entity*& player); // multiplayer game update function.
+void gameUpdate(GameVariable* gv, Entity*& player); // multiplayer game update function.
 
-void gameDraw(GameVariable* gv, Chat& chat); // multiplayer game draw function.
+void gameDraw(GameVariable* gv); // multiplayer game draw function.
 
 void multiplayerGame(GameVariable* gv, Entity*& player); // multiplayer game launch function.

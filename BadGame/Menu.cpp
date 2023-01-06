@@ -454,6 +454,11 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			if (gv->getIsFullscreen() == true) { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Fullscreen), settings; }
 			else { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Close); }
 			gv->window.setVerticalSyncEnabled(true);
+		
+			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+			gv->window.setView(gv->getMenuView());
+
 			graphicsSettingsMenu(gv);
 			break;
 		case 7:
@@ -461,12 +466,22 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			if (gv->getIsFullscreen() == true) { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Fullscreen), settings; }
 			else { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Close); }
 			gv->window.setVerticalSyncEnabled(true);
+			
+			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+			gv->window.setView(gv->getMenuView());
+
 			graphicsSettingsMenu(gv);
 			break;
 		case 8:
 			gv->setMenuNum(0);
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Close), settings;
 			gv->window.setVerticalSyncEnabled(true);
+
+			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+			gv->window.setView(gv->getMenuView());
+
 			gv->setIsFullscreen(false);
 			graphicsSettingsMenu(gv);
 			break;
@@ -474,6 +489,11 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			gv->setMenuNum(0);
 			gv->window.create(sf::VideoMode(gv->window.getSize().x, gv->window.getSize().y), "Bad Game", sf::Style::Fullscreen), settings;
 			gv->window.setVerticalSyncEnabled(true);
+
+			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
+			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
+			gv->window.setView(gv->getMenuView());
+
 			gv->setIsFullscreen(true);
 			graphicsSettingsMenu(gv);
 			break;

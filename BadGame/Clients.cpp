@@ -2,6 +2,7 @@
 
 std::mutex c_mtx; // mutex for clients.
 Clients* currentClient = nullptr;
+
 Clients::Clients(GameVariable* gv) // second clients constructor.
 {
 	id = 0;
@@ -73,71 +74,95 @@ void Clients::moveToTarget(GameVariable* gv) // a function to move the sprite to
 	else { isMove = false; } // else don`t move.
 }
 
-sf::Int32 Clients::getClientPing()
-{
-	c_mtx.lock();
-	sf::Int32 tempPing = currentClient->ping;
-	c_mtx.unlock();
-	return tempPing;
-}
-
-void Clients::setClientPing(sf::Int32 tempPing)
-{
-	c_mtx.lock();
-	currentClient->ping = tempPing;
-	c_mtx.unlock();
-}
-
-sf::Vector2f getClientPos()
-{
-	c_mtx.lock();
-	sf::Vector2f tempPos = currentClient->sprite.getPosition();
-	c_mtx.unlock();
-	return tempPos;
-}
-
-sf::Vector2f getMoveTargetPos()
-{
-	c_mtx.lock();
-	sf::Vector2f tempMoveTargetPos = currentClient->moveTargetPos;
-	c_mtx.unlock();
-	return tempMoveTargetPos;
-}
-
-sf::Vector2f getClientStepPos()
-{
-	c_mtx.lock();
-	sf::Vector2f tempStepPos = currentClient->stepPos;
-	c_mtx.unlock();
-	return tempStepPos;
-}
-
 bool clientIsNullptr()
 {
 	if (currentClient == nullptr) { return true; }
 	else { return false; }
 }
 
+sf::Int32 Clients::getClientPing()
+{
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		sf::Int32 tempPing = currentClient->ping;
+		c_mtx.unlock();
+		return tempPing;
+	}
+}
+
+void Clients::setClientPing(sf::Int32 tempPing)
+{
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->ping = tempPing;
+		c_mtx.unlock();
+	}
+}
+
+sf::Vector2f getClientPos()
+{
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		sf::Vector2f tempPos = currentClient->sprite.getPosition();
+		c_mtx.unlock();
+		return tempPos;
+	}
+}
+
+sf::Vector2f getMoveTargetPos()
+{
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		sf::Vector2f tempMoveTargetPos = currentClient->moveTargetPos;
+		c_mtx.unlock();
+		return tempMoveTargetPos;
+	}
+}
+
+sf::Vector2f getClientStepPos()
+{
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		sf::Vector2f tempStepPos = currentClient->stepPos;
+		c_mtx.unlock();
+		return tempStepPos;
+	}
+}
+
 bool getClientIsMove()
 {
-	c_mtx.lock();
-	bool tempIsMove = currentClient->isMove;
-	c_mtx.unlock();
-	return tempIsMove;
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		bool tempIsMove = currentClient->isMove;
+		c_mtx.unlock();
+		return tempIsMove;
+	}
 }
 
 void callMoveToTarget(GameVariable* gv)
 {
-	c_mtx.lock();
-	currentClient->moveToTarget(gv);
-	c_mtx.unlock();
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->moveToTarget(gv);
+		c_mtx.unlock();
+	}
 }
 
 void callUpdateLaser(GameVariable* gv)
 {
-	c_mtx.lock();
-	currentClient->updateLaser(gv);
-	c_mtx.unlock();
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->updateLaser(gv);
+		c_mtx.unlock();
+	}
 }
 
 void setCurrentClient(Clients* tempClient)
@@ -149,22 +174,31 @@ void setCurrentClient(Clients* tempClient)
 
 void setMoveTargetPos(sf::Vector2f tempMoveTargetPos)
 {
-	c_mtx.lock();
-	currentClient->moveTargetPos = tempMoveTargetPos;
-	c_mtx.unlock();
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->moveTargetPos = tempMoveTargetPos;
+		c_mtx.unlock();
+	}
 }
 
 void setIsMove(bool tempIsMove)
 {
-	c_mtx.lock();
-	currentClient->isMove = tempIsMove;
-	c_mtx.unlock();
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->isMove = tempIsMove;
+		c_mtx.unlock();
+	}
 }
 
 void setIsShoot(bool tempIsShoot)
 {
-	c_mtx.lock();
-	currentClient->isShoot = tempIsShoot;
-	c_mtx.unlock();
+	if (currentClient != nullptr)
+	{
+		c_mtx.lock();
+		currentClient->isShoot = tempIsShoot;
+		c_mtx.unlock();
+	}
 }
 

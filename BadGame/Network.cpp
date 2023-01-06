@@ -26,6 +26,7 @@ std::mutex cVec_mtx;
 std::mutex g_mtx;
 
 PlayersList* playersListPtr = nullptr;
+Chat* chatPtr = nullptr;
 
 void setSocketBlocking(bool blocking)
 {
@@ -155,6 +156,8 @@ void sendMousePos(GameVariable* gv)
 
 void resetVariables(GameVariable* gv) // global variable reset function.
 {
+	gv->setShowPlayersList(false);
+	gv->setShowChat(true);
 	gv->setUserStr(L"");
 	gv->setChatStr(L"");
 	gv->setChatPrefix(L"");
@@ -171,7 +174,7 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->gameClock.restart();
 }
 
-void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
+void eventHandler(GameVariable* gv, Entity*& player)
 {
 	if (clientIsNullptr() == true) { return; }
 	switch (gv->event.type) // check by event type.
@@ -195,13 +198,13 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			if (gv->getMenuNum() == 0)
 			{
 				gv->setChatEnterText(false);
-				chat.getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
+				chatPtr->getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
 			}
 			else if (gv->getMenuNum() == 1)
 			{
 				gv->setChatEnterText(true);
 				setIsMove(false);
-				chat.getUserTextBox().setFillColor(sf::Color::White);
+				chatPtr->getUserTextBox().setFillColor(sf::Color::White);
 			}
 			if (gv->getChatEnterText() == false)
 			{
@@ -223,7 +226,7 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			enterMenu(gv, player);
 			break;
 		case sf::Keyboard::O:
-			if (gv->getChatEnterText() == false) { gv->setHideChat(!(gv->getHideChat())); }
+			if (gv->getChatEnterText() == false) { gv->setShowChat(!(gv->getShowChat())); }
 			break;
 		case sf::Keyboard::P:
 			if (gv->getChatEnterText() == false) { /*gv->autoScroll = !gv->autoScroll;*/ }
@@ -254,29 +257,29 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 
 		if (gv->event.mouseWheel.delta == 1)
 		{
-			if (((chat.getStrVector().size() - chat.scrollbarStepNumber) > 10) && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
+			if (((chatPtr->getStrVector().size() - chatPtr->getScrollbarStepNumber()) > 10) && chatPtr->getStrVector().size() > 10 && gv->getChatContainsMouse() == true && gv->getShowChat() == true)
 			{
-				chat.scrollbarDir = L"up";
+				chatPtr->setScrollbarDir(L"up");
 			}
-			if (playersListPtr != nullptr && ((clientsVec.size() - playersListPtr->getScrollbarStepNumber()) > NUM_OF_DISPLAYED_PLAYERS))
+			if (playersListPtr != nullptr && ((clientsVec.size() - playersListPtr->getScrollbarStepNumber()) > NUM_OF_DISPLAYED_PLAYERS) && gv->getShowPlayersList() == true)
 			{
 				playersListPtr->setScrollbarDir(L"up");
 			}
 		}
 		else if (gv->event.mouseWheel.delta == -1)
 		{
-			if (chat.scrollbarStepNumber > 0 && chat.getStrVector().size() > 10 && gv->getChatContainsMouse() == true)
+			if (chatPtr->getScrollbarStepNumber() > 0 && chatPtr->getStrVector().size() > 10 && gv->getChatContainsMouse() == true && gv->getShowChat() == true)
 			{
-				chat.scrollbarDir = L"down";
+				chatPtr->setScrollbarDir(L"down");
 			}
-			if (playersListPtr != nullptr && playersListPtr->getScrollbarStepNumber() > 0)
+			if (playersListPtr != nullptr && playersListPtr->getScrollbarStepNumber() > 0 && gv->getShowPlayersList() == true)
 			{
 				playersListPtr->setScrollbarDir(L"down");
 			}
 		}
 		break;
 	case sf::Event::TextEntered:
-		if (gv->getChatEnterText() == true && gv->getHideChat() == false)
+		if (gv->getChatEnterText() == true && gv->getShowChat() == true)
 		{
 			if (gv->event.text.unicode == BACKSPACE_CODE)
 			{
@@ -285,8 +288,8 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 					std::wstring tempStr = gv->getUserStr();
 					tempStr.resize(gv->getUserStr().size() - 1);
 					gv->setUserStr(tempStr);
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 					if (!gv->getUserStr().empty())
 					{
 						if (gv->getUserStr()[gv->getUserStr().size() - 1] == '\n')
@@ -294,7 +297,6 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 							tempStr = gv->getUserStr();
 							tempStr.resize(gv->getUserStr().size() - 1);
 							gv->setUserStr(tempStr);
-
 							gv->setNumOfLinesInUserTextBox(gv->getNumOfLinesInUserTextBox() - 1);
 						}
 					}
@@ -305,14 +307,14 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 				if (gv->getUserStr().size() > 0 && gv->getUserStr().size() <= CHAT_MAX_CHAR_NUM && gv->getSendMsg() == false && gv->getRecvMsg() == false)
 				{
 					std::wstring tempUserStr = gv->getUserStr();
-					if (chat.trimString(tempUserStr, gv) == true)
+					if (chatPtr->trimString(tempUserStr, gv) == true)
 					{
 						gv->setSendMsg(true);
 					}
 					else
 					{
 						gv->setNumOfLinesInUserTextBox(1);
-						chat.getUserText().clear();
+						chatPtr->getUserText().clear();
 						gv->setUserStr(L"");
 					}
 				}
@@ -321,52 +323,52 @@ void eventHandler(GameVariable* gv, Chat& chat, Entity*& player)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
-					chat.addEndLine(gv, chat);
+					chatPtr->addEndLine(gv);
 					gv->setUserStr(gv->getUserStr() + L"\?");
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
 			else if (gv->event.text.unicode == DOUBLE_QUOTES_CODE)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
-					chat.addEndLine(gv, chat);
+					chatPtr->addEndLine(gv);
 					gv->setUserStr(gv->getUserStr() + L"\"");
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
 			else if (gv->event.text.unicode == SINGLE_QUOTES_CODE)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
-					chat.addEndLine(gv, chat);
+					chatPtr->addEndLine(gv);
 					gv->setUserStr(gv->getUserStr() + L"\'");
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
 			else if (gv->event.text.unicode == BACKSLASH_CODE)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
-					chat.addEndLine(gv, chat);
+					chatPtr->addEndLine(gv);
 					gv->setUserStr(gv->getUserStr() + L"\\");
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
 			else if (gv->event.text.unicode != BACKSPACE_CODE && gv->event.text.unicode != ESCAPE_CODE && gv->event.text.unicode != TABULATION_CODE)
 			{
 				if (gv->getUserStr().size() < CHAT_MAX_CHAR_NUM)
 				{
-					chat.addEndLine(gv, chat);
+					chatPtr->addEndLine(gv);
 					std::wstring tempStr = gv->getUserStr();
 					tempStr += gv->event.text.unicode;
 					gv->setUserStr(tempStr);
-					chat.getUserText().clear();
-					chat.getUserText() << sf::Color::Black << gv->getUserStr();
+					chatPtr->getUserText().clear();
+					chatPtr->getUserText() << sf::Color::Black << gv->getUserStr();
 				}
 			}
 		}
@@ -496,6 +498,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			if (tempNick == gv->getNickname())
 			{
 				if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
+				if (chatPtr != nullptr) { chatPtr->chatPosUpdate(getClientPos()); }
 				gv->setGameViewCenter(getClientPos());
 				if (gv->getInMenu() == false) { gv->window.setView(gv->getGameView()); }
 			}
@@ -573,20 +576,20 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 	}
 }
 
-void gameUpdate(GameVariable* gv, Chat& chat, Entity*& player)
+void gameUpdate(GameVariable* gv, Entity*& player)
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 	gv->setMenuNum(0);
 	gv->setDT(gv->gameClock.restart().asSeconds());
-	chatUpdate(gv, chat);
-	updateUserTextBox(gv, chat);
-	updateScrollbarDir(gv, chat);
+	chatUpdate(gv, *chatPtr);
+	updateUserTextBox(gv, *chatPtr);
+	updateScrollbarDir(gv, *chatPtr);
 	callUpdateLaser(gv);
 	if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
 	gv->aimLaser.setPosition(getClientPos());
 }
 
-void gameDraw(GameVariable* gv, Chat& chat)
+void gameDraw(GameVariable* gv)
 {
 	gv->window.clear(gv->backgroundColor);
 	if (getClientIsMove() == true) { gv->window.draw(gv->playerDestination); }
@@ -603,14 +606,14 @@ void gameDraw(GameVariable* gv, Chat& chat)
 	}
 	cVec_mtx.unlock();
 
-	if (gv->getHideChat() == false)
+	if (gv->getShowChat() == true)
 	{
-		gv->window.draw(chat.getOuterScrollBar());
-		gv->window.draw(chat.getInnerScrollBar());
-		gv->window.draw(chat.getChatTextBox());
-		gv->window.draw(chat.getUserTextBox());
-		gv->window.draw(chat.getUserText());
-		gv->window.draw(chat.getChatText());
+		gv->window.draw(chatPtr->getOuterScrollBar());
+		gv->window.draw(chatPtr->getInnerScrollBar());
+		gv->window.draw(chatPtr->getChatTextBox());
+		gv->window.draw(chatPtr->getUserTextBox());
+		gv->window.draw(chatPtr->getUserText());
+		gv->window.draw(chatPtr->getChatText());
 	}
 
 	if (playersListPtr != nullptr && gv->getShowPlayersList() == true)
@@ -630,6 +633,7 @@ void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game laun
 	DEBUG_MSG("Your nickname is " << gv->getNickname());
 	Chat chat;
 	PlayersList playersList;
+	chatPtr = &chat;
 	playersListPtr = &playersList;
 
 	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
@@ -643,11 +647,11 @@ void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game laun
 
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandler(gv, chat, player);
+			eventHandler(gv, player);
 			if (checkConnection(gv) == false) { return; }
 		}
 
-		gameUpdate(gv, chat, player);
-		gameDraw(gv, chat);
+		gameUpdate(gv, player);
+		gameDraw(gv);
 	}
 }

@@ -3,6 +3,7 @@
 #include "RichText.hpp" // improved sf::Text.
 #include "Variables.h" // header file for global variables.
 #include <windows.h> // windows-specific header file for the C and C++ programming languages which contains declarations for all of the functions in the Windows API.
+#include "Clients.h"
 
 class Chat // declare a class for creating a chat.
 {
@@ -32,6 +33,9 @@ public:
 	sf::Font& getFont(); // function to get font.
 	sfe::RichText& getChatText(); // function to get chat text.
 	sfe::RichText& getUserText(); // function to get user text.
+	float getScrollbarDivisor();
+	size_t getScrollbarStepNumber();
+	std::wstring getScrollbarDir();
 
 	void setOuterScrollBarPos(float posX, float posY);
 	void setInnerScrollBarPos(float posX, float posY);
@@ -39,27 +43,32 @@ public:
 	void setUserTextBoxPos(float posX, float posY);
 	void setChatTextPos(float posX, float posY);
 	void setUserTextPos(float posX, float posY);
+	void setScrollbarDivisor(float tempDivisor);
+	void setScrollbarStepNumber(size_t tempStepNumber);
+	void setScrollbarDir(std::wstring tempDir);
 
-
-	void addString(GameVariable* gv, Chat& chat); // function to add a string to a vector.
-	void addEndLine(GameVariable* gv, Chat& chat); // function to add the end of the line.
-	void scrollUp(GameVariable* gv, Chat& chat); // function to scroll up the chat.
-	void scrollDown(GameVariable* gv, Chat& chat); // function to scroll down the chat.
+	void chatPosUpdate(sf::Vector2f clientPos);
+	void addString(GameVariable* gv); // function to add a string to a vector.
+	void addEndLine(GameVariable* gv); // function to add the end of the line.
+	void scrollUp(GameVariable* gv); // function to scroll up the chat.
+	void scrollDown(GameVariable* gv); // function to scroll down the chat.
 	bool trimString(std::wstring& str, GameVariable* gv); // string trim function.
 
-	float scrollbarDivisor;
-	size_t scrollbarStepNumber;
-	std::wstring scrollbarDir;
+
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;
 	std::vector<std::unique_ptr<chatStrings>> strVector;
 	sf::Font font;
 	sfe::RichText chatText, userText;
+	std::mutex chat_mtx;
+
+	float scrollbarDivisor;
+	float scrollbarYPos;
+	size_t scrollbarStepNumber;
+	std::wstring scrollbarDir;
 };
 
 void chatUpdate(GameVariable* gv, Chat& chat);
-
 void updateUserTextBox(GameVariable* gv, Chat& chat);
-
 void updateScrollbarDir(GameVariable* gv, Chat& chat);

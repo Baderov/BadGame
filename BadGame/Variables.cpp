@@ -70,8 +70,8 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
-	gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
-	//gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
+	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
+	gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
 	gv->window.setVerticalSyncEnabled(true);
 
 	srand(static_cast<unsigned int>(time(NULL)));
@@ -133,7 +133,6 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setPingDelay(100);
 
 	// BOOL.
-	gv->setShowPlayersList(false);
 	gv->setInMenu(false);
 	gv->setShowHitbox(false);
 	gv->setShowAimLaser(false);
@@ -426,20 +425,20 @@ bool GameVariable::getShowPlayersList()
 	return tempShowPlayersList;
 }
 
+bool GameVariable::getShowChat()
+{
+	mtx_gv.lock();
+	bool tempShowChat = gVars.showChat;
+	mtx_gv.unlock();
+	return tempShowChat;
+}
+
 bool GameVariable::getInMenu()
 {
 	mtx_gv.lock();
 	bool tempInMenu = gVars.inMenu;
 	mtx_gv.unlock();
 	return tempInMenu;
-}
-
-bool GameVariable::getHideChat()
-{
-	mtx_gv.lock();
-	bool tempHideChat = gVars.hideChat;
-	mtx_gv.unlock();
-	return tempHideChat;
 }
 
 bool GameVariable::getNetworkEnd()
@@ -821,17 +820,17 @@ void GameVariable::setShowPlayersList(bool tempShowPlayersList)
 	mtx_gv.unlock();
 }
 
+void GameVariable::setShowChat(bool tempShowChat)
+{
+	mtx_gv.lock();
+	gVars.showChat = tempShowChat;
+	mtx_gv.unlock();
+}
+
 void GameVariable::setInMenu(bool tempInMenu)
 {
 	mtx_gv.lock();
 	gVars.inMenu = tempInMenu;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setHideChat(bool tempHideChat)
-{
-	mtx_gv.lock();
-	gVars.hideChat = tempHideChat;
 	mtx_gv.unlock();
 }
 
