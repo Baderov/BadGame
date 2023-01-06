@@ -145,6 +145,7 @@ void Chat::addString(GameVariable* gv) // function to add a string to a vector.
 	{
 		scrollbarYPos = 0;
 		scrollbarStepNumber = 0;
+
 		tempStr = gv->getChatStr();
 		tempStr.erase(std::remove(tempStr.begin(), tempStr.end(), '\n'), tempStr.end());
 		gv->setChatStr(tempStr);

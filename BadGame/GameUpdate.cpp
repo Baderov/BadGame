@@ -1,5 +1,12 @@
 #include "GameUpdate.h" // game update header file.
 
+Entity* playerPtr = nullptr; // create a pointer to the player.
+
+Entity* getPlayerPtr()
+{
+	return playerPtr;
+}
+
 void graphicsSettingsMenuUpdate(GameVariable* gv) // graphic settings menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
@@ -61,7 +68,7 @@ void settingsMenuUpdate(GameVariable* gv) // settings menu update function.
 	}
 }
 
-void mainMenuUpdate(GameVariable* gv, Entity*& player) // main menu update function.
+void mainMenuUpdate(GameVariable* gv) // main menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -80,11 +87,11 @@ void mainMenuUpdate(GameVariable* gv, Entity*& player) // main menu update funct
 		}
 		else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
 		{
-			if (player == nullptr)
+			if (playerPtr == nullptr)
 			{
 				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"RESTART", static_cast<unsigned int>(round(winSizeX / 45.f)), "restartGameButton", true));
 			}
-			else if (player != nullptr)
+			else if (playerPtr != nullptr)
 			{
 				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"CONTINUE", static_cast<unsigned int>(round(winSizeX / 45.f)), "continueButton", true));
 			}
@@ -112,11 +119,11 @@ void mainMenuUpdate(GameVariable* gv, Entity*& player) // main menu update funct
 		}
 		else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
 		{
-			if (player == nullptr)
+			if (playerPtr == nullptr)
 			{
 				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"œ≈–≈«¿œ”— ", static_cast<unsigned int>(round(winSizeX / 45.f)), "restartGameButton", true));
 			}
-			else if (player != nullptr)
+			else if (playerPtr != nullptr)
 			{
 				gv->buttonsVec.emplace_back(new Button(sf::Vector2f(round(winSizeX / 4.8f), round(winSizeY / 10.5f)), sf::Vector2f(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f)), L"œ–ŒƒŒÀ∆»“‹", static_cast<unsigned int>(round(winSizeX / 45.f)), "continueButton", true));
 			}
@@ -189,7 +196,7 @@ void boxSpawn(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) //
 	}
 }
 
-void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player) // game restart function.
+void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) // game restart function.
 {
 	entities.clear();
 
@@ -201,8 +208,8 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities,
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall")); // create a right wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall")); // create a top wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall")); // create a bottom wall and throw it into the list of entities.
-	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the list of entities.
-	player = entities.back().get(); // assign the value of the pointer to the player.
+	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a playerPtr and throw it into the list of entities.
+	playerPtr = entities.back().get(); // assign the value of the pointer to the playerPtr.
 
 	for (int i = 0; i < 10 + rand() % 21; i++)
 	{
@@ -219,12 +226,12 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities,
 	boxSpawn(gv, entities);
 }
 
-void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2, Entity*& player) // entity update function. 
+void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2) // entity update function. 
 {
 	for (it = entities.begin(); it != entities.end();) // iterate through the list from beginning to end.
 	{
 		Entity* entity = (*it).get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
-		if (player == nullptr && dynamic_cast<Enemy*>(entity))
+		if (playerPtr == nullptr && dynamic_cast<Enemy*>(entity))
 		{
 			entity->setIsAlive(false);
 		}
@@ -238,35 +245,35 @@ void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entiti
 			}
 		}
 
-		if (player != nullptr && player->getCurrentAmmo() < 30 && player->getIsReload() == true && player->getReloadTime() >= 2.f)
+		if (playerPtr != nullptr && playerPtr->getCurrentAmmo() < 30 && playerPtr->getIsReload() == true && playerPtr->getReloadTime() >= 2.f)
 		{
-			player->setMissingAmmo(player->getMagazineAmmo() - player->getCurrentAmmo());
-			if (player->getMaxAmmo() < player->getMagazineAmmo())
+			playerPtr->setMissingAmmo(playerPtr->getMagazineAmmo() - playerPtr->getCurrentAmmo());
+			if (playerPtr->getMaxAmmo() < playerPtr->getMagazineAmmo())
 			{
-				player->setCurrentAmmo(player->getCurrentAmmo() + player->getMaxAmmo());
-				player->setMaxAmmo(0);
+				playerPtr->setCurrentAmmo(playerPtr->getCurrentAmmo() + playerPtr->getMaxAmmo());
+				playerPtr->setMaxAmmo(0);
 			}
 			else
 			{
-				player->setCurrentAmmo(player->getCurrentAmmo() + player->getMissingAmmo());
-				player->setMaxAmmo(player->getMaxAmmo() - player->getMissingAmmo());
+				playerPtr->setCurrentAmmo(playerPtr->getCurrentAmmo() + playerPtr->getMissingAmmo());
+				playerPtr->setMaxAmmo(playerPtr->getMaxAmmo() - playerPtr->getMissingAmmo());
 			}
 
-			player->setIsReload(false);
+			playerPtr->setIsReload(false);
 		}
 
-		if (gv->getNumberOfEnemies() == 0 && player != nullptr)
+		if (gv->getNumberOfEnemies() == 0 && playerPtr != nullptr)
 		{
-			int gc = player->getGoldCoins();
-			restartGame(gv, entities, player);
-			player->setGoldCoins(gc);
+			int gc = playerPtr->getGoldCoins();
+			restartGame(gv, entities);
+			playerPtr->setGoldCoins(gc);
 			return;
 		}
 		if (entity->getIsShoot() == true)
 		{
-			if (dynamic_cast<Player*>(entity)) // if the entity is a player.
+			if (dynamic_cast<Player*>(entity)) // if the entity is a playerPtr.
 			{
-				if (entity->getCurrentAmmo() > 0 && player->getIsReload() == false)
+				if (entity->getCurrentAmmo() > 0 && playerPtr->getIsReload() == false)
 				{
 					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // create a bullet and send it to the end of the list.
 					entity->setCurrentAmmo(entity->getCurrentAmmo() - 1);
@@ -307,10 +314,10 @@ void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entiti
 					}
 				}
 			}
-			if (dynamic_cast<Player*>(entity)) // if the entity is a player.
+			if (dynamic_cast<Player*>(entity)) // if the entity is a playerPtr.
 			{
 				gv->setNumberOfPlayers(gv->getNumberOfPlayers() - 1);
-				player = nullptr;
+				playerPtr = nullptr;
 			}
 			if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
 			{
@@ -339,7 +346,7 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 			gv->window.draw((*it)->getSprite()); // draw entity sprites.
 		}
 
-		if ((*it)->getIsMove() == true && dynamic_cast<Player*>((*it).get())) // if the player is moving.
+		if ((*it)->getIsMove() == true && dynamic_cast<Player*>((*it).get())) // if the playerPtr is moving.
 		{
 			gv->window.draw(gv->playerDestination); // draw a label.
 		}
@@ -350,7 +357,7 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 	}
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (dynamic_cast<Player*>((*it).get()) || dynamic_cast<Enemy*>((*it).get())) // if the entity is a player or enemy.
+		if (dynamic_cast<Player*>((*it).get()) || dynamic_cast<Enemy*>((*it).get())) // if the entity is a playerPtr or enemy.
 		{
 			gv->window.draw((*it)->getHPBarOuter());
 			gv->window.draw((*it)->getHPBarInner());

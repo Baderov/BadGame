@@ -41,6 +41,7 @@ private:
 		float aimLaserLength;
 		float dt;
 		float menuTimer;
+		float serverTime;
 
 		int numberOfEnemies;
 		int numberOfPlayers;
@@ -71,7 +72,8 @@ private:
 		bool networkEnd;
 		bool showChat;
 		bool inMenu;
-		//bool autoScroll;
+		bool serverIsNotAvailable;
+	//	bool chatAutoScroll;
 
 		char gameLanguage;
 		char symbol;
@@ -106,6 +108,7 @@ public:
 	sf::Clock fpsClock;
 	sf::Clock menuClock;
 	sf::Clock gameClock;
+	sf::Clock serverClock;
 	sf::Time fpsPreviousTime;
 	sf::Time fpsCurrentTime;
 
@@ -135,6 +138,8 @@ public:
 	float getAimLaserLength();
 	float getDT();
 	float getMenuTimer();
+	float getServerTime();
+	float getServerClockElapsedTime();
 	int getNumberOfEnemies();
 	int getNumberOfPlayers();
 	int getMenuNum();
@@ -162,12 +167,13 @@ public:
 	bool getSendMsg();
 	bool getLeftFromServer();
 	bool getJoinToServer();
+	bool getServerIsNotAvailable();
+	//bool getChatAutoScroll();
 	char getGameLanguage();
 	char getSymbol();
 	char getInput();
 
 	// SETTERS.
-
 	void setGameViewCenter(sf::Vector2f tempGameViewCenter);
 	void setGameViewSize(sf::Vector2f tempGameViewSize);
 	void setMenuViewCenter(sf::Vector2f tempMenuViewCenter);
@@ -191,6 +197,7 @@ public:
 	void setAimLaserLength(float tempAimLaserLength);
 	void setDT(float tempDT);
 	void setMenuTimer(float tempMenuTimer);
+	void setServerTime(float tempServerTime);
 	void setNumberOfEnemies(int tempNumberOfEnemies);
 	void setNumberOfPlayers(int tempNumberOfPlayers);
 	void setMenuNum(int tempMenuNum);
@@ -218,9 +225,13 @@ public:
 	void setSendMsg(bool tempSendMsg);
 	void setLeftFromServer(bool tempLeftFromServer);
 	void setJoinToServer(bool tempJoinToServer);
+	void setServerIsNotAvailable(bool tempServerIsNotAvailable);
+	//void setChatAutoScroll(bool tempChatAutoScroll);
 	void setGameLanguage(char tempGameLanguage);
 	void setSymbol(char tempSymbol);
 	void setInput(char tempInput);
+
+	void restartServerClock();
 };
 
 void setColor(GameVariable* gv); // function for setting values for color.

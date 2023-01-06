@@ -143,7 +143,6 @@ void PlayersList::updatePLScrollbar()
 	PL_mtx.unlock();
 }
 
-
 void PlayersList::setScrollbarDir(std::wstring tempScrollbarDir)
 {
 	PL_mtx.lock();

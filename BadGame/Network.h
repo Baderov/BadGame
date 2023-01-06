@@ -13,7 +13,7 @@
 
 void setSocketBlocking(bool blocking); // socket blocking function.
 
-void enterMenu(GameVariable* gv, Entity*& player); // menu entry function.
+void enterMenu(GameVariable* gv); // menu entry function.
 
 void connectToServer(GameVariable* gv); // function to connect to the server.
 
@@ -29,14 +29,16 @@ void sendMousePos(GameVariable* gv); // function to send the mouse position to t
 
 void resetVariables(GameVariable* gv); // global variable reset function.
 
-void eventHandler(GameVariable* gv, Entity*& player); // event handling function.
+void eventHandlerMultiplayer(GameVariable* gv); // event handling function.
 
 void sendData(GameVariable* gv); // function to send data to the server.
 
 void receiveData(GameVariable* gv); // function to receive data from the server.
 
-void gameUpdate(GameVariable* gv, Entity*& player); // multiplayer game update function.
+void gameUpdate(GameVariable* gv); // multiplayer game update function.
 
 void gameDraw(GameVariable* gv); // multiplayer game draw function.
 
-void multiplayerGame(GameVariable* gv, Entity*& player); // multiplayer game launch function.
+void serverIsNotAvailable(GameVariable* gv);
+
+void multiplayerGame(GameVariable* gv); // multiplayer game launch function.

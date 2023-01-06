@@ -25,6 +25,8 @@ std::vector<std::unique_ptr<Clients>> clientsVec; // vector unique pointers for 
 std::mutex cVec_mtx;
 std::mutex g_mtx;
 
+sf::RectangleShape connectionErrorRS, OKButtonRS;
+sf::Text connectionErrorText, OKButtonText;
 PlayersList* playersListPtr = nullptr;
 Chat* chatPtr = nullptr;
 
@@ -54,12 +56,12 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-void enterMenu(GameVariable* gv, Entity*& player)
+void enterMenu(GameVariable* gv)
 {
 	gv->setShowPlayersList(false);
 	gv->setInMenu(true);
 
-	menuEventHandler(gv, player);
+	menuEventHandler(gv);
 
 	gv->window.setView(gv->getGameView());
 	gv->gameClock.restart();
@@ -156,6 +158,8 @@ void sendMousePos(GameVariable* gv)
 
 void resetVariables(GameVariable* gv) // global variable reset function.
 {
+	gv->setServerIsNotAvailable(false);
+	gv->setInMenu(false);
 	gv->setShowPlayersList(false);
 	gv->setShowChat(true);
 	gv->setUserStr(L"");
@@ -174,7 +178,7 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->gameClock.restart();
 }
 
-void eventHandler(GameVariable* gv, Entity*& player)
+void eventHandlerMultiplayer(GameVariable* gv)
 {
 	if (clientIsNullptr() == true) { return; }
 	switch (gv->event.type) // check by event type.
@@ -195,12 +199,20 @@ void eventHandler(GameVariable* gv, Entity*& player)
 		switch (gv->event.mouseButton.button) // check by mouse button.
 		{
 		case sf::Mouse::Left:
-			if (gv->getMenuNum() == 0)
+			if (gv->getServerIsNotAvailable() == true && gv->getMenuNum() == 3)
+			{
+				gv->setShowPlayersList(false);
+				gv->setInMenu(true);
+				gv->setMultiPlayerGame(false);
+				gv->setMenuNum(0);
+				return;
+			}
+			if (gv->getMenuNum() == 0 && gv->getServerIsNotAvailable() == false)
 			{
 				gv->setChatEnterText(false);
 				chatPtr->getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
 			}
-			else if (gv->getMenuNum() == 1)
+			else if (gv->getMenuNum() == 1 && gv->getServerIsNotAvailable() == false)
 			{
 				gv->setChatEnterText(true);
 				setIsMove(false);
@@ -223,16 +235,16 @@ void eventHandler(GameVariable* gv, Entity*& player)
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::Escape:
-			enterMenu(gv, player);
+			enterMenu(gv);
 			break;
 		case sf::Keyboard::O:
-			if (gv->getChatEnterText() == false) { gv->setShowChat(!(gv->getShowChat())); }
+			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowChat(!(gv->getShowChat())); }
 			break;
-		case sf::Keyboard::P:
-			if (gv->getChatEnterText() == false) { /*gv->autoScroll = !gv->autoScroll;*/ }
-			break;
+			//case sf::Keyboard::P:
+			//	if (gv->getChatEnterText() == false) { gv->setChatAutoScroll(!(gv->getChatAutoScroll())); }
+			//	break;
 		case sf::Keyboard::Tab:
-			if (gv->getShowPlayersList() == false) { gv->setShowPlayersList(true); }
+			if (gv->getShowPlayersList() == false && gv->getServerIsNotAvailable() == false) { gv->setShowPlayersList(true); }
 			break;
 		}
 		break;
@@ -241,7 +253,7 @@ void eventHandler(GameVariable* gv, Entity*& player)
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::C:
-			if (gv->getChatEnterText() == false)
+			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false)
 			{
 				if (gv->getShowAimLaser() == false) { gv->setShowAimLaser(true); } // if the aiming laser was not shown - show.
 				else { gv->setShowAimLaser(false); } // if the aiming laser was shown - don't show it.
@@ -391,16 +403,19 @@ void sendData(GameVariable* gv) // function to send data to the server.
 			continue;
 		}
 
-		sendMousePos(gv);
-		if (gv->getSendMsg() == true)
+		if (gv->getServerIsNotAvailable() == false)
 		{
-			gv->setSendMsg(false);
-			sendMessage(gv);
-		}
-		if (getClientIsMove() == true)
-		{
-			callMoveToTarget(gv);
-			sendMoveRequest(gv);
+			sendMousePos(gv);
+			if (gv->getSendMsg() == true)
+			{
+				gv->setSendMsg(false);
+				sendMessage(gv);
+			}
+			if (getClientIsMove() == true)
+			{
+				callMoveToTarget(gv);
+				sendMoveRequest(gv);
+			}
 		}
 
 		sf::sleep(sf::milliseconds(1));
@@ -417,6 +432,16 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 		packet.clear();
 		std::wstring prefix = L"";
 
+		if (gv != nullptr && gv->getMultiPlayerGame() == true && gv->getFuncName() == "multiplayerGame")
+		{
+			gv->setServerTime(gv->getServerClockElapsedTime());
+			if (gv->getServerTime() >= 5.f)
+			{
+				DEBUG_MSG("SERVER IS NOT AVAILABLE!");
+				gv->setServerIsNotAvailable(true);
+			}
+		}
+
 		if ((gv == nullptr) || (gv->getMultiPlayerGame() == false) || (sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) || (!(packet >> prefix)))
 		{
 			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("recvData: gv == nullptr"); }
@@ -427,10 +452,13 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			continue;
 		}
 
+
 		if (prefix == L"ping")
 		{
 			std::wstring tempNick = L"";
 			if (!(packet >> tempNick)) { DEBUG_MSG("prefix_ping_error!"); continue; }
+
+			gv->restartServerClock();
 
 			cVec_mtx.lock();
 			for (auto& client : clientsVec)
@@ -576,7 +604,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 	}
 }
 
-void gameUpdate(GameVariable* gv, Entity*& player)
+void gameUpdate(GameVariable* gv)
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 	gv->setMenuNum(0);
@@ -587,12 +615,55 @@ void gameUpdate(GameVariable* gv, Entity*& player)
 	callUpdateLaser(gv);
 	if (playersListPtr != nullptr) { playersListPtr->updatePL(gv, cVec_mtx, clientsVec); }
 	gv->aimLaser.setPosition(getClientPos());
+
+	if (gv->getServerIsNotAvailable() == true)
+	{
+		serverIsNotAvailable(gv);
+		chatPtr->getUserText().clear();
+		gv->setChatEnterText(false);
+		chatPtr->getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
+	}
+	OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
+	if (OKButtonRS.getGlobalBounds().contains(gv->getMousePos().x, gv->getMousePos().y) && gv->getServerIsNotAvailable() == true)
+	{
+		gv->setMenuNum(3);
+		OKButtonRS.setFillColor(sf::Color::White);
+	}
+}
+
+void serverIsNotAvailable(GameVariable* gv)
+{
+	connectionErrorRS.setSize(sf::Vector2f(1000.f, 300.f));
+	connectionErrorRS.setFillColor(sf::Color(0, 0, 0, 200));
+	connectionErrorRS.setOrigin(connectionErrorRS.getSize() / 2.f);
+	connectionErrorRS.setPosition(getClientPos());
+
+	OKButtonRS.setSize(sf::Vector2f(130.f, 130.f));
+	OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
+	OKButtonRS.setOrigin(OKButtonRS.getSize() / 2.f);
+	OKButtonRS.setPosition(connectionErrorRS.getPosition().x, connectionErrorRS.getPosition().y + 40.f);
+
+	connectionErrorText.setFont(gv->consolasFont);
+	connectionErrorText.setCharacterSize(70);
+	connectionErrorText.setFillColor(sf::Color::Red);
+	if (gv->getGameLanguage() == 'e') { connectionErrorText.setString(L"SERVER IS NOT AVAILABLE!"); }
+	else if (gv->getGameLanguage() == 'r') { connectionErrorText.setString(L"яепбеп меднярсоем!"); }
+	connectionErrorText.setOrigin(round(connectionErrorText.getLocalBounds().left + (connectionErrorText.getLocalBounds().width / 2.f)), round(connectionErrorText.getLocalBounds().top + (connectionErrorText.getLocalBounds().height / 2.f)));
+	connectionErrorText.setPosition(connectionErrorRS.getPosition().x, connectionErrorRS.getPosition().y - 80.f);
+
+	OKButtonText.setFont(gv->consolasFont);
+	OKButtonText.setCharacterSize(70);
+	OKButtonText.setFillColor(sf::Color::Black);
+	OKButtonText.setString("OK");
+	OKButtonText.setOrigin(round(OKButtonText.getLocalBounds().left + (OKButtonText.getLocalBounds().width / 2.f)), round(OKButtonText.getLocalBounds().top + (OKButtonText.getLocalBounds().height / 2.f)));
+	OKButtonText.setPosition(OKButtonRS.getPosition());
 }
 
 void gameDraw(GameVariable* gv)
 {
 	gv->window.clear(gv->backgroundColor);
-	if (getClientIsMove() == true) { gv->window.draw(gv->playerDestination); }
+
+	if (getClientIsMove() == true && gv->getServerIsNotAvailable() == false) { gv->window.draw(gv->playerDestination); }
 
 	cVec_mtx.lock();
 	for (auto& client : clientsVec)
@@ -625,17 +696,26 @@ void gameDraw(GameVariable* gv)
 		gv->window.draw(playersListPtr->text);
 		playersListPtr->PL_mtx.unlock();
 	}
+
+	if (gv->getServerIsNotAvailable() == true)
+	{
+		gv->window.draw(connectionErrorRS);
+		gv->window.draw(OKButtonRS);
+		gv->window.draw(connectionErrorText);
+		gv->window.draw(OKButtonText);
+	}
+
 	gv->window.display();
 }
 
-void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game launch function.
+void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
 {
 	DEBUG_MSG("Your nickname is " << gv->getNickname());
 	Chat chat;
 	PlayersList playersList;
 	chatPtr = &chat;
 	playersListPtr = &playersList;
-
+	gv->restartServerClock();
 	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
 	gv->setGameViewCenter(sf::Vector2f(960.f, 540.f));
 	gv->window.setView(gv->getGameView());
@@ -647,11 +727,11 @@ void multiplayerGame(GameVariable* gv, Entity*& player) // multiplayer game laun
 
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandler(gv, player);
+			eventHandlerMultiplayer(gv);
 			if (checkConnection(gv) == false) { return; }
 		}
 
-		gameUpdate(gv, player);
+		gameUpdate(gv);
 		gameDraw(gv);
 	}
 }

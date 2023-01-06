@@ -8,7 +8,7 @@
 
 void updateFPS(GameVariable* gv); // FPS update function.
 
-void eventHandler(GameVariable* gv); // event handling function.
+void eventHandlerSingleplayer(GameVariable* gv); // event handling function.
 
 void singleplayerGame(GameVariable* gv); // single player launch function.
 

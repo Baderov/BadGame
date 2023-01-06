@@ -151,7 +151,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setLeftFromServer(false);
 	gv->setJoinToServer(false);
 	gv->setNetworkEnd(true);
-	//gv->autoScroll = true;
+	//gv->setChatAutoScroll(true);
 
 	// CHAR.
 	gv->setGameLanguage('e');
@@ -359,6 +359,22 @@ float GameVariable::getDT()
 	float tempDT = gVars.dt;
 	mtx_gv.unlock();
 	return tempDT;
+}
+
+float GameVariable::getServerTime()
+{
+	mtx_gv.lock();
+	float tempServerTime = gVars.serverTime;
+	mtx_gv.unlock();
+	return tempServerTime;
+}
+
+float GameVariable::getServerClockElapsedTime()
+{
+	mtx_gv.lock();
+	float serverClockElapsedTime = serverClock.getElapsedTime().asSeconds();
+	mtx_gv.unlock();
+	return serverClockElapsedTime;
 }
 
 int GameVariable::getNumberOfEnemies()
@@ -577,6 +593,22 @@ bool GameVariable::getJoinToServer()
 	return tempJoinToServer;
 }
 
+//bool GameVariable::getChatAutoScroll()
+//{
+//	mtx_gv.lock();
+//	bool tempChatAutoScroll = gVars.chatAutoScroll;
+//	mtx_gv.unlock();
+//	return tempChatAutoScroll;
+//}
+
+bool GameVariable::getServerIsNotAvailable()
+{
+	mtx_gv.lock();
+	bool tempServerIsNotAvailable = gVars.serverIsNotAvailable;
+	mtx_gv.unlock();
+	return tempServerIsNotAvailable;
+}
+
 char GameVariable::getGameLanguage()
 {
 	mtx_gv.lock();
@@ -601,9 +633,7 @@ char GameVariable::getInput()
 	return tempInput;
 }
 
-
 // SETTERS.
-
 void GameVariable::setGameViewCenter(sf::Vector2f tempViewCenter)
 {
 	mtx_gv.lock();
@@ -761,6 +791,13 @@ void GameVariable::setDT(float tempDT)
 {
 	mtx_gv.lock();
 	gVars.dt = tempDT;
+	mtx_gv.unlock();
+}
+
+void GameVariable::setServerTime(float tempServerTime)
+{
+	mtx_gv.lock();
+	gVars.serverTime = tempServerTime;
 	mtx_gv.unlock();
 }
 
@@ -953,6 +990,20 @@ void GameVariable::setJoinToServer(bool tempJoinToServer)
 	mtx_gv.unlock();
 }
 
+//void GameVariable::setChatAutoScroll(bool tempChatAutoScroll)
+//{
+//	mtx_gv.lock();
+//	gVars.chatAutoScroll = tempChatAutoScroll;
+//	mtx_gv.unlock();
+//}
+
+void GameVariable::setServerIsNotAvailable(bool tempServerIsNotAvailable)
+{
+	mtx_gv.lock();
+	gVars.serverIsNotAvailable = tempServerIsNotAvailable;
+	mtx_gv.unlock();
+}
+
 void GameVariable::setGameLanguage(char tempGameLanguage)
 {
 	mtx_gv.lock();
@@ -971,5 +1022,12 @@ void GameVariable::setInput(char tempInput)
 {
 	mtx_gv.lock();
 	gVars.input = tempInput;
+	mtx_gv.unlock();
+}
+
+void GameVariable::restartServerClock()
+{
+	mtx_gv.lock();
+	serverClock.restart();
 	mtx_gv.unlock();
 }

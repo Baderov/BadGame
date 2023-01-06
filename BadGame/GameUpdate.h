@@ -10,18 +10,20 @@
 #include "Wall.h" // header file for walls.
 #include "Item.h" // header file for items.
 
+Entity* getPlayerPtr();
+
 void graphicsSettingsMenuUpdate(GameVariable* gv); // graphic settings menu update function.
 
 void settingsMenuUpdate(GameVariable* gv); // settings menu update function.
 
-void mainMenuUpdate(GameVariable* gv, Entity*& player); // main menu update function.
+void mainMenuUpdate(GameVariable* gv); // main menu update function.
 
 void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update function.
 
 void boxSpawn(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // box spawn function.
 
-void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, Entity*& player); // game restart function.
+void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // game restart function.
 
-void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2, Entity*& player); // entity update function.
+void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2); // entity update function.
 
 void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it); // entity drawing function.

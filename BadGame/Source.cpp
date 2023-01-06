@@ -4,8 +4,6 @@ std::list<std::unique_ptr<Entity>> entities; // list of entities.
 std::list<std::unique_ptr<Entity>>::iterator it; // first iterator for passing through the list of entities.
 std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing through the list of entities.
 
-Entity* player = nullptr; // create a pointer to the player.
-
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
 #define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
@@ -21,7 +19,7 @@ void updateFPS(GameVariable* gv) // FPS update function.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void eventHandler(GameVariable* gv) // event handling function.
+void eventHandlerSingleplayer(GameVariable* gv) // event handling function.
 {
 	switch (gv->event.type) // check by event type.
 	{
@@ -32,16 +30,16 @@ void eventHandler(GameVariable* gv) // event handling function.
 		switch (gv->event.mouseButton.button) // check by mouse button.
 		{
 		case sf::Mouse::Left:
-			if (player != nullptr) // if the player is alive.
+			if (getPlayerPtr() != nullptr) // if the playerPtr is alive.
 			{
-				player->setMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
-				player->setIsMove(true);
-				gv->playerDestination.setPosition(player->getMoveTargetPos()); // set the label position to the mouse click location.
+				getPlayerPtr()->setMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
+				getPlayerPtr()->setIsMove(true);
+				gv->playerDestination.setPosition(getPlayerPtr()->getMoveTargetPos()); // set the label position to the mouse click location.
 				gv->playerDestination.setOutlineColor(sf::Color::Yellow);
 			}
 			break;
 		case sf::Mouse::Right:
-			if (player != nullptr) { player->setIsShoot(true); }
+			if (getPlayerPtr() != nullptr) { getPlayerPtr()->setIsShoot(true); }
 			break;
 		}
 		break;
@@ -64,12 +62,12 @@ void eventHandler(GameVariable* gv) // event handling function.
 			break;
 
 		case sf::Keyboard::R:
-			if (player != nullptr && player->getCurrentAmmo() < 30 && player->getIsReload() == false)
+			if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getIsReload() == false)
 			{
-				player->setIsReload(true);
-				player->getReloadClock().restart();
-				player->setReloadTime(0.f);
-				player->setMenuTime(0.f);
+				getPlayerPtr()->setIsReload(true);
+				getPlayerPtr()->getReloadClock().restart();
+				getPlayerPtr()->setReloadTime(0.f);
+				getPlayerPtr()->setMenuTime(0.f);
 			}
 			break;
 		}
@@ -79,13 +77,13 @@ void eventHandler(GameVariable* gv) // event handling function.
 		{
 		case sf::Keyboard::Escape:
 			gv->menuClock.restart();
-			menuEventHandler(gv, player);
+			menuEventHandler(gv);
 			gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
 
 			for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 			{
 				Entity* entity = (*it).get();
-				if (player != nullptr && (dynamic_cast<Enemy*>(entity) || dynamic_cast<Player*>(entity)))
+				if (getPlayerPtr() != nullptr && (dynamic_cast<Enemy*>(entity) || dynamic_cast<Player*>(entity)))
 				{
 					entity->setMenuTime(gv->getMenuTimer() + entity->getMenuTime());
 				}
@@ -100,7 +98,7 @@ void eventHandler(GameVariable* gv) // event handling function.
 	}
 }
 
-void singleplayerGame(GameVariable* gv) // single player launch function.
+void singleplayerGame(GameVariable* gv) // single playerPtr launch function.
 {
 	gv->setNickname(L"");
 	gv->gameClock.restart();
@@ -109,18 +107,18 @@ void singleplayerGame(GameVariable* gv) // single player launch function.
 		DEBUG_SET_FUNC_NAME;
 		if (gv->getRestartGame() == true)
 		{
-			restartGame(gv, entities, player);
+			restartGame(gv, entities);
 			gv->setRestartGame(false);
 		}
 		gv->setDT(gv->gameClock.restart().asSeconds());
-		setGameInfo(gv, player, entities); // call the function for setting game information.
+		setGameInfo(gv, getPlayerPtr(), entities); // call the function for setting game information.
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandler(gv); // call the event handling function.
+			eventHandlerSingleplayer(gv); // call the event handling function.
 			if (gv->getSinglePlayerGame() == false) { return; }
 		}
 		gv->window.setView(gv->getGameView());
-		updateEntities(gv, entities, it, it2, player); // calling the entity update function.
+		updateEntities(gv, entities, it, it2); // calling the entity update function.
 		gv->window.clear(gv->backgroundColor);
 		drawEntities(gv, entities, it); // calling the entity drawing function.
 		drawGameInfo(gv); // calling the function for drawing game information.
@@ -150,14 +148,14 @@ int main() // the main function of the program.
 	//std::thread logsThread([&]() { logsFunc(gv); });
 	//logsThread.detach();
 #endif
-	menuEventHandler(gv, player); // calling the menu event handling function.
+	menuEventHandler(gv); // calling the menu event handling function.
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
 		if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false) { singleplayerGame(gv); }
-		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getNetworkEnd() == true) { multiplayerGame(gv, player); }
-		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false) { menuEventHandler(gv, player); }
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getNetworkEnd() == true) { multiplayerGame(gv); }
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false) { menuEventHandler(gv); }
 	}
 	delete gv; // clear memory.
 	DEBUG_MSG("Memory cleared!"); // send message in console.

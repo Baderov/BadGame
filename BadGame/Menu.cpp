@@ -130,7 +130,7 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 
 		while (gv->window.pollEvent(gv->event))
 		{
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
+			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && gv->getAllowButtons() == true)
 			{
 				gv->setMenuNum(13);
 				gv->buttonsVec.clear();
@@ -361,9 +361,9 @@ void settingsMenu(GameVariable* gv) // settings menu function.
 	}
 }
 
-void mainMenu(GameVariable* gv, Entity*& player) // main menu function.
+void mainMenu(GameVariable* gv) // main menu function.
 {
-	mainMenuUpdate(gv, player);
+	mainMenuUpdate(gv);
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
@@ -411,14 +411,14 @@ void mainMenu(GameVariable* gv, Entity*& player) // main menu function.
 	}
 }
 
-void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle menu events.
+void menuEventHandler(GameVariable* gv) // function to handle menu events.
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
 	gv->window.setView(gv->getMenuView());
 
-	mainMenu(gv, player);
+	mainMenu(gv);
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
@@ -447,14 +447,14 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			break;
 		case 5:
 			gv->setMenuNum(0);
-			mainMenu(gv, player);
+			mainMenu(gv);
 			break;
 		case 6:
 			gv->setMenuNum(0);
 			if (gv->getIsFullscreen() == true) { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Fullscreen), settings; }
 			else { gv->window.create(sf::VideoMode(1366, 768), "Bad Game", sf::Style::Close); }
 			gv->window.setVerticalSyncEnabled(true);
-		
+
 			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
 			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
 			gv->window.setView(gv->getMenuView());
@@ -466,7 +466,7 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			if (gv->getIsFullscreen() == true) { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Fullscreen), settings; }
 			else { gv->window.create(sf::VideoMode(1920, 1080), "Bad Game", sf::Style::Close); }
 			gv->window.setVerticalSyncEnabled(true);
-			
+
 			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
 			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
 			gv->window.setView(gv->getMenuView());
@@ -513,7 +513,7 @@ void menuEventHandler(GameVariable* gv, Entity*& player) // function to handle m
 			break;
 		case 13:
 			gv->setMenuNum(0);
-			mainMenu(gv, player);
+			mainMenu(gv);
 			break;
 		case 14:
 			gv->setMenuNum(0);

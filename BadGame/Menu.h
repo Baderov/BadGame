@@ -16,6 +16,6 @@ void graphicsSettingsMenu(GameVariable* gv); // graphics settings menu function.
 
 void settingsMenu(GameVariable* gv); // settings menu function.
 
-void mainMenu(GameVariable* gv, Entity*& player); // main menu function.
+void mainMenu(GameVariable* gv); // main menu function.
 
-void menuEventHandler(GameVariable* gv, Entity*& player); // menu event handling function.
+void menuEventHandler(GameVariable* gv); // menu event handling function.
