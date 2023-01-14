@@ -2,9 +2,9 @@
 #include <iostream> // header that defines the standard input/output stream objects.
 #include <SFML/Graphics.hpp> // SFML library for working with graphics.
 #include <SFML/Network.hpp> // SFML library for networking.
+#include <TGUI/TGUI.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
 #include <list> // header file for working with the list.
-#include "Button.h" // header file for working with buttons.
-#include "Label.h" // header file for working with labels.
 #include <mutex>
 
 enum class MultiplayerErrors // enumeration for menu errors.
@@ -19,6 +19,7 @@ private:
 	{
 		sf::Vector2f mousePos;
 		sf::Vector2f playerStartPos;
+		sf::Vector2u windowSize;
 
 		sf::View gameView;
 		sf::View menuView;
@@ -51,13 +52,14 @@ private:
 		int numOfLinesInUserTextBox;
 		sf::Int32 ping;
 		sf::Int32 pingDelay;
+		unsigned int fpsLimiter;
 
 		bool showPlayersList;
 		bool showHitbox;
 		bool showAimLaser;
 		bool showLogs;
 		bool isFullscreen;
-		bool allowButtons;
+		bool isVsync;
 		bool multiPlayerGame;
 		bool singlePlayerGame;
 		bool focusEvent;
@@ -73,6 +75,7 @@ private:
 		bool showChat;
 		bool inMenu;
 		bool serverIsNotAvailable;
+		bool connectButtonPressed;
 	//	bool chatAutoScroll;
 
 		char gameLanguage;
@@ -82,9 +85,8 @@ private:
 	std::mutex mtx_gv;
 public:
 	sf::RenderWindow window;
+	tgui::Gui gui;
 	sf::Vector2f boxStartPositions[12];
-	std::vector<std::unique_ptr<Button>> buttonsVec;
-	std::vector<std::unique_ptr<Label>> labelsVec;
 	sf::Text gameInfoText;
 	sf::Text playerInfoText;
 	sf::Text playerAmmoText;
@@ -114,13 +116,14 @@ public:
 
 	// GETTERS.
 	sf::View getGameView();
+	sf::View getMenuView();
 	sf::Vector2f getGameViewCenter();
 	sf::Vector2f getGameViewSize();
-	sf::View getMenuView();
 	sf::Vector2f getMenuViewCenter();
 	sf::Vector2f getMenuViewSize();
 	sf::Vector2f getMousePos();
 	sf::Vector2f getPlayerStartPos();
+	sf::Vector2u getWindowSize();
 	std::wstring getSenderNickname();
 	std::wstring getMoveDir();
 	std::wstring getNickname();
@@ -140,6 +143,7 @@ public:
 	float getMenuTimer();
 	float getServerTime();
 	float getServerClockElapsedTime();
+	unsigned int getFPSLimiter();
 	int getNumberOfEnemies();
 	int getNumberOfPlayers();
 	int getMenuNum();
@@ -147,6 +151,7 @@ public:
 	int getNumOfLinesInChat();
 	int getNumOfLinesInUserTextBox();
 	sf::Int32 getPingDelay();
+	bool getConnectButtonPressed();
 	bool getShowPlayersList();
 	bool getShowChat();
 	bool getInMenu();
@@ -154,8 +159,8 @@ public:
 	bool getShowHitbox();
 	bool getShowAimLaser();
 	bool getShowLogs();
+	bool getIsVsync();
 	bool getIsFullscreen();
-	bool getAllowButtons();
 	bool getMultiPlayerGame();
 	bool getSinglePlayerGame();
 	bool getFocusEvent();
@@ -180,6 +185,7 @@ public:
 	void setMenuViewSize(sf::Vector2f tempMenuViewSize);
 	void setMousePos(sf::Vector2f tempMousePos);
 	void setPlayerStartPos(sf::Vector2f tempPlayerStartPos);
+	void setWindowSize(sf::Vector2u tempWindowSize);
 	void setSenderNickname(std::wstring tempSenderNickname);
 	void setMoveDir(std::wstring tempMoveDir);
 	void setNickname(std::wstring tempNickname);
@@ -198,6 +204,7 @@ public:
 	void setDT(float tempDT);
 	void setMenuTimer(float tempMenuTimer);
 	void setServerTime(float tempServerTime);
+	void setFPSLimiter(unsigned int tempFPSLimiter);
 	void setNumberOfEnemies(int tempNumberOfEnemies);
 	void setNumberOfPlayers(int tempNumberOfPlayers);
 	void setMenuNum(int tempMenuNum);
@@ -205,6 +212,7 @@ public:
 	void setNumOfLinesInChat(int tempNumOfLinesInChat);
 	void setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox);
 	void setPingDelay(sf::Int32 tempPingDelay);
+	void setConnectButtonPressed(bool tempConnectButtonPressed);
 	void setShowPlayersList(bool tempShowPlayersList);
 	void setShowChat(bool tempShowChat);
 	void setInMenu(bool tempInMenu);
@@ -213,7 +221,7 @@ public:
 	void setShowAimLaser(bool tempShowAimLaser);
 	void setShowLogs(bool tempShowLogs);
 	void setIsFullscreen(bool tempIsFullscreen);
-	void setAllowButtons(bool tempAllowButtons);
+	void setIsVsync(bool tempIsVsync);
 	void setMultiPlayerGame(bool tempMultiplayerGame);
 	void setSinglePlayerGame(bool tempSinglePlayerGame);
 	void setFocusEvent(bool tempFocusEvent);

@@ -67,12 +67,18 @@ void setSprite(GameVariable* gv) // function to set value for sprites.
 
 void setVariables(GameVariable* gv) // function for setting the values of global variables.
 {
+	gv->setWindowSize(sf::Vector2u(1366, 768));
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
-	gv->window.create(sf::VideoMode(1366, 768), "BadGame", sf::Style::Close, settings);
+	gv->window.create(sf::VideoMode(gv->getWindowSize().x, gv->getWindowSize().y), "BadGame", sf::Style::Close, settings);
 	gv->window.setVerticalSyncEnabled(true);
+	gv->gui.setWindow(gv->window);
+
+	tgui::Font consolasFontTGUI;
+	consolasFontTGUI.setGlobalFont("consolas.ttf");
+	gv->gui.setFont(consolasFontTGUI);
 
 	srand(static_cast<unsigned int>(time(NULL)));
 
@@ -125,6 +131,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setFuncName("");
 
 	// INT, SIZE_T, sf::INT8,sf::INT16, sf::INT32, sf::INT64.
+	gv->setFPSLimiter(75);
 	gv->setNumberOfEnemies(0);
 	gv->setNumberOfPlayers(0);
 	gv->setMenuNum(0);
@@ -137,8 +144,8 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setShowHitbox(false);
 	gv->setShowAimLaser(false);
 	gv->setShowLogs(false);
-	gv->setIsFullscreen(true);
-	gv->setAllowButtons(true);
+	gv->setIsFullscreen(false);
+	gv->setIsVsync(true);
 	gv->setFocusEvent(true);
 	gv->setMultiPlayerGame(false);
 	gv->setSinglePlayerGame(false);
@@ -191,6 +198,14 @@ sf::Vector2f GameVariable::getMenuViewSize()
 	sf::Vector2f tempViewSize = gVars.menuView.getSize();
 	mtx_gv.unlock();
 	return tempViewSize;
+}
+
+sf::Vector2u GameVariable::getWindowSize()
+{
+	mtx_gv.lock();
+	sf::Vector2u tempWindowSize = gVars.windowSize;
+	mtx_gv.unlock();
+	return tempWindowSize;
 }
 
 sf::View GameVariable::getGameView()
@@ -377,6 +392,14 @@ float GameVariable::getServerClockElapsedTime()
 	return serverClockElapsedTime;
 }
 
+unsigned int GameVariable::getFPSLimiter()
+{
+	mtx_gv.lock();
+	unsigned int tempFPSLimiter = gVars.fpsLimiter;
+	mtx_gv.unlock();
+	return tempFPSLimiter;
+}
+
 int GameVariable::getNumberOfEnemies()
 {
 	mtx_gv.lock();
@@ -431,6 +454,14 @@ sf::Int32 GameVariable::getPingDelay()
 	sf::Int32 tempPingDelay = gVars.pingDelay;
 	mtx_gv.unlock();
 	return tempPingDelay;
+}
+
+bool GameVariable::getConnectButtonPressed()
+{
+	mtx_gv.lock();
+	bool tempConnectButtonPressed = gVars.connectButtonPressed;
+	mtx_gv.unlock();
+	return tempConnectButtonPressed;
 }
 
 bool GameVariable::getShowPlayersList()
@@ -497,12 +528,12 @@ bool GameVariable::getIsFullscreen()
 	return tempIsFullscreen;
 }
 
-bool GameVariable::getAllowButtons()
+bool GameVariable::getIsVsync()
 {
 	mtx_gv.lock();
-	bool tempAllowButtons = gVars.allowButtons;
+	bool tempIsVsync = gVars.isVsync;
 	mtx_gv.unlock();
-	return tempAllowButtons;
+	return tempIsVsync;
 }
 
 bool GameVariable::getMultiPlayerGame()
@@ -676,6 +707,13 @@ void GameVariable::setPlayerStartPos(sf::Vector2f tempPlayerStartPos)
 	mtx_gv.unlock();
 }
 
+void GameVariable::setWindowSize(sf::Vector2u tempWindowSize)
+{
+	mtx_gv.lock();
+	gVars.windowSize = tempWindowSize;
+	mtx_gv.unlock();
+}
+
 void GameVariable::setSenderNickname(std::wstring tempSenderNickname)
 {
 	mtx_gv.lock();
@@ -801,6 +839,13 @@ void GameVariable::setServerTime(float tempServerTime)
 	mtx_gv.unlock();
 }
 
+void GameVariable::setFPSLimiter(unsigned int tempFPSLimiter)
+{
+	mtx_gv.lock();
+	gVars.fpsLimiter = tempFPSLimiter;
+	mtx_gv.unlock();
+}
+
 void GameVariable::setNumberOfEnemies(int tempNumberOfEnemies)
 {
 	mtx_gv.lock();
@@ -847,6 +892,13 @@ void GameVariable::setPingDelay(sf::Int32 tempPingDelay)
 {
 	mtx_gv.lock();
 	gVars.pingDelay = tempPingDelay;
+	mtx_gv.unlock();
+}
+
+void GameVariable::setConnectButtonPressed(bool tempConnectButtonPressed)
+{
+	mtx_gv.lock();
+	gVars.connectButtonPressed = tempConnectButtonPressed;
 	mtx_gv.unlock();
 }
 
@@ -906,10 +958,10 @@ void GameVariable::setIsFullscreen(bool tempIsFullscreen)
 	mtx_gv.unlock();
 }
 
-void GameVariable::setAllowButtons(bool tempAllowButtons)
+void GameVariable::setIsVsync(bool tempIsVsync)
 {
 	mtx_gv.lock();
-	gVars.allowButtons = tempAllowButtons;
+	gVars.isVsync = tempIsVsync;
 	mtx_gv.unlock();
 }
 

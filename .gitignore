@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 BadGame/x64/
+BadGame/TGUI/
+BadGame/SFML/

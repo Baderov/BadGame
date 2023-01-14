@@ -3,10 +3,9 @@
 #include "Variables.h" // header file for global variables.
 #include "Network.h" // header file for working with the network.
 #include "GameUpdate.h" // game update header file.
-#include "Keyboard.h" // header file for handling keyboard events.
 #include "Chat.h" // header file for working with chat.
 
-void errorChecking(GameVariable* gv); // error checking function.
+void errorChecking(GameVariable* gv, int& countOfDotsInIP); // error checking function.
 
 void updateFields(GameVariable* gv); // function for update fields in multiplayer menu.
 

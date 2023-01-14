@@ -50,7 +50,6 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 		client->nickText.setString(client->nickname);
 		client->nickText.setOrigin(round(client->nickText.getLocalBounds().left + (client->nickText.getLocalBounds().width / 2.f)), round(client->nickText.getLocalBounds().top + (client->nickText.getLocalBounds().height / 2.f)));
 		client->nickText.setPosition(sf::Vector2f(client->sprite.getPosition().x, client->sprite.getPosition().y - 80.f));
-
 	}
 	cVec_mtx.unlock();
 	return packet;
@@ -78,9 +77,20 @@ void connectToServer(GameVariable* gv) // function to connect to the server.
 
 void startNetwork(GameVariable* gv) // function to start network.
 {
+	auto nicknameEditBox = gv->gui.get<tgui::EditBox>("nicknameEditBox");
+	auto IPEditBox = gv->gui.get<tgui::EditBox>("IPEditBox");
+	auto portEditBox = gv->gui.get<tgui::EditBox>("portEditBox");
+	auto connectButton = gv->gui.get<tgui::Button>("connectButton");
+	auto backButton = gv->gui.get<tgui::Button>("backButton");
+
+	connectButton->setEnabled(false);
+	backButton->setEnabled(false);
+	nicknameEditBox->setEnabled(false);
+	IPEditBox->setEnabled(false);
+	portEditBox->setEnabled(false);
+
 	sf::Clock connectionClock;
 	float connectionTime;
-
 	gv->setNetworkEnd(false);
 	connectToServer(gv);
 	connectionClock.restart();
@@ -107,8 +117,13 @@ void startNetwork(GameVariable* gv) // function to start network.
 		}
 		sf::sleep(sf::milliseconds(1));
 	}
-	for (auto& el : gv->buttonsVec) { el->getSprite().setFillColor(sf::Color::White); }
-	gv->setAllowButtons(true);
+
+	connectButton->setEnabled(true);
+	backButton->setEnabled(true);
+	nicknameEditBox->setEnabled(true);
+	IPEditBox->setEnabled(true);
+	portEditBox->setEnabled(true);
+
 	gv->setNetworkEnd(true);
 }
 
@@ -719,7 +734,6 @@ void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
 	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
 	gv->setGameViewCenter(sf::Vector2f(960.f, 540.f));
 	gv->window.setView(gv->getGameView());
-
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;

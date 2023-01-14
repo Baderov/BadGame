@@ -9,6 +9,7 @@
 #include "Enemy.h" // header file for enemies.
 #include "Wall.h" // header file for walls.
 #include "Item.h" // header file for items.
+#include "Network.h"
 
 Entity* getPlayerPtr();
 
@@ -19,8 +20,6 @@ void settingsMenuUpdate(GameVariable* gv); // settings menu update function.
 void mainMenuUpdate(GameVariable* gv); // main menu update function.
 
 void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update function.
-
-void boxSpawn(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // box spawn function.
 
 void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // game restart function.
 
