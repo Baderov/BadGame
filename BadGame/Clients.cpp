@@ -17,11 +17,6 @@ Clients::Clients(GameVariable* gv) // second clients constructor.
 	isAlive = true;
 	isMove = false;
 
-	icon.setRadius(89);
-	icon.setOutlineThickness(15.f);
-	icon.setOutlineColor(sf::Color::Black);
-	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
-
 	nickText.setFont(gv->consolasFont);
 	nickText.setFillColor(sf::Color::Green);
 	nickText.setCharacterSize(40);
@@ -34,6 +29,12 @@ Clients::Clients(GameVariable* gv) // second clients constructor.
 	h = static_cast<float>(texture.getSize().y);
 	sprite.setOrigin(w / 2.f, h / 2.f);
 	sprite.setPosition(sf::Vector2f(960.f, 540.f));
+
+	icon.setRadius(image.getSize().x);
+	icon.setOutlineThickness(15.f);
+	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+
 }
 
 void Clients::update(GameVariable* gv)

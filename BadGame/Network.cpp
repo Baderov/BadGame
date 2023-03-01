@@ -808,10 +808,11 @@ void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
 	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
 	gv->setWindowView(gv->getGameView());
 
-	networkEntities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
+	networkEntities.clear();
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
 
 	setMinimap(gv);
 

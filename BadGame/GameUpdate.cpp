@@ -605,10 +605,10 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 	gv->setNumberOfEnemies(0);
 	gv->setMenuTimer(0.f);
 
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(3000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(0.f, 2936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
 	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a playerPtr and throw it into the list of entities.
 	playerPtr = entities.back().get(); // assign the value of the pointer to the playerPtr.
 

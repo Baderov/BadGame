@@ -95,7 +95,6 @@ public:
 	sf::Event event;
 	sf::Image playerImage;
 	sf::Image enemyImage;
-	sf::Image wallImage;
 	sf::Image bulletImage;
 	sf::Image boxImage;
 	sf::Image goldCoinImage;

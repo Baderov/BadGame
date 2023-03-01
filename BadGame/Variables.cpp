@@ -36,7 +36,6 @@ void setText(GameVariable* gv) // function for setting values for text.
 void setImage(GameVariable* gv) // function for setting values for images.
 {
 	gv->boxImage.loadFromFile("Images/box.png");
-	gv->wallImage.loadFromFile("Images/wall.png");
 	gv->playerImage.loadFromFile("Images/player.png");
 	gv->enemyImage.loadFromFile("Images/enemy.png");
 	gv->bulletImage.loadFromFile("Images/bullet.png");
