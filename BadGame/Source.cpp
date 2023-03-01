@@ -1,9 +1,5 @@
 ﻿#include "Source.h" // main header file.
 
-std::list<std::unique_ptr<Entity>> entities; // list of entities.
-std::list<std::unique_ptr<Entity>>::iterator it; // first iterator for passing through the list of entities.
-std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing through the list of entities.
-
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
 #define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
@@ -11,6 +7,11 @@ std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing
 #define DEBUG_SET_FUNC_NAME
 #define DEBUG_MSG(str) do { } while (false)
 #endif
+
+std::list<std::unique_ptr<Entity>> entities; // list of entities.
+std::list<std::unique_ptr<Entity>>::iterator it; // first iterator for passing through the list of entities.
+std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing through the list of entities.
+
 
 void updateFPS(GameVariable* gv) // FPS update function.
 {
@@ -91,7 +92,7 @@ void eventHandlerSingleplayer(GameVariable* gv) // event handling function.
 			gv->gameClock.restart();
 			if (gv->getSinglePlayerGame() == false) { return; }
 
-			gv->window.setView(gv->getGameView());
+			gv->setWindowView(gv->getGameView());
 			break;
 		}
 		break;

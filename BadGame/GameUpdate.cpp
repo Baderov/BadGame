@@ -2,6 +2,8 @@
 
 Entity* playerPtr = nullptr; // create a pointer to the player.
 
+const sf::Vector2f wallSize(3000.f, 64.f);
+
 Entity* getPlayerPtr()
 {
 	return playerPtr;
@@ -95,13 +97,14 @@ void applyButtonPressed(GameVariable* gv)
 			gv->window.setVerticalSyncEnabled(gv->getIsVsync());
 			gv->window.setFramerateLimit(gv->getFPSLimiter());
 			gv->gui.setWindow(gv->window);
+			gv->setMinimapViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
+			gv->minimapBorder.setSize(sf::Vector2f(gv->getMinimapViewport().width * gv->getGameViewSize().x, gv->getMinimapViewport().height * gv->getGameViewSize().y));
 			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
 			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
-			gv->window.setView(gv->getMenuView());
+			gv->setWindowView(gv->getMenuView());
 		}
 		resolutionComboBoxChanged = false;
 	}
-
 	graphicsSettingsMenuUpdate(gv);
 }
 
@@ -253,9 +256,9 @@ void graphicsSettingsMenuUpdate(GameVariable* gv) // graphic settings menu updat
 	vsyncCheckBox->onChange([=]()
 		{
 			vsyncCheckBoxChanged = true;
-	applyButton->setEnabled(true);
-	if (vsyncCheckBox->isChecked()) { fpsComboBox->setEnabled(false); }
-	else { fpsComboBox->setEnabled(true); }
+			applyButton->setEnabled(true);
+			if (vsyncCheckBox->isChecked()) { fpsComboBox->setEnabled(false); }
+			else { fpsComboBox->setEnabled(true); }
 		});
 
 	gv->gui.add(vsyncCheckBox, "vsyncCheckBox");
@@ -498,11 +501,11 @@ void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function
 	nicknameEditBox->setText(gv->getNickname());
 	nicknameEditBox->setPosition("50%", "28%");
 	nicknameEditBox->onTextChange([=]()
-	{
-		std::wstring tempNick = nicknameEditBox->getText().toWideString();
-		tempNick.erase(remove(tempNick.begin(), tempNick.end(), ' '), tempNick.end());
-		gv->setNickname(tempNick);
-	});	
+		{
+			std::wstring tempNick = nicknameEditBox->getText().toWideString();
+			tempNick.erase(remove(tempNick.begin(), tempNick.end(), ' '), tempNick.end());
+			gv->setNickname(tempNick);
+		});
 	gv->gui.add(nicknameEditBox, "nicknameEditBox");
 
 	tgui::Label::Ptr enterIPLabel = tgui::Label::create();
@@ -524,11 +527,11 @@ void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function
 	IPEditBox->setText(gv->getServerIP());
 	IPEditBox->setPosition("50%", "44%");
 	IPEditBox->onTextChange([=]()
-	{
-		std::string tempIP = IPEditBox->getText().toStdString();
-		tempIP.erase(remove(tempIP.begin(), tempIP.end(), ' '), tempIP.end());
-		gv->setServerIP(tempIP);
-	});
+		{
+			std::string tempIP = IPEditBox->getText().toStdString();
+			tempIP.erase(remove(tempIP.begin(), tempIP.end(), ' '), tempIP.end());
+			gv->setServerIP(tempIP);
+		});
 	gv->gui.add(IPEditBox, "IPEditBox");
 
 	tgui::Label::Ptr enterPortLabel = tgui::Label::create();
@@ -549,13 +552,13 @@ void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function
 	portEditBox->setOrigin(0.5f, 0.5f);
 	portEditBox->setText(gv->getTempPort());
 	portEditBox->setPosition("50%", "60%");
-	portEditBox->onTextChange([=]() 
-	{ 
-		std::string tempPort = portEditBox->getText().toStdString();
-		tempPort.erase(remove(tempPort.begin(), tempPort.end(), ' '), tempPort.end());
-		gv->setTempPort(tempPort);
-		gv->setServerPort(std::atoi(tempPort.c_str()));
-	});
+	portEditBox->onTextChange([=]()
+		{
+			std::string tempPort = portEditBox->getText().toStdString();
+			tempPort.erase(remove(tempPort.begin(), tempPort.end(), ' '), tempPort.end());
+			gv->setTempPort(tempPort);
+			gv->setServerPort(std::atoi(tempPort.c_str()));
+		});
 	gv->gui.add(portEditBox, "portEditBox");
 
 	tgui::Label::Ptr errorLabel = tgui::Label::create();
@@ -602,10 +605,10 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 	gv->setNumberOfEnemies(0);
 	gv->setMenuTimer(0.f);
 
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall")); // create a left wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall")); // create a right wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall")); // create a top wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall")); // create a bottom wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(3000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(gv->wallImage, sf::Vector2f(0.f, 2936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
 	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a playerPtr and throw it into the list of entities.
 	playerPtr = entities.back().get(); // assign the value of the pointer to the playerPtr.
 
@@ -739,7 +742,7 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 {
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (gv->getShowHitbox() == true) // if we show hitboxes.
+		if (gv->getShowHitbox() == true || dynamic_cast<Wall*>((*it).get())) // if we show hitboxes.
 		{
 			gv->window.draw((*it)->getRectHitbox()); // draw rectangular hitboxes.
 		}

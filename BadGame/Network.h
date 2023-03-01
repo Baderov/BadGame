@@ -11,6 +11,10 @@
 #include "Entity.h"
 #include "PlayersList.h"
 
+void setMinimap(GameVariable* gv);
+
+void serverIsNotAvailable(GameVariable* gv);
+
 void setSocketBlocking(bool blocking); // socket blocking function.
 
 void enterMenu(GameVariable* gv); // menu entry function.
@@ -37,8 +41,10 @@ void receiveData(GameVariable* gv); // function to receive data from the server.
 
 void gameUpdate(GameVariable* gv); // multiplayer game update function.
 
-void gameDraw(GameVariable* gv); // multiplayer game draw function.
+void minimapViewDraw(GameVariable* gv);
 
-void serverIsNotAvailable(GameVariable* gv);
+void gameViewDraw(GameVariable* gv);
+
+void gameDraw(GameVariable* gv); // multiplayer game draw function.
 
 void multiplayerGame(GameVariable* gv); // multiplayer game launch function.

@@ -184,7 +184,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 
 void menuEventHandler(GameVariable* gv) // function to handle menu events.
 {
-	gv->window.setView(gv->getMenuView());
+	gv->setWindowView(gv->getMenuView());
 	mainMenu(gv);
 	while (gv->window.isOpen())
 	{

@@ -21,6 +21,7 @@ struct Clients // structure for clients.
 	sf::Texture texture;
 	sf::Sprite sprite;
 	sf::Vector2f moveTargetPos, currentVelocity, stepPos;
+	sf::CircleShape icon;
 
 	sf::Clock pingClock;
 	int id, HP;
@@ -31,14 +32,16 @@ private:
 	sf::Int32 ping;
 };
 
-sf::Vector2f getClientPos();
+sf::Vector2f getCurrentClientPos();
 sf::Vector2f getMoveTargetPos();
-sf::Vector2f getClientStepPos();
-bool clientIsNullptr();
-bool getClientIsMove();
+sf::Vector2f getCurrentClientStepPos();
+bool currentClientIsNullptr();
+bool getCurrentClientIsMove();
 void callMoveToTarget(GameVariable* gv);
 void callUpdateLaser(GameVariable* gv);
 void setCurrentClient(Clients* tempClient);
 void setMoveTargetPos(sf::Vector2f tempMoveTargetPos);
 void setIsMove(bool tempIsMove);
 void setIsShoot(bool tempIsShoot);
+void moveClient(std::unique_ptr<Clients>& client, sf::Vector2f& tempStepPos);
+void setClientNickPosition(std::unique_ptr<Clients>& client);

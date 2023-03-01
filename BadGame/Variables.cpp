@@ -70,7 +70,6 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setWindowSize(sf::Vector2u(1366, 768));
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
-
 	//gv->window.create(sf::VideoMode(1920, 1080), "BadGame", sf::Style::Fullscreen, settings);
 	gv->window.create(sf::VideoMode(gv->getWindowSize().x, gv->getWindowSize().y), "BadGame", sf::Style::Close, settings);
 	gv->window.setVerticalSyncEnabled(true);
@@ -222,6 +221,22 @@ sf::View GameVariable::getMenuView()
 	sf::View tempView = gVars.menuView;
 	mtx_gv.unlock();
 	return tempView;
+}
+
+sf::View GameVariable::getMinimapView()
+{
+	mtx_gv.lock();
+	sf::View tempView = gVars.minimapView;
+	mtx_gv.unlock();
+	return tempView;
+}
+
+sf::FloatRect GameVariable::getMinimapViewport()
+{
+	mtx_gv.lock();
+	sf::FloatRect tempViewport = gVars.minimapView.getViewport();
+	mtx_gv.unlock();
+	return tempViewport;
 }
 
 sf::Vector2f GameVariable::getMousePos()
@@ -665,6 +680,14 @@ char GameVariable::getInput()
 }
 
 // SETTERS.
+
+void GameVariable::setWindowView(sf::View view)
+{
+	mtx_gv.lock();
+	window.setView(view);
+	mtx_gv.unlock();
+}
+
 void GameVariable::setGameViewCenter(sf::Vector2f tempViewCenter)
 {
 	mtx_gv.lock();
@@ -690,6 +713,34 @@ void GameVariable::setMenuViewSize(sf::Vector2f tempViewSize)
 {
 	mtx_gv.lock();
 	gVars.menuView.setSize(tempViewSize);
+	mtx_gv.unlock();
+}
+
+void  GameVariable::setMinimapViewCenter(sf::Vector2f tempViewCenter)
+{
+	mtx_gv.lock();
+	gVars.minimapView.setCenter(tempViewCenter);
+	mtx_gv.unlock();
+}
+
+void  GameVariable::setMinimapViewSize(sf::Vector2f tempViewSize)
+{
+	mtx_gv.lock();
+	gVars.minimapView.setSize(tempViewSize);
+	mtx_gv.unlock();
+}
+
+void GameVariable::setMinimapViewport(sf::Vector2f tempPos, sf::Vector2f tempSize)
+{
+	mtx_gv.lock();
+	gVars.minimapView.setViewport(sf::FloatRect(tempPos.x, tempPos.y, tempSize.x, tempSize.y));
+	mtx_gv.unlock();
+}
+
+void GameVariable::setMinimapZoom(float factor)
+{
+	mtx_gv.lock();
+	gVars.minimapView.zoom(factor);
 	mtx_gv.unlock();
 }
 

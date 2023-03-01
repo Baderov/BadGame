@@ -13,9 +13,9 @@ public:
 	PlayersList();
 	void updateRSPos(float x, float y);
 	void updateText(GameVariable* gv, std::vector<std::unique_ptr<Clients>>& clientsVec);
-	void updateScrollbarDir(std::vector<std::unique_ptr<Clients>>& clientsVec);
-	void scrollUp(std::vector<std::unique_ptr<Clients>>& clientsVec);
-	void scrollDown(std::vector<std::unique_ptr<Clients>>& clientsVec);
+	void updateScrollbarDir(size_t clientsVecSize);
+	void scrollUp(size_t clientsVecSize);
+	void scrollDown(size_t clientsVecSize);
 	void updatePL(GameVariable* gv, std::mutex& cVec_mtx, std::vector<std::unique_ptr<Clients>>& clientsVec);
 	void updatePLScrollbar();
 	void setScrollbarDir(std::wstring tempScrollbarDir);

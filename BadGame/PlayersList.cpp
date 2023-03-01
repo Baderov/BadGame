@@ -94,29 +94,29 @@ void PlayersList::updateText(GameVariable* gv, std::vector<std::unique_ptr<Clien
 	text.setPosition(RS.getPosition().x - 325.f, (RS.getPosition().y - (RS.getSize().y / 2.f)));
 }
 
-void PlayersList::updateScrollbarDir(std::vector<std::unique_ptr<Clients>>& clientsVec)
+void PlayersList::updateScrollbarDir(size_t clientsVecSize)
 {
 	if (scrollbarDir == L"up" && ((innerScrollBar.getPosition().y - (innerScrollBar.getSize().y / 2.f))) > outerScrollBar.getPosition().y - (outerScrollBar.getSize().y / 2.f))
 	{
-		scrollUp(clientsVec);
+		scrollUp(clientsVecSize);
 	}
 	else if (scrollbarDir == L"down" && ((innerScrollBar.getPosition().y + (innerScrollBar.getSize().y / 2.f))) < outerScrollBar.getPosition().y + (outerScrollBar.getSize().y / 2.f))
 	{
-		scrollDown(clientsVec);
+		scrollDown(clientsVecSize);
 	}
 }
 
-void PlayersList::scrollUp(std::vector<std::unique_ptr<Clients>>& clientsVec)
+void PlayersList::scrollUp(size_t clientsVecSize)
 {
 	scrollbarYPos += std::round(-(outerScrollBar.getSize().y / scrollbarDivisor));
-	if ((clientsVec.size() > scrollbarStepNumber) && (clientsVec.size() - scrollbarStepNumber > NUM_OF_DISPLAYED_PLAYERS)) { scrollbarStepNumber++; }
+	if ((clientsVecSize > scrollbarStepNumber) && (clientsVecSize - scrollbarStepNumber > NUM_OF_DISPLAYED_PLAYERS)) { scrollbarStepNumber++; }
 	scrollbarDir = L"";
 }
 
-void PlayersList::scrollDown(std::vector<std::unique_ptr<Clients>>& clientsVec)
+void PlayersList::scrollDown(size_t clientsVecSize)
 {
 	scrollbarYPos += std::round(outerScrollBar.getSize().y / scrollbarDivisor);
-	if (scrollbarStepNumber > 0 && clientsVec.size() > NUM_OF_DISPLAYED_PLAYERS) { scrollbarStepNumber--; }
+	if (scrollbarStepNumber > 0 && clientsVecSize > NUM_OF_DISPLAYED_PLAYERS) { scrollbarStepNumber--; }
 	scrollbarDir = L"";
 }
 
@@ -125,9 +125,9 @@ void PlayersList::updatePL(GameVariable* gv, std::mutex& cVec_mtx, std::vector<s
 	cVec_mtx.lock();
 	PL_mtx.lock();
 
-	updateRSPos(getClientPos().x, getClientPos().y);
+	updateRSPos(getCurrentClientPos().x, getCurrentClientPos().y);
 	updateText(gv, clientsVec);
-	updateScrollbarDir(clientsVec);
+	updateScrollbarDir(clientsVec.size());
 
 	PL_mtx.unlock();
 	cVec_mtx.unlock();

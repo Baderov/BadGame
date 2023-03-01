@@ -17,6 +17,11 @@ Clients::Clients(GameVariable* gv) // second clients constructor.
 	isAlive = true;
 	isMove = false;
 
+	icon.setRadius(89);
+	icon.setOutlineThickness(15.f);
+	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+
 	nickText.setFont(gv->consolasFont);
 	nickText.setFillColor(sf::Color::Green);
 	nickText.setCharacterSize(40);
@@ -74,18 +79,12 @@ void Clients::moveToTarget(GameVariable* gv) // a function to move the sprite to
 	else { isMove = false; } // else don`t move.
 }
 
-bool clientIsNullptr()
-{
-	if (currentClient == nullptr) { return true; }
-	else { return false; }
-}
-
 sf::Int32 Clients::getClientPing()
 {
 	if (currentClient != nullptr)
 	{
 		c_mtx.lock();
-		sf::Int32 tempPing = currentClient->ping;
+		sf::Int32 tempPing = ping;
 		c_mtx.unlock();
 		return tempPing;
 	}
@@ -96,12 +95,18 @@ void Clients::setClientPing(sf::Int32 tempPing)
 	if (currentClient != nullptr)
 	{
 		c_mtx.lock();
-		currentClient->ping = tempPing;
+		ping = tempPing;
 		c_mtx.unlock();
 	}
 }
 
-sf::Vector2f getClientPos()
+bool currentClientIsNullptr()
+{
+	if (currentClient == nullptr) { return true; }
+	else { return false; }
+}
+
+sf::Vector2f getCurrentClientPos()
 {
 	if (currentClient != nullptr)
 	{
@@ -123,7 +128,7 @@ sf::Vector2f getMoveTargetPos()
 	}
 }
 
-sf::Vector2f getClientStepPos()
+sf::Vector2f getCurrentClientStepPos()
 {
 	if (currentClient != nullptr)
 	{
@@ -134,7 +139,7 @@ sf::Vector2f getClientStepPos()
 	}
 }
 
-bool getClientIsMove()
+bool getCurrentClientIsMove()
 {
 	if (currentClient != nullptr)
 	{
@@ -202,3 +207,23 @@ void setIsShoot(bool tempIsShoot)
 	}
 }
 
+void moveClient(std::unique_ptr<Clients>& client, sf::Vector2f& tempStepPos)
+{
+	if (client != nullptr)
+	{
+		c_mtx.lock();
+		client->sprite.move(tempStepPos);
+		client->icon.move(tempStepPos);
+		c_mtx.unlock();
+	}
+}
+
+void setClientNickPosition(std::unique_ptr<Clients>& client)
+{
+	if (client != nullptr)
+	{
+		c_mtx.lock();
+		client->nickText.setPosition(client->sprite.getPosition().x, client->sprite.getPosition().y - 80.f);
+		c_mtx.unlock();
+	}
+}

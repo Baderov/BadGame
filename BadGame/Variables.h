@@ -23,6 +23,7 @@ private:
 
 		sf::View gameView;
 		sf::View menuView;
+		sf::View minimapView;
 
 		std::wstring senderNickname;
 		std::wstring nickname;
@@ -103,6 +104,7 @@ public:
 	sf::Texture goldCoinHUDTexture;
 	sf::Sprite goldCoinHUDSprite;
 	sf::RectangleShape aimLaser;
+	sf::RectangleShape minimapBorder;
 	sf::CircleShape playerDestination;
 	sf::Font consolasFont;
 	sf::Color backgroundColor;
@@ -117,6 +119,8 @@ public:
 	// GETTERS.
 	sf::View getGameView();
 	sf::View getMenuView();
+	sf::View getMinimapView();
+	sf::FloatRect getMinimapViewport();
 	sf::Vector2f getGameViewCenter();
 	sf::Vector2f getGameViewSize();
 	sf::Vector2f getMenuViewCenter();
@@ -179,10 +183,17 @@ public:
 	char getInput();
 
 	// SETTERS.
-	void setGameViewCenter(sf::Vector2f tempGameViewCenter);
-	void setGameViewSize(sf::Vector2f tempGameViewSize);
-	void setMenuViewCenter(sf::Vector2f tempMenuViewCenter);
-	void setMenuViewSize(sf::Vector2f tempMenuViewSize);
+	void setWindowView(sf::View view);
+
+	void setGameViewCenter(sf::Vector2f tempViewCenter);
+	void setGameViewSize(sf::Vector2f tempViewSize);
+	void setMenuViewCenter(sf::Vector2f tempViewCenter);
+	void setMenuViewSize(sf::Vector2f tempViewSize);
+	void setMinimapViewCenter(sf::Vector2f tempViewCenter);
+	void setMinimapViewSize(sf::Vector2f tempViewSize);
+	void setMinimapViewport(sf::Vector2f tempPos, sf::Vector2f tempSize);
+	void setMinimapZoom(float factor);
+
 	void setMousePos(sf::Vector2f tempMousePos);
 	void setPlayerStartPos(sf::Vector2f tempPlayerStartPos);
 	void setWindowSize(sf::Vector2u tempWindowSize);

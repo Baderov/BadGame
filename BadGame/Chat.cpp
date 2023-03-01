@@ -486,7 +486,6 @@ void chatUpdate(GameVariable* gv, Chat& chat)
 		gv->setSendMsg(false);
 		gv->setRecvMsg(false);
 	}
-	chat.chatPosUpdate(getClientPos());
 }
 void updateScrollbarDir(GameVariable* gv, Chat& chat)
 {
