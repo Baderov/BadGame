@@ -15,6 +15,8 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	rectHitbox.setFillColor(sf::Color::Red);
 	rectHitbox.setSize(sf::Vector2f(h, h));
 	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
+
+	icon.setFillColor(sf::Color::Red);
 }
 
 void Enemy::update(GameVariable* gv) // enemy update function.
@@ -36,6 +38,7 @@ void Enemy::update(GameVariable* gv) // enemy update function.
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
 		sprite.setPosition(currentPos);
+		icon.setPosition(currentPos);
 		rectHitbox.setPosition(currentPos);
 		if (HP <= 0) { isAlive = false; } // if the enemy's health is zero or less, then isAlive is false.
 	}

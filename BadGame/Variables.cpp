@@ -142,6 +142,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setShowHitbox(false);
 	gv->setShowAimLaser(false);
 	gv->setShowLogs(false);
+	gv->setShowMinimap(true);
 	gv->setIsFullscreen(false);
 	gv->setIsVsync(true);
 	gv->setFocusEvent(true);
@@ -220,22 +221,6 @@ sf::View GameVariable::getMenuView()
 	sf::View tempView = gVars.menuView;
 	mtx_gv.unlock();
 	return tempView;
-}
-
-sf::View GameVariable::getMinimapView()
-{
-	mtx_gv.lock();
-	sf::View tempView = gVars.minimapView;
-	mtx_gv.unlock();
-	return tempView;
-}
-
-sf::FloatRect GameVariable::getMinimapViewport()
-{
-	mtx_gv.lock();
-	sf::FloatRect tempViewport = gVars.minimapView.getViewport();
-	mtx_gv.unlock();
-	return tempViewport;
 }
 
 sf::Vector2f GameVariable::getMousePos()
@@ -534,6 +519,14 @@ bool GameVariable::getShowLogs()
 	return tempShowLogs;
 }
 
+bool GameVariable::getShowMinimap()
+{
+	mtx_gv.lock();
+	bool tempShowMinimap = gVars.showMinimap;
+	mtx_gv.unlock();
+	return tempShowMinimap;
+}
+
 bool GameVariable::getIsFullscreen()
 {
 	mtx_gv.lock();
@@ -712,34 +705,6 @@ void GameVariable::setMenuViewSize(sf::Vector2f tempViewSize)
 {
 	mtx_gv.lock();
 	gVars.menuView.setSize(tempViewSize);
-	mtx_gv.unlock();
-}
-
-void  GameVariable::setMinimapViewCenter(sf::Vector2f tempViewCenter)
-{
-	mtx_gv.lock();
-	gVars.minimapView.setCenter(tempViewCenter);
-	mtx_gv.unlock();
-}
-
-void  GameVariable::setMinimapViewSize(sf::Vector2f tempViewSize)
-{
-	mtx_gv.lock();
-	gVars.minimapView.setSize(tempViewSize);
-	mtx_gv.unlock();
-}
-
-void GameVariable::setMinimapViewport(sf::Vector2f tempPos, sf::Vector2f tempSize)
-{
-	mtx_gv.lock();
-	gVars.minimapView.setViewport(sf::FloatRect(tempPos.x, tempPos.y, tempSize.x, tempSize.y));
-	mtx_gv.unlock();
-}
-
-void GameVariable::setMinimapZoom(float factor)
-{
-	mtx_gv.lock();
-	gVars.minimapView.zoom(factor);
 	mtx_gv.unlock();
 }
 
@@ -998,6 +963,13 @@ void GameVariable::setShowLogs(bool tempShowLogs)
 {
 	mtx_gv.lock();
 	gVars.showLogs = tempShowLogs;
+	mtx_gv.unlock();
+}
+
+void GameVariable::setShowMinimap(bool tempShowMinimap)
+{
+	mtx_gv.lock();
+	gVars.showMinimap = tempShowMinimap;
 	mtx_gv.unlock();
 }
 

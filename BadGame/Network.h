@@ -10,14 +10,15 @@
 #include "Clients.h"
 #include "Entity.h"
 #include "PlayersList.h"
+#include "Minimap.h"
 
-void setMinimap(GameVariable* gv);
+void createWalls();
 
 void serverIsNotAvailable(GameVariable* gv);
 
 void setSocketBlocking(bool blocking); // socket blocking function.
 
-void enterMenu(GameVariable* gv); // menu entry function.
+void enterMenu(GameVariable* gv, Minimap& minimap); // menu entry function.
 
 void connectToServer(GameVariable* gv); // function to connect to the server.
 
@@ -33,7 +34,7 @@ void sendMousePos(GameVariable* gv); // function to send the mouse position to t
 
 void resetVariables(GameVariable* gv); // global variable reset function.
 
-void eventHandlerMultiplayer(GameVariable* gv); // event handling function.
+void eventHandlerMultiplayer(GameVariable* gv, Minimap& minimap); // event handling function.
 
 void sendData(GameVariable* gv); // function to send data to the server.
 
@@ -43,8 +44,8 @@ void gameUpdate(GameVariable* gv); // multiplayer game update function.
 
 void minimapViewDraw(GameVariable* gv);
 
-void gameViewDraw(GameVariable* gv);
+void gameViewDraw(GameVariable* gv, Minimap& minimap);
 
-void gameDraw(GameVariable* gv); // multiplayer game draw function.
+void gameDraw(GameVariable* gv, Minimap& minimap); // multiplayer game draw function.
 
-void multiplayerGame(GameVariable* gv); // multiplayer game launch function.
+void multiplayerGame(GameVariable* gv, Minimap& minimap); // multiplayer game launch function.

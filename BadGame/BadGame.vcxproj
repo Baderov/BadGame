@@ -160,6 +160,7 @@
     <ClCompile Include="GameUpdate.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Minimap.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="PlayersList.cpp" />
     <ClCompile Include="RichText.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="GameUpdate.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Minimap.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayersList.h" />

@@ -10,10 +10,13 @@
 #include "Wall.h" // header file for walls.
 #include "Item.h" // header file for items.
 #include "Network.h"
+#include "Minimap.h"
 
 Entity* getPlayerPtr();
 
-void graphicsSettingsMenuUpdate(GameVariable* gv); // graphic settings menu update function.
+void applyButtonPressed(GameVariable* gv, Minimap& minimap);
+
+void graphicsSettingsMenuUpdate(GameVariable* gv, Minimap& minimap); // graphic settings menu update function.
 
 void settingsMenuUpdate(GameVariable* gv); // settings menu update function.
 
@@ -23,6 +26,10 @@ void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update functio
 
 void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // game restart function.
 
-void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2); // entity update function.
+void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2); // entity update function.
 
-void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it); // entity drawing function.
+void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap);
+
+void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap);
+
+void drawGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap); // entity drawing function.

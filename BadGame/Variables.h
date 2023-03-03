@@ -23,7 +23,6 @@ private:
 
 		sf::View gameView;
 		sf::View menuView;
-		sf::View minimapView;
 
 		std::wstring senderNickname;
 		std::wstring nickname;
@@ -59,6 +58,7 @@ private:
 		bool showHitbox;
 		bool showAimLaser;
 		bool showLogs;
+		bool showMinimap;
 		bool isFullscreen;
 		bool isVsync;
 		bool multiPlayerGame;
@@ -103,7 +103,6 @@ public:
 	sf::Texture goldCoinHUDTexture;
 	sf::Sprite goldCoinHUDSprite;
 	sf::RectangleShape aimLaser;
-	sf::RectangleShape minimapBorder;
 	sf::CircleShape playerDestination;
 	sf::Font consolasFont;
 	sf::Color backgroundColor;
@@ -118,8 +117,6 @@ public:
 	// GETTERS.
 	sf::View getGameView();
 	sf::View getMenuView();
-	sf::View getMinimapView();
-	sf::FloatRect getMinimapViewport();
 	sf::Vector2f getGameViewCenter();
 	sf::Vector2f getGameViewSize();
 	sf::Vector2f getMenuViewCenter();
@@ -162,6 +159,7 @@ public:
 	bool getShowHitbox();
 	bool getShowAimLaser();
 	bool getShowLogs();
+	bool getShowMinimap();
 	bool getIsVsync();
 	bool getIsFullscreen();
 	bool getMultiPlayerGame();
@@ -188,11 +186,6 @@ public:
 	void setGameViewSize(sf::Vector2f tempViewSize);
 	void setMenuViewCenter(sf::Vector2f tempViewCenter);
 	void setMenuViewSize(sf::Vector2f tempViewSize);
-	void setMinimapViewCenter(sf::Vector2f tempViewCenter);
-	void setMinimapViewSize(sf::Vector2f tempViewSize);
-	void setMinimapViewport(sf::Vector2f tempPos, sf::Vector2f tempSize);
-	void setMinimapZoom(float factor);
-
 	void setMousePos(sf::Vector2f tempMousePos);
 	void setPlayerStartPos(sf::Vector2f tempPlayerStartPos);
 	void setWindowSize(sf::Vector2u tempWindowSize);
@@ -230,6 +223,7 @@ public:
 	void setShowHitbox(bool tempShowHitbox);
 	void setShowAimLaser(bool tempShowAimLaser);
 	void setShowLogs(bool tempShowLogs);
+	void setShowMinimap(bool tempShowMinimap);
 	void setIsFullscreen(bool tempIsFullscreen);
 	void setIsVsync(bool tempIsVsync);
 	void setMultiPlayerGame(bool tempMultiplayerGame);

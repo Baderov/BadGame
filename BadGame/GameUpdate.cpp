@@ -15,7 +15,7 @@ bool fpsComboBoxChanged = false;
 bool fullscreenCheckBoxChanged = false;
 bool vsyncCheckBoxChanged = false;
 
-void applyButtonPressed(GameVariable* gv)
+void applyButtonPressed(GameVariable* gv, Minimap& minimap)
 {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
@@ -97,18 +97,18 @@ void applyButtonPressed(GameVariable* gv)
 			gv->window.setVerticalSyncEnabled(gv->getIsVsync());
 			gv->window.setFramerateLimit(gv->getFPSLimiter());
 			gv->gui.setWindow(gv->window);
-			gv->setMinimapViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
-			gv->minimapBorder.setSize(sf::Vector2f(gv->getMinimapViewport().width * gv->getGameViewSize().x, gv->getMinimapViewport().height * gv->getGameViewSize().y));
+			minimap.setViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
+			minimap.setBorderSize(sf::Vector2f(minimap.getViewport().width * gv->getGameViewSize().x, minimap.getViewport().height * gv->getGameViewSize().y));
 			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
 			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
 			gv->setWindowView(gv->getMenuView());
 		}
 		resolutionComboBoxChanged = false;
 	}
-	graphicsSettingsMenuUpdate(gv);
+	graphicsSettingsMenuUpdate(gv, minimap);
 }
 
-void graphicsSettingsMenuUpdate(GameVariable* gv) // graphic settings menu update function.
+void graphicsSettingsMenuUpdate(GameVariable* gv, Minimap& minimap) // graphic settings menu update function.
 {
 	float winSizeX = static_cast<float>(gv->window.getSize().x);
 	float winSizeY = static_cast<float>(gv->window.getSize().y);
@@ -127,7 +127,7 @@ void graphicsSettingsMenuUpdate(GameVariable* gv) // graphic settings menu updat
 	else if (gv->getGameLanguage() == 'r') { applyButton->setText(L"Ïðèìåíèòü"); }
 	applyButton->setTextSize(35);
 	applyButton->setPosition("50%", "80%");
-	applyButton->onPress(&applyButtonPressed, gv);
+	applyButton->onPress([&] { applyButtonPressed(gv, minimap); });
 	applyButton->setEnabled(false);
 	gv->gui.add(applyButton);
 
@@ -293,6 +293,129 @@ void settingsMenuUpdate(GameVariable* gv) // settings menu update function.
 	else if (gv->getGameLanguage() == 'r') { backButton->setText(L"ÍÀÇÀÄ"); }
 	backButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 	backButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f));
+	backButton->onPress([=] { gv->setMenuNum(5); });
+	gv->gui.add(backButton, "backButton");
+}
+
+void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function.
+{
+	float winSizeX = static_cast<float>(gv->window.getSize().x);
+	float winSizeY = static_cast<float>(gv->window.getSize().y);
+	float halfWinSizeX = static_cast<float>(gv->window.getSize().x) / 2.f;
+	float halfWinSizeY = static_cast<float>(gv->window.getSize().y) / 2.f;
+	gv->gui.removeAllWidgets();
+
+	tgui::Label::Ptr enterNicknameLabel = tgui::Label::create();
+	if (gv->getGameLanguage() == 'e') { enterNicknameLabel->setText(L"ENTER NICKNAME"); }
+	else if (gv->getGameLanguage() == 'r') { enterNicknameLabel->setText(L"ÂÂÅÄÈÒÅ ÍÈÊÍÅÉÌ"); }
+	enterNicknameLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
+	enterNicknameLabel->setOrigin(0.5f, 0.5f);
+	enterNicknameLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
+	enterNicknameLabel->setPosition("50%", "22%");
+	gv->gui.add(enterNicknameLabel, "enterNicknameLabel");
+
+	tgui::EditBox::Ptr nicknameEditBox = tgui::EditBox::create();
+	nicknameEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
+	nicknameEditBox->getRenderer()->setTextColor(tgui::Color::Black);
+	nicknameEditBox->setSize("25%", "7%");
+	nicknameEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
+	nicknameEditBox->setMaximumCharacters(15);
+	nicknameEditBox->setOrigin(0.5f, 0.5f);
+	nicknameEditBox->setText(gv->getNickname());
+	nicknameEditBox->setPosition("50%", "28%");
+	nicknameEditBox->onTextChange([=]()
+		{
+			std::wstring tempNick = nicknameEditBox->getText().toWideString();
+			tempNick.erase(remove(tempNick.begin(), tempNick.end(), ' '), tempNick.end());
+			gv->setNickname(tempNick);
+		});
+	gv->gui.add(nicknameEditBox, "nicknameEditBox");
+
+	tgui::Label::Ptr enterIPLabel = tgui::Label::create();
+	if (gv->getGameLanguage() == 'e') { enterIPLabel->setText(L"ENTER IP"); }
+	else if (gv->getGameLanguage() == 'r') { enterIPLabel->setText(L"ÂÂÅÄÈÒÅ IP"); }
+	enterIPLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
+	enterIPLabel->setOrigin(0.5f, 0.5f);
+	enterIPLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
+	enterIPLabel->setPosition("50%", "38%");
+	gv->gui.add(enterIPLabel, "enterIPLabel");
+
+	tgui::EditBox::Ptr IPEditBox = tgui::EditBox::create();
+	IPEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
+	IPEditBox->getRenderer()->setTextColor(tgui::Color::Black);
+	IPEditBox->setSize("25%", "7%");
+	IPEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
+	IPEditBox->setMaximumCharacters(15);
+	IPEditBox->setOrigin(0.5f, 0.5f);
+	IPEditBox->setText(gv->getServerIP());
+	IPEditBox->setPosition("50%", "44%");
+	IPEditBox->onTextChange([=]()
+		{
+			std::string tempIP = IPEditBox->getText().toStdString();
+			tempIP.erase(remove(tempIP.begin(), tempIP.end(), ' '), tempIP.end());
+			gv->setServerIP(tempIP);
+		});
+	gv->gui.add(IPEditBox, "IPEditBox");
+
+	tgui::Label::Ptr enterPortLabel = tgui::Label::create();
+	if (gv->getGameLanguage() == 'e') { enterPortLabel->setText(L"ENTER PORT"); }
+	else if (gv->getGameLanguage() == 'r') { enterPortLabel->setText(L"ÂÂÅÄÈÒÅ ÏÎÐÒ"); }
+	enterPortLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
+	enterPortLabel->setOrigin(0.5f, 0.5f);
+	enterPortLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
+	enterPortLabel->setPosition("50%", "54%");
+	gv->gui.add(enterPortLabel, "enterPortLabel");
+
+	tgui::EditBox::Ptr portEditBox = tgui::EditBox::create();
+	portEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
+	portEditBox->getRenderer()->setTextColor(tgui::Color::Black);
+	portEditBox->setSize("25%", "7%");
+	portEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
+	portEditBox->setMaximumCharacters(15);
+	portEditBox->setOrigin(0.5f, 0.5f);
+	portEditBox->setText(gv->getTempPort());
+	portEditBox->setPosition("50%", "60%");
+	portEditBox->onTextChange([=]()
+		{
+			std::string tempPort = portEditBox->getText().toStdString();
+			tempPort.erase(remove(tempPort.begin(), tempPort.end(), ' '), tempPort.end());
+			gv->setTempPort(tempPort);
+			gv->setServerPort(std::atoi(tempPort.c_str()));
+		});
+	gv->gui.add(portEditBox, "portEditBox");
+
+	tgui::Label::Ptr errorLabel = tgui::Label::create();
+	if (gv->getGameLanguage() == 'e') { errorLabel->setText(L""); }
+	else if (gv->getGameLanguage() == 'r') { errorLabel->setText(L""); }
+	errorLabel->setTextSize(40);
+	errorLabel->setOrigin(0.5f, 0.5f);
+	errorLabel->getRenderer()->setTextColor(tgui::Color::Red);
+	errorLabel->setPosition("50%", "90%");
+	gv->gui.add(errorLabel, "errorLabel");
+
+	tgui::Button::Ptr connectButton = tgui::Button::create();
+	connectButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
+	connectButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	connectButton->getRenderer()->setTextColor(tgui::Color::Black);
+	connectButton->setSize("10%", "8%");
+	connectButton->setOrigin(0.5f, 0.5f);
+	if (gv->getGameLanguage() == 'e') { connectButton->setText(L"Connect"); }
+	else if (gv->getGameLanguage() == 'r') { connectButton->setText(L"Âîéòè"); }
+	connectButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
+	connectButton->setPosition("44%", "75%");
+	connectButton->onPress([=] { gv->setConnectButtonPressed(true); });
+	gv->gui.add(connectButton, "connectButton");
+
+	tgui::Button::Ptr backButton = tgui::Button::create();
+	backButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
+	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	backButton->getRenderer()->setTextColor(tgui::Color::Black);
+	backButton->setSize("10%", "8%");
+	backButton->setOrigin(0.5f, 0.5f);
+	if (gv->getGameLanguage() == 'e') { backButton->setText(L"Back"); }
+	else if (gv->getGameLanguage() == 'r') { backButton->setText(L"Íàçàä"); }
+	backButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
+	backButton->setPosition("56%", "75%");
 	backButton->onPress([=] { gv->setMenuNum(5); });
 	gv->gui.add(backButton, "backButton");
 }
@@ -474,129 +597,6 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 	}
 }
 
-void multiplayerMenuUpdate(GameVariable* gv) // multiplayer menu update function.
-{
-	float winSizeX = static_cast<float>(gv->window.getSize().x);
-	float winSizeY = static_cast<float>(gv->window.getSize().y);
-	float halfWinSizeX = static_cast<float>(gv->window.getSize().x) / 2.f;
-	float halfWinSizeY = static_cast<float>(gv->window.getSize().y) / 2.f;
-	gv->gui.removeAllWidgets();
-
-	tgui::Label::Ptr enterNicknameLabel = tgui::Label::create();
-	if (gv->getGameLanguage() == 'e') { enterNicknameLabel->setText(L"ENTER NICKNAME"); }
-	else if (gv->getGameLanguage() == 'r') { enterNicknameLabel->setText(L"ÂÂÅÄÈÒÅ ÍÈÊÍÅÉÌ"); }
-	enterNicknameLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
-	enterNicknameLabel->setOrigin(0.5f, 0.5f);
-	enterNicknameLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
-	enterNicknameLabel->setPosition("50%", "22%");
-	gv->gui.add(enterNicknameLabel, "enterNicknameLabel");
-
-	tgui::EditBox::Ptr nicknameEditBox = tgui::EditBox::create();
-	nicknameEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	nicknameEditBox->getRenderer()->setTextColor(tgui::Color::Black);
-	nicknameEditBox->setSize("25%", "7%");
-	nicknameEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
-	nicknameEditBox->setMaximumCharacters(15);
-	nicknameEditBox->setOrigin(0.5f, 0.5f);
-	nicknameEditBox->setText(gv->getNickname());
-	nicknameEditBox->setPosition("50%", "28%");
-	nicknameEditBox->onTextChange([=]()
-		{
-			std::wstring tempNick = nicknameEditBox->getText().toWideString();
-			tempNick.erase(remove(tempNick.begin(), tempNick.end(), ' '), tempNick.end());
-			gv->setNickname(tempNick);
-		});
-	gv->gui.add(nicknameEditBox, "nicknameEditBox");
-
-	tgui::Label::Ptr enterIPLabel = tgui::Label::create();
-	if (gv->getGameLanguage() == 'e') { enterIPLabel->setText(L"ENTER IP"); }
-	else if (gv->getGameLanguage() == 'r') { enterIPLabel->setText(L"ÂÂÅÄÈÒÅ IP"); }
-	enterIPLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
-	enterIPLabel->setOrigin(0.5f, 0.5f);
-	enterIPLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
-	enterIPLabel->setPosition("50%", "38%");
-	gv->gui.add(enterIPLabel, "enterIPLabel");
-
-	tgui::EditBox::Ptr IPEditBox = tgui::EditBox::create();
-	IPEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	IPEditBox->getRenderer()->setTextColor(tgui::Color::Black);
-	IPEditBox->setSize("25%", "7%");
-	IPEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
-	IPEditBox->setMaximumCharacters(15);
-	IPEditBox->setOrigin(0.5f, 0.5f);
-	IPEditBox->setText(gv->getServerIP());
-	IPEditBox->setPosition("50%", "44%");
-	IPEditBox->onTextChange([=]()
-		{
-			std::string tempIP = IPEditBox->getText().toStdString();
-			tempIP.erase(remove(tempIP.begin(), tempIP.end(), ' '), tempIP.end());
-			gv->setServerIP(tempIP);
-		});
-	gv->gui.add(IPEditBox, "IPEditBox");
-
-	tgui::Label::Ptr enterPortLabel = tgui::Label::create();
-	if (gv->getGameLanguage() == 'e') { enterPortLabel->setText(L"ENTER PORT"); }
-	else if (gv->getGameLanguage() == 'r') { enterPortLabel->setText(L"ÂÂÅÄÈÒÅ ÏÎÐÒ"); }
-	enterPortLabel->setTextSize(static_cast<unsigned int>(round(winSizeX / 38.f)));
-	enterPortLabel->setOrigin(0.5f, 0.5f);
-	enterPortLabel->getRenderer()->setTextColor(tgui::Color::Cyan);
-	enterPortLabel->setPosition("50%", "54%");
-	gv->gui.add(enterPortLabel, "enterPortLabel");
-
-	tgui::EditBox::Ptr portEditBox = tgui::EditBox::create();
-	portEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	portEditBox->getRenderer()->setTextColor(tgui::Color::Black);
-	portEditBox->setSize("25%", "7%");
-	portEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
-	portEditBox->setMaximumCharacters(15);
-	portEditBox->setOrigin(0.5f, 0.5f);
-	portEditBox->setText(gv->getTempPort());
-	portEditBox->setPosition("50%", "60%");
-	portEditBox->onTextChange([=]()
-		{
-			std::string tempPort = portEditBox->getText().toStdString();
-			tempPort.erase(remove(tempPort.begin(), tempPort.end(), ' '), tempPort.end());
-			gv->setTempPort(tempPort);
-			gv->setServerPort(std::atoi(tempPort.c_str()));
-		});
-	gv->gui.add(portEditBox, "portEditBox");
-
-	tgui::Label::Ptr errorLabel = tgui::Label::create();
-	if (gv->getGameLanguage() == 'e') { errorLabel->setText(L""); }
-	else if (gv->getGameLanguage() == 'r') { errorLabel->setText(L""); }
-	errorLabel->setTextSize(40);
-	errorLabel->setOrigin(0.5f, 0.5f);
-	errorLabel->getRenderer()->setTextColor(tgui::Color::Red);
-	errorLabel->setPosition("50%", "90%");
-	gv->gui.add(errorLabel, "errorLabel");
-
-	tgui::Button::Ptr connectButton = tgui::Button::create();
-	connectButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	connectButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
-	connectButton->getRenderer()->setTextColor(tgui::Color::Black);
-	connectButton->setSize("10%", "8%");
-	connectButton->setOrigin(0.5f, 0.5f);
-	if (gv->getGameLanguage() == 'e') { connectButton->setText(L"Connect"); }
-	else if (gv->getGameLanguage() == 'r') { connectButton->setText(L"Âîéòè"); }
-	connectButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-	connectButton->setPosition("44%", "75%");
-	connectButton->onPress([=] { gv->setConnectButtonPressed(true); });
-	gv->gui.add(connectButton, "connectButton");
-
-	tgui::Button::Ptr backButton = tgui::Button::create();
-	backButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
-	backButton->getRenderer()->setTextColor(tgui::Color::Black);
-	backButton->setSize("10%", "8%");
-	backButton->setOrigin(0.5f, 0.5f);
-	if (gv->getGameLanguage() == 'e') { backButton->setText(L"Back"); }
-	else if (gv->getGameLanguage() == 'r') { backButton->setText(L"Íàçàä"); }
-	backButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-	backButton->setPosition("56%", "75%");
-	backButton->onPress([=] { gv->setMenuNum(5); });
-	gv->gui.add(backButton, "backButton");
-}
-
 void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) // game restart function.
 {
 	entities.clear();
@@ -631,7 +631,7 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 	}
 }
 
-void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2) // entity update function. 
+void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2) // entity update function. 
 {
 	for (it = entities.begin(); it != entities.end();) // iterate through the list from beginning to end.
 	{
@@ -738,7 +738,22 @@ void updateEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entiti
 	}
 }
 
-void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it) // entity drawing function.
+void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap)
+{
+	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
+	{
+		if (dynamic_cast<Player*>((*it).get()) || dynamic_cast<Enemy*>((*it).get()))
+		{
+			gv->window.draw((*it)->getIcon());
+		}
+		if (dynamic_cast<Wall*>((*it).get()))
+		{
+			gv->window.draw((*it)->getRectHitbox());
+		}
+	}
+}
+
+void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap)
 {
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
@@ -774,6 +789,30 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 			}
 			gv->window.draw((*it)->getHPText());
 			gv->window.draw((*it)->getNameText());
+		}
+	}
+	minimap.drawBorder(gv);
+}
+
+void drawGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap) // entity drawing function.
+{
+	if (playerPtr != nullptr)
+	{
+		gv->setGameViewCenter(playerPtr->getSprite().getPosition());
+		if (gv->getShowMinimap() == true)
+		{
+			minimap.setViewCenter(playerPtr->getSprite().getPosition());
+			minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.27f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.48f * gv->getGameViewSize().y)));
+		}
+
+		gv->setWindowView(gv->getGameView());
+		drawEntities(gv, entities, it, minimap);
+
+		if (gv->getShowMinimap() == true)
+		{
+			gv->setWindowView(minimap.getView());
+			drawMinimap(gv, entities, it, minimap);
+			gv->setWindowView(gv->getGameView());
 		}
 	}
 }

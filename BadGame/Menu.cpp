@@ -81,7 +81,7 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && connectButton->isEnabled() == true)
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && connectButton->isEnabled() == true)
 			{
 				gv->setMenuNum(5);
 				return;
@@ -106,9 +106,9 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 	}
 }
 
-void graphicsSettingsMenu(GameVariable* gv) // graphics settings menu function.
+void graphicsSettingsMenu(GameVariable* gv, Minimap& minimap) // graphics settings menu function.
 {
-	graphicsSettingsMenuUpdate(gv);
+	graphicsSettingsMenuUpdate(gv, minimap);
 	gv->setMenuNum(0);
 	while (gv->window.isOpen())
 	{
@@ -119,7 +119,7 @@ void graphicsSettingsMenu(GameVariable* gv) // graphics settings menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape) // если отпустили кнопку Escape.
 			{
 				gv->setMenuNum(6);
 				return;
@@ -144,7 +144,7 @@ void settingsMenu(GameVariable* gv) // settings menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape)
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape)
 			{
 				gv->setMenuNum(5);
 				return;
@@ -169,7 +169,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyPressed && gv->event.key.code == sf::Keyboard::Escape && (gv->getSinglePlayerGame() == true || gv->getMultiPlayerGame() == true))
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && (gv->getSinglePlayerGame() == true || gv->getMultiPlayerGame() == true))
 			{
 				gv->setMenuNum(9);
 				return;
@@ -182,7 +182,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 	}
 }
 
-void menuEventHandler(GameVariable* gv) // function to handle menu events.
+void menuEventHandler(GameVariable* gv, Minimap& minimap) // function to handle menu events.
 {
 	gv->setWindowView(gv->getMenuView());
 	mainMenu(gv);
@@ -210,7 +210,7 @@ void menuEventHandler(GameVariable* gv) // function to handle menu events.
 			return;
 		case 4:
 			gv->setMenuNum(0);
-			graphicsSettingsMenu(gv);
+			graphicsSettingsMenu(gv, minimap);
 			break;
 		case 5:
 			gv->setMenuNum(0);

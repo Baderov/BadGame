@@ -67,9 +67,9 @@ void PlayersList::updateText(GameVariable* gv, std::vector<std::unique_ptr<Clien
 		for (; current < max; current++)
 		{
 			std::wstring tab = L"";
-			size_t tabSize = 20 - clientsVec[current]->nickname.size();
+			size_t tabSize = 20 - clientsVec[current]->getNickname().size();
 			tab.append(tabSize, ' ');
-			text.setString(text.getString() + clientsVec[current]->nickname + tab + std::to_wstring(clientsVec[current]->getClientPing()) + '\n');
+			text.setString(text.getString() + clientsVec[current]->getNickname() + tab + std::to_wstring(clientsVec[current]->getPing()) + '\n');
 		}
 	}
 	else
@@ -86,9 +86,9 @@ void PlayersList::updateText(GameVariable* gv, std::vector<std::unique_ptr<Clien
 		for (; current < max; current++)
 		{
 			std::wstring tab = L"";
-			size_t tabSize = 20 - clientsVec[current]->nickname.size();
+			size_t tabSize = 20 - clientsVec[current]->getNickname().size();
 			tab.append(tabSize, ' ');
-			text.setString(text.getString() + clientsVec[current]->nickname + tab + std::to_wstring(clientsVec[current]->getClientPing()) + '\n');
+			text.setString(text.getString() + clientsVec[current]->getNickname() + tab + std::to_wstring(clientsVec[current]->getPing()) + '\n');
 		}
 	}
 	text.setPosition(RS.getPosition().x - 325.f, (RS.getPosition().y - (RS.getSize().y / 2.f)));

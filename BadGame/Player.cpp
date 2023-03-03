@@ -39,12 +39,17 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 	nameText.setString(name);
 	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
 
+	icon.setFillColor(sf::Color::Green);
 }
 
 void Player::update(GameVariable* gv) // player update function.
 {
 	if (isAlive == true)
 	{
+		rotate(gv);
+		updateLaser(gv);
+		move(gv);
+
 		if (isReload == true)
 		{
 			reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
@@ -52,17 +57,14 @@ void Player::update(GameVariable* gv) // player update function.
 			updateReloadRect();
 		}
 		nameText.setPosition(currentPos.x, currentPos.y - 90.f);
-		updateHPBar();
 
-		rotate(gv);
-		updateLaser(gv);
-		move(gv);
 		sprite.setPosition(currentPos);
+		icon.setPosition(currentPos);
 		rectHitbox.setPosition(currentPos);
-
 		gv->aimLaser.setPosition(currentPos);
-
-		gv->setGameViewCenter(currentPos);
+	
+		gv->setGameViewCenter(sprite.getPosition());
+		updateHPBar();
 
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);

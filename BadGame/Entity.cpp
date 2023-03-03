@@ -47,6 +47,58 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 	nameText.setFillColor(sf::Color::Cyan);
 	nameText.setCharacterSize(25);
 	nameText.setOutlineThickness(2.f);
+
+	icon.setRadius(static_cast<float>(image.getSize().x));
+	icon.setOutlineThickness(15.f);
+	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+}
+
+Entity::Entity(sf::Vector2f startPos, std::wstring name) // entity constructor.
+{
+	currentVelocity = sf::Vector2f(0.f, 0.f);
+	grayColor.r = 160;
+	grayColor.g = 160;
+	grayColor.b = 160;
+	distance = 0.f;
+	DTMultiplier = 1000.f;
+	maxSpeed = 0.f;
+	menuTime = 0.f;
+	currentPos = startPos;
+	this->name = name;
+	creatorName = L"";
+	isAlive = true;
+	isShoot = false;
+
+	rectHitbox.setSize(sf::Vector2f(w, h));
+	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
+	rectHitbox.setPosition(currentPos);
+
+	HPBarInner.setFillColor(sf::Color::Green);
+	HPBarInner.setOutlineThickness(2.f);
+	HPBarInner.setOutlineColor(sf::Color::Black);
+
+	HPBarOuter.setFillColor(grayColor);
+	HPBarOuter.setOutlineThickness(2.f);
+	HPBarOuter.setOutlineColor(sf::Color::Black);
+
+	consolasFont.loadFromFile("consolas.ttf");
+
+	hpText.setFont(consolasFont);
+	hpText.setCharacterSize(20);
+	hpText.setOutlineThickness(2.f);
+	hpText.setString("");
+
+	nameText.setFont(consolasFont);
+	nameText.setString("");
+	nameText.setFillColor(sf::Color::Cyan);
+	nameText.setCharacterSize(25);
+	nameText.setOutlineThickness(2.f);
+
+	icon.setRadius(static_cast<float>(image.getSize().x));
+	icon.setOutlineThickness(15.f);
+	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 }
 
 void Entity::calcDirection() // function to calculate direction.
@@ -122,6 +174,7 @@ sf::Clock& Entity::getShootClock() { return shootClock; }
 sf::Text& Entity::getHPText() { return hpText; }
 sf::Text& Entity::getNameText() { return nameText; }
 sf::Text& Entity::getReloadText() { return reloadText; }
+sf::CircleShape& Entity::getIcon() { return icon; }
 sf::RectangleShape& Entity::getRectHitbox() { return rectHitbox; }
 sf::RectangleShape& Entity::getHPBarInner() { return HPBarInner; }
 sf::RectangleShape& Entity::getHPBarOuter() { return HPBarOuter; }

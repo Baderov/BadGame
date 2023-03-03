@@ -35,17 +35,13 @@ sf::Text connectionErrorText, OKButtonText;
 PlayersList* playersListPtr = nullptr;
 Chat* chatPtr = nullptr;
 
-void setMinimap(GameVariable * gv)
+void createWalls()
 {
-	gv->setMinimapViewCenter(sf::Vector2f(0.f, 0.f));
-	gv->setMinimapViewSize(sf::Vector2f(5000.f, 5000.f));
-	gv->setMinimapViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
-
-	gv->minimapBorder.setSize(sf::Vector2f(gv->getMinimapViewport().width * gv->getGameViewSize().x, gv->getMinimapViewport().height * gv->getGameViewSize().y));
-	gv->minimapBorder.setOutlineColor(sf::Color::Black);
-	gv->minimapBorder.setPosition(0.f, 0.f);
-	gv->minimapBorder.setFillColor(sf::Color::Black);
-	gv->minimapBorder.setOutlineThickness(6.f);
+	networkEntities.clear();
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
+	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
 }
 
 void serverIsNotAvailable(GameVariable* gv)
@@ -90,11 +86,15 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	for (auto& client : clientsVec)
 	{
 		sf::Vector2f tempPos = sf::Vector2f(0.f, 0.f);
+		int tempId = 0;
+		std::wstring tempNick = L"";
 
-		packet >> client->id >> client->nickname >> tempPos.x >> tempPos.y;
+		packet >> tempId >> tempNick >> tempPos.x >> tempPos.y;
 
+		client->setId(tempId);
+		client->setNickname(tempNick);
 		client->sprite.setPosition(tempPos);
-		client->nickText.setString(client->nickname);
+		client->nickText.setString(client->getNickname());
 		client->nickText.setOrigin(round(client->nickText.getLocalBounds().left + (client->nickText.getLocalBounds().width / 2.f)), round(client->nickText.getLocalBounds().top + (client->nickText.getLocalBounds().height / 2.f)));
 		client->nickText.setPosition(sf::Vector2f(client->sprite.getPosition().x, client->sprite.getPosition().y - 80.f));
 	}
@@ -102,12 +102,12 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-void enterMenu(GameVariable* gv)
+void enterMenu(GameVariable* gv, Minimap& minimap)
 {
 	gv->setShowPlayersList(false);
 	gv->setInMenu(true);
 
-	menuEventHandler(gv);
+	menuEventHandler(gv, minimap);
 
 	gv->setWindowView(gv->getGameView());
 	gv->gameClock.restart();
@@ -237,10 +237,11 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->setSendMsg(false);
 	gv->setLeftFromServer(false);
 	gv->setJoinToServer(true);
+	gv->setShowMinimap(true);
 	gv->gameClock.restart();
 }
 
-void eventHandlerMultiplayer(GameVariable* gv)
+void eventHandlerMultiplayer(GameVariable* gv, Minimap& minimap)
 {
 	if (currentClientIsNullptr() == true) { return; }
 	switch (gv->event.type) // check by event type.
@@ -277,31 +278,25 @@ void eventHandlerMultiplayer(GameVariable* gv)
 			else if (gv->getMenuNum() == 1 && gv->getServerIsNotAvailable() == false)
 			{
 				gv->setChatEnterText(true);
-				setIsMove(false);
+				setCurrentClientIsMove(false);
 				chatPtr->getUserTextBox().setFillColor(sf::Color::White);
 			}
 			if (gv->getChatEnterText() == false)
 			{
-				setMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
-				setIsMove(true);
-				gv->playerDestination.setPosition(getMoveTargetPos()); // set the label position to the mouse click location.
+				setCurrentClientMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
+				setCurrentClientIsMove(true);
+				gv->playerDestination.setPosition(getCurrentClientMoveTargetPos()); // set the label position to the mouse click location.
 				gv->playerDestination.setOutlineColor(sf::Color::Yellow);
 			}
 			break;
 		case sf::Mouse::Right:
-			setIsShoot(true);
+			setCurrentClientIsShoot(true);
 			break;
 		}
 		break;
 	case sf::Event::KeyPressed:
 		switch (gv->event.key.code) // check by key code.
 		{
-		case sf::Keyboard::Escape:
-			enterMenu(gv);
-			break;
-		case sf::Keyboard::O:
-			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowChat(!(gv->getShowChat())); }
-			break;
 			//case sf::Keyboard::P:
 			//	if (gv->getChatEnterText() == false) { gv->setChatAutoScroll(!(gv->getChatAutoScroll())); }
 			//	break;
@@ -310,25 +305,27 @@ void eventHandlerMultiplayer(GameVariable* gv)
 			break;
 		}
 		break;
-
 	case sf::Event::KeyReleased:
 		switch (gv->event.key.code) // check by key code.
 		{
 		case sf::Keyboard::C:
-			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false)
-			{
-				if (gv->getShowAimLaser() == false) { gv->setShowAimLaser(true); } // if the aiming laser was not shown - show.
-				else { gv->setShowAimLaser(false); } // if the aiming laser was shown - don't show it.
-			}
+			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowAimLaser(!(gv->getShowAimLaser())); }
 			break;
 		case sf::Keyboard::Tab:
 			if (gv->getShowPlayersList() == true) { gv->setShowPlayersList(false); }
 			break;
+		case sf::Keyboard::Escape:
+			enterMenu(gv, minimap);
+			break;
+		case sf::Keyboard::O:
+			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowChat(!(gv->getShowChat())); }
+			break;
+		case sf::Keyboard::M:
+			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowMinimap(!(gv->getShowMinimap())); }
+			break;
 		}
 		break;
-
 	case sf::Event::MouseWheelMoved:
-
 		if (gv->event.mouseWheel.delta == 1)
 		{
 			if (((chatPtr->getStrVector().size() - chatPtr->getScrollbarStepNumber()) > 10) && chatPtr->getStrVector().size() > 10 && gv->getChatContainsMouse() == true && gv->getShowChat() == true)
@@ -524,10 +521,10 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			cVec_mtx.lock();
 			for (auto& client : clientsVec)
 			{
-				if (tempNick == client->nickname)
+				if (tempNick == client->getNickname())
 				{
-					client->setClientPing(client->pingClock.restart().asMilliseconds() - gv->getPingDelay());
-					if (client->getClientPing() < 0) { client->setClientPing(0); }
+					client->setPing(client->pingClock.restart().asMilliseconds() - gv->getPingDelay());
+					if (client->getPing() < 0) { client->setPing(0); }
 
 					packet.clear();
 					packet << prefix << gv->getNickname();
@@ -558,7 +555,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			cVec_mtx.lock();
 			for (auto& client : clientsVec)
 			{
-				if (client->nickname == tempNick)
+				if (client->getNickname() == tempNick)
 				{
 					client->rotate(gv, tempMousePos);
 					break;
@@ -577,10 +574,10 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			cVec_mtx.lock();
 			for (auto& client : clientsVec)
 			{
-				if (client->nickname == tempNick)
+				if (client->getNickname() == tempNick)
 				{
-					moveClient(client, tempStepPos);
-					setClientNickPosition(client);
+					client->setPosition(tempStepPos);
+					client->setNickPosition();
 					break;
 				}
 			}
@@ -618,7 +615,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			gv->setLeftMsg(gv->getLeftNick() + tempLeftMsg);
 
 			cVec_mtx.lock();
-			clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client->nickname == gv->getLeftNick(); }), clientsVec.end());
+			clientsVec.erase(std::remove_if(clientsVec.begin(), clientsVec.end(), [&](std::unique_ptr<Clients>& client) { return client->getNickname() == gv->getLeftNick(); }), clientsVec.end());
 			cVec_mtx.unlock();
 
 			if (tempLeftNick != gv->getNickname())
@@ -659,7 +656,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			cVec_mtx.lock();
 			for (int i = 0; i < clientsVec.size(); i++)
 			{
-				if (clientsVec[i]->nickname == gv->getNickname())
+				if (clientsVec[i]->getNickname() == gv->getNickname())
 				{
 					currentClientID = i;
 					setCurrentClient(clientsVec[i].get());
@@ -668,7 +665,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 				else { clientsVec[i]->icon.setFillColor(sf::Color::Magenta); }
 				clientsVec[i]->icon.setPosition(clientsVec[i]->sprite.getPosition());
 			}
-			std::swap(clientsVec[currentClientID], clientsVec[clientsVec.size() - 1]);			
+			std::swap(clientsVec[currentClientID], clientsVec[clientsVec.size() - 1]);
 			cVec_mtx.unlock();
 		}
 		else if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("Reading error!"); }
@@ -722,7 +719,7 @@ void minimapViewDraw(GameVariable* gv)
 	}
 }
 
-void gameViewDraw(GameVariable* gv)
+void gameViewDraw(GameVariable* gv, Minimap& minimap)
 {
 	if (getCurrentClientIsMove() == true && gv->getServerIsNotAvailable() == false) { gv->window.draw(gv->playerDestination); }
 
@@ -770,33 +767,38 @@ void gameViewDraw(GameVariable* gv)
 	{
 		gv->window.draw((*networkIt)->getRectHitbox()); // draw rectangular hitboxes.
 	}
-	gv->window.draw(gv->minimapBorder);
+	minimap.drawBorder(gv);
 }
 
-void gameDraw(GameVariable* gv)
+void gameDraw(GameVariable* gv, Minimap& minimap)
 {
 	gv->window.clear(gv->backgroundColor);
 
 	g_mtx.lock();
 
-	gv->setMinimapViewCenter(getCurrentClientPos());
 	gv->setGameViewCenter(getCurrentClientPos());
-	gv->minimapBorder.setPosition(gv->getGameViewCenter().x + (0.27f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.48f * gv->getGameViewSize().y));
+	if (gv->getShowMinimap() == true)
+	{
+		minimap.setViewCenter(getCurrentClientPos());
+		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.27f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.48f * gv->getGameViewSize().y)));
+	}
 
 	gv->setWindowView(gv->getGameView());
-	gameViewDraw(gv);
+	gameViewDraw(gv, minimap);
 
-	gv->setWindowView(gv->getMinimapView());
-	minimapViewDraw(gv);
-
-	gv->setWindowView(gv->getGameView());
+	if (gv->getShowMinimap() == true)
+	{
+		gv->setWindowView(minimap.getView());
+		minimapViewDraw(gv);
+		gv->setWindowView(gv->getGameView());
+	}
 
 	g_mtx.unlock();
 
 	gv->window.display();
 }
 
-void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
+void multiplayerGame(GameVariable* gv, Minimap& minimap) // multiplayer game launch function.
 {
 	DEBUG_MSG("Your nickname is " << gv->getNickname());
 	Chat chat;
@@ -804,18 +806,16 @@ void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
 	chatPtr = &chat;
 	playersListPtr = &playersList;
 	gv->restartServerClock();
+
 	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
 	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
 	gv->setWindowView(gv->getGameView());
 
-	networkEntities.clear();
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
+	minimap.setViewSize(sf::Vector2f(5000.f, 5000.f));
+	minimap.setViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
+	minimap.setBorderSize(sf::Vector2f(minimap.getViewport().width * gv->getGameViewSize().x, minimap.getViewport().height * gv->getGameViewSize().y));
 
-	setMinimap(gv);
-
+	createWalls();
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
@@ -823,11 +823,11 @@ void multiplayerGame(GameVariable* gv) // multiplayer game launch function.
 
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandlerMultiplayer(gv);
+			eventHandlerMultiplayer(gv, minimap);
 			if (checkConnection(gv) == false) { return; }
 		}
 
 		gameUpdate(gv);
-		gameDraw(gv);
+		gameDraw(gv, minimap);
 	}
 }

@@ -17,14 +17,13 @@ void setGameInfo(GameVariable* gv, Entity* player, std::list<std::unique_ptr<Ent
 		else if (gv->getGameLanguage() == 'r')
 		{
 			gv->playerAmmoText.setString(L"Патроны: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo()));
-		}	
+		}
 	}
 
 	gv->gameInfoText.setPosition(gv->getGameViewCenter().x - 600.f, gv->getGameViewCenter().y - 350.f);
-	gv->playerInfoText.setPosition(gv->getGameViewCenter().x + 700.f, gv->getGameViewCenter().y - 400.f);
-	gv->goldCoinHUDSprite.setPosition(gv->getGameViewCenter().x + 600.f, gv->getGameViewCenter().y - 400.f);
+	gv->playerInfoText.setPosition(gv->getGameViewCenter().x + 600.f, gv->getGameViewCenter().y + 150.f);
+	gv->goldCoinHUDSprite.setPosition(gv->getGameViewCenter().x + 500.f, gv->getGameViewCenter().y + 150.f);
 	gv->playerAmmoText.setPosition(gv->getGameViewCenter().x + 500.f, gv->getGameViewCenter().y + 300.f);
-
 }
 
 void drawGameInfo(GameVariable* gv) // function for drawing game information.

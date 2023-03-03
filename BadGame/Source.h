@@ -5,12 +5,13 @@
 #include "Console.h" // header file for working with the console.
 #include "Item.h" // header file for items.
 #include "Menu.h" // header file for working with the menu.
+#include "Minimap.h"
 
 void updateFPS(GameVariable* gv); // FPS update function.
 
-void eventHandlerSingleplayer(GameVariable* gv); // event handling function.
+void eventHandlerSingleplayer(GameVariable* gv, Minimap& minimap); // event handling function.
 
-void singleplayerGame(GameVariable* gv); // single player launch function.
+void singleplayerGame(GameVariable* gv, Minimap& minimap); // single player launch function.
 
 void logsFunc(GameVariable* gv); // function for logs in DEBUG mode.
 

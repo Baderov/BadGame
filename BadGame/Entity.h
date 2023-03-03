@@ -3,8 +3,24 @@
 
 class Entity // common class for all entities.
 {
+protected:
+	float DTMultiplier, maxSpeed, distance, w, h, spawnTime, reloadTime, menuTime, shootTime, shootDelay, shootOffset;
+	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
+	bool isAlive, isMove, isShoot, isReload;
+	sf::Clock reloadClock, shootClock;
+	sf::Font consolasFont;
+	sf::Text hpText, nameText, reloadText;
+	sf::Color grayColor;
+	sf::CircleShape icon;
+	sf::RectangleShape rectHitbox, HPBarInner, HPBarOuter, reloadRectInner, reloadRectOuter;
+	sf::Vector2f moveTargetPos, currentPos, currentVelocity, stepPos, aimPos, aimDir, aimDirNorm;
+	sf::Image image;
+	sf::Texture texture;
+	sf::Sprite sprite;
+	std::wstring name, creatorName;
 public:
 	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name); // entity constructor.
+	Entity(sf::Vector2f startPos, std::wstring name); // entity constructor.
 	virtual void update(GameVariable* gv) = 0; // update function for all entities.
 	virtual void move(GameVariable* gv) = 0; // move function for all entities.
 	void moveToTarget(sf::Vector2f targetPos, GameVariable* gv); // a function to move the sprite to the target.
@@ -34,6 +50,7 @@ public:
 	sf::Text& getHPText();
 	sf::Text& getNameText();
 	sf::Text& getReloadText();
+	sf::CircleShape& getIcon();
 	sf::RectangleShape& getRectHitbox();
 	sf::RectangleShape& getHPBarInner();
 	sf::RectangleShape& getHPBarOuter();
@@ -86,19 +103,4 @@ public:
 	void setSprite(sf::Sprite sprite);
 	void setName(std::wstring name);
 	void setCreatorName(std::wstring creatorName);
-
-protected:
-	float DTMultiplier, maxSpeed, distance, w, h, spawnTime, reloadTime, menuTime, shootTime, shootDelay, shootOffset;
-	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
-	bool isAlive, isMove, isShoot, isReload;
-	sf::Clock reloadClock, shootClock;
-	sf::Font consolasFont;
-	sf::Text hpText, nameText, reloadText;
-	sf::Color grayColor;
-	sf::RectangleShape rectHitbox, HPBarInner, HPBarOuter, reloadRectInner, reloadRectOuter;
-	sf::Vector2f moveTargetPos, currentPos, currentVelocity, stepPos, aimPos, aimDir, aimDirNorm;
-	sf::Image image;
-	sf::Texture texture;
-	sf::Sprite sprite;
-	std::wstring name, creatorName;
 };
