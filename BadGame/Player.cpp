@@ -104,22 +104,10 @@ void Player::updateReloadRect() // update reload rect function.
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
 	float tempReloadTime = 0.f;
-	if (reloadTime > 0.f)
-	{
-		tempReloadTime = (reloadTime * 1000.f) / 10.f;
-	}
-
+	if (reloadTime > 0.f) { tempReloadTime = (reloadTime * 1000.f) / 10.f; }
 	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
-
-	if (tempReloadTime < reloadRectOuterSizeX)
-	{
-		reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y));
-	}
-	else
-	{
-		reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y));
-	}
-
+	if (tempReloadTime < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y)); }
+	else { reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y)); }
 	reloadRectOuter.setPosition(currentPos.x - 90.f, currentPos.y + 300.f);
 	reloadRectInner.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y);
 	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);

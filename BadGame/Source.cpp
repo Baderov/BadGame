@@ -19,7 +19,7 @@ void updateFPS(GameVariable* gv) // FPS update function.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void eventHandlerSingleplayer(GameVariable* gv, Minimap& minimap) // event handling function.
+void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling function.
 {
 	switch (gv->event.type) // check by event type.
 	{
@@ -93,7 +93,7 @@ void eventHandlerSingleplayer(GameVariable* gv, Minimap& minimap) // event handl
 	}
 }
 
-void singleplayerGame(GameVariable* gv, Minimap& minimap) // single playerPtr launch function.
+void s_resetVariables(GameVariable* gv)
 {
 	gv->setNickname(L"");
 	gv->gameClock.restart();
@@ -101,30 +101,21 @@ void singleplayerGame(GameVariable* gv, Minimap& minimap) // single playerPtr la
 	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
 	gv->setWindowView(gv->getGameView());
 	gv->setShowMinimap(true);
-	minimap.setViewSize(sf::Vector2f(4000.f, 4000.f));
-	minimap.setViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
-	minimap.setBorderSize(sf::Vector2f(minimap.getViewport().width * gv->getGameViewSize().x, minimap.getViewport().height * gv->getGameViewSize().y));
+}
+
+void singleplayerGame(GameVariable* gv, Minimap& minimap) // single playerPtr launch function.
+{
+	s_resetVariables(gv);
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
-		if (gv->getRestartGame() == true)
-		{
-			restartGame(gv, entities);
-			gv->setRestartGame(false);
-		}
-		gv->setDT(gv->gameClock.restart().asSeconds());
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandlerSingleplayer(gv, minimap); // call the event handling function.
+			s_eventHandler(gv, minimap); // call the event handling function.
 			if (gv->getSinglePlayerGame() == false) { return; }
 		}
-		gv->window.setView(gv->getGameView());
 		updateGame(gv, entities, it, it2); // calling the entity update function.
-		setGameInfo(gv, getPlayerPtr(), entities); // call the function for setting game information.
-		gv->window.clear(gv->backgroundColor);
 		drawGame(gv, entities, it, minimap); // calling the entity drawing function.
-		drawGameInfo(gv); // calling the function for drawing game information.
-		gv->window.display();
 		updateFPS(gv); // call the FPS update function.
 	}
 }
@@ -150,7 +141,7 @@ int main() // the main function of the program.
 	//std::thread logsThread([&]() { logsFunc(gv); });
 	//logsThread.detach();
 #endif
-	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
+	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
 	menuEventHandler(gv, minimap); // calling the menu event handling function.
 	while (gv->window.isOpen())
 	{

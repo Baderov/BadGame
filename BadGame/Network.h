@@ -32,9 +32,9 @@ void sendMoveRequest(GameVariable* gv); // function to send a move request to th
 
 void sendMousePos(GameVariable* gv); // function to send the mouse position to the server.
 
-void resetVariables(GameVariable* gv); // global variable reset function.
+void m_resetVariables(GameVariable* gv); // global variable reset function for multiplayer.
 
-void eventHandlerMultiplayer(GameVariable* gv, Minimap& minimap); // event handling function.
+void m_eventHandler(GameVariable* gv, Minimap& minimap); // event handling function for multiplayer.
 
 void sendData(GameVariable* gv); // function to send data to the server.
 

@@ -94,7 +94,7 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 				if (gv->getNickname().size() < 3) { gv->multiplayerError = MultiplayerErrors::NickMustContainMoreChars; break; }
 				if (countOfDotsInIP != 3) { gv->multiplayerError = MultiplayerErrors::WrongIP; break; }
 				if (gv->getTempPort().size() < 1) { gv->multiplayerError = MultiplayerErrors::WrongPort; break; }
-				resetVariables(gv);
+				m_resetVariables(gv);
 				gv->setMultiPlayerGame(true);
 				std::thread networkThread([&]() { startNetwork(gv); });
 				networkThread.detach();

@@ -9,8 +9,8 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	shootDelay = 2.f;
 	shootTime = 0.f;
 	shootOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // random number generation from 0.0 to 1.0.
-	moveTargetPos.x = static_cast<float>(0 + rand() % 3000);
-	moveTargetPos.y = static_cast<float>(0 + rand() % 3000);
+	moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
+	moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 
 	rectHitbox.setFillColor(sf::Color::Red);
 	rectHitbox.setSize(sf::Vector2f(h, h));
@@ -30,8 +30,8 @@ void Enemy::update(GameVariable* gv) // enemy update function.
 			isShoot = true;
 			menuTime = 0;
 			shootClock.restart();
-			moveTargetPos.x = static_cast<float>(0 + rand() % 3000);
-			moveTargetPos.y = static_cast<float>(0 + rand() % 3000);
+			moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
+			moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 		}
 		rotate();
 		move(gv);

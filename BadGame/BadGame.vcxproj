@@ -153,7 +153,6 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Chat.cpp" />
     <ClCompile Include="Clients.cpp" />
-    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -175,7 +174,6 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Chat.h" />
     <ClInclude Include="Clients.h" />
-    <ClInclude Include="Collision.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Entity.h" />
@@ -186,6 +184,7 @@
     <ClInclude Include="Network.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayersList.h" />
+    <ClInclude Include="RectangularBoundaryCollision.hpp" />
     <ClInclude Include="RichText.hpp" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="Text.h" />

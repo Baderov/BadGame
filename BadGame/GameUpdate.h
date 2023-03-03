@@ -5,14 +5,16 @@
 #include "Bullet.h" // header file for bullets.
 #include "Player.h" // header file for player.
 #include "Box.h" // header file for boxes.
-#include "Collision.h" // header file for collision handling.
 #include "Enemy.h" // header file for enemies.
 #include "Wall.h" // header file for walls.
 #include "Item.h" // header file for items.
 #include "Network.h"
-#include "Minimap.h"
+#include "Minimap.h" // header file for minimap.
+#include "Text.h" // header file for working with text.
 
 Entity* getPlayerPtr();
+
+void collisionHandler(Entity* entity, Entity* entity2);
 
 void applyButtonPressed(GameVariable* gv, Minimap& minimap);
 
@@ -28,7 +30,7 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 
 void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2); // entity update function.
 
-void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap);
+void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it);
 
 void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap);
 

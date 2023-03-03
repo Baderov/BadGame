@@ -1,16 +1,17 @@
-#include "Minimap.h"
+#include "Minimap.h" // header file for minimap.
 
 Minimap::Minimap(sf::Vector2f gameViewSize, sf::Vector2f minimapCenter, sf::Vector2f minimapSize, sf::Vector2f viewportPos, sf::Vector2f viewportSize)
 {
 	setViewCenter(minimapCenter);
 	setViewSize(minimapSize);
 	setViewport(viewportPos, viewportSize);
+	view.zoom(1.1f);
+
 
 	border.setSize(sf::Vector2f(viewportSize.x * gameViewSize.x, viewportSize.y * gameViewSize.y));
-	border.setOutlineColor(sf::Color::Black);
 	border.setPosition(0.f, 0.f);
+	border.setOutlineColor(sf::Color::Black);
 	border.setFillColor(sf::Color::Black);
-	border.setOutlineThickness(6.f);
 }
 
 sf::View Minimap::getView()

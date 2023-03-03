@@ -87,7 +87,7 @@ private:
 public:
 	sf::RenderWindow window;
 	tgui::Gui gui;
-	sf::Vector2f boxStartPositions[12];
+	sf::Vector2f boxStartPositions[24];
 	sf::Text gameInfoText;
 	sf::Text playerInfoText;
 	sf::Text playerAmmoText;

@@ -218,7 +218,7 @@ void sendMousePos(GameVariable* gv)
 	sf::sleep(sf::milliseconds(3));
 }
 
-void resetVariables(GameVariable* gv) // global variable reset function.
+void m_resetVariables(GameVariable* gv) // global variable reset function.
 {
 	gv->setServerIsNotAvailable(false);
 	gv->setInMenu(false);
@@ -241,7 +241,7 @@ void resetVariables(GameVariable* gv) // global variable reset function.
 	gv->gameClock.restart();
 }
 
-void eventHandlerMultiplayer(GameVariable* gv, Minimap& minimap)
+void m_eventHandler(GameVariable* gv, Minimap& minimap)
 {
 	if (currentClientIsNullptr() == true) { return; }
 	switch (gv->event.type) // check by event type.
@@ -721,6 +721,11 @@ void minimapViewDraw(GameVariable* gv)
 
 void gameViewDraw(GameVariable* gv, Minimap& minimap)
 {
+	for (networkIt = networkEntities.begin(); networkIt != networkEntities.end(); networkIt++) // iterate through the list from beginning to end.
+	{
+		gv->window.draw((*networkIt)->getRectHitbox()); // draw rectangular hitboxes.
+	}
+
 	if (getCurrentClientIsMove() == true && gv->getServerIsNotAvailable() == false) { gv->window.draw(gv->playerDestination); }
 
 	cVec_mtx.lock();
@@ -763,10 +768,6 @@ void gameViewDraw(GameVariable* gv, Minimap& minimap)
 		gv->window.draw(OKButtonText);
 	}
 
-	for (networkIt = networkEntities.begin(); networkIt != networkEntities.end(); networkIt++) // iterate through the list from beginning to end.
-	{
-		gv->window.draw((*networkIt)->getRectHitbox()); // draw rectangular hitboxes.
-	}
 	minimap.drawBorder(gv);
 }
 
@@ -779,8 +780,8 @@ void gameDraw(GameVariable* gv, Minimap& minimap)
 	gv->setGameViewCenter(getCurrentClientPos());
 	if (gv->getShowMinimap() == true)
 	{
-		minimap.setViewCenter(getCurrentClientPos());
-		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.27f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.48f * gv->getGameViewSize().y)));
+		minimap.setViewCenter(sf::Vector2f((minimap.getView().getSize().x / 2.f) - 300.f, (minimap.getView().getSize().y / 2.f) - 250.f));
+		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.3f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.5f * gv->getGameViewSize().y)));
 	}
 
 	gv->setWindowView(gv->getGameView());
@@ -811,10 +812,6 @@ void multiplayerGame(GameVariable* gv, Minimap& minimap) // multiplayer game lau
 	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
 	gv->setWindowView(gv->getGameView());
 
-	minimap.setViewSize(sf::Vector2f(5000.f, 5000.f));
-	minimap.setViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
-	minimap.setBorderSize(sf::Vector2f(minimap.getViewport().width * gv->getGameViewSize().x, minimap.getViewport().height * gv->getGameViewSize().y));
-
 	createWalls();
 	while (gv->window.isOpen())
 	{
@@ -823,7 +820,7 @@ void multiplayerGame(GameVariable* gv, Minimap& minimap) // multiplayer game lau
 
 		while (gv->window.pollEvent(gv->event))
 		{
-			eventHandlerMultiplayer(gv, minimap);
+			m_eventHandler(gv, minimap);
 			if (checkConnection(gv) == false) { return; }
 		}
 

@@ -1,19 +1,76 @@
 #include "GameUpdate.h" // game update header file.
+#include "RectangularBoundaryCollision.hpp"
 
 Entity* playerPtr = nullptr; // create a pointer to the player.
 
-const sf::Vector2f wallSize(3000.f, 64.f);
+int tempHP = 0; // initialize a temporary global variable to store HP.
 
-Entity* getPlayerPtr()
-{
-	return playerPtr;
-}
+const sf::Vector2f wallSize(5000.f, 64.f);
 
 bool resolutionComboBoxChanged = false;
 bool languageComboBoxChanged = false;
 bool fpsComboBoxChanged = false;
 bool fullscreenCheckBoxChanged = false;
 bool vsyncCheckBoxChanged = false;
+
+Entity* getPlayerPtr()
+{
+	return playerPtr;
+}
+
+void collisionHandler(Entity* entity, Entity* entity2)
+{
+	if (collision::areColliding(entity->getRectHitbox(), entity2->getRectHitbox()) && entity != entity2)
+	{
+		if (dynamic_cast<Bullet*>(entity) && (dynamic_cast<Box*>(entity2) || dynamic_cast<Player*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Enemy*>(entity2)) && entity->getCreatorName() != entity2->getName())
+			// if the entity is a bullet or box or player or enemy and creator name does not equal entity name.
+		{
+			entity->setIsAlive(false);
+			entity2->setHP(entity2->getHP() - entity->getHP());
+		}
+
+		if (dynamic_cast<Player*>(entity)) // if the entity is a player.
+		{
+			if (dynamic_cast<Box*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Enemy*>(entity2)) // if the entity2 is a box or wall or enemy.
+			{
+				if (entity->getIsMove() == true)
+				{
+					entity->setIsMove(false);
+				}
+				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
+			}
+
+			if (entity2->getName() == L"GoldCoin") // if the entity2 name is a gold coin.
+			{
+				entity->setGoldCoins(entity->getGoldCoins() + 1);
+				entity2->setIsAlive(false);
+			}
+			if (entity2->getName() == L"HPBonus" && entity->getHP() < 100) // if the entity2 name is a HP bonus and entity HP less than 100.
+			{
+				entity->setHP(entity->getHP() + 30);
+				if (entity->getHP() >= 100)
+				{
+					tempHP = entity->getHP() - 100;
+					entity->setHP(entity->getHP() - tempHP);
+				}
+				entity2->setIsAlive(false);
+			}
+		}
+
+		if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
+		{
+			if (dynamic_cast<Player*>(entity2)) // if the entity2 is a player.
+			{
+				// for example - hit the player with a sword.
+			}
+
+			if (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2)) // if the entity2 is a wall or box.
+			{
+				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
+			}
+		}
+	}
+}
 
 void applyButtonPressed(GameVariable* gv, Minimap& minimap)
 {
@@ -97,7 +154,7 @@ void applyButtonPressed(GameVariable* gv, Minimap& minimap)
 			gv->window.setVerticalSyncEnabled(gv->getIsVsync());
 			gv->window.setFramerateLimit(gv->getFPSLimiter());
 			gv->gui.setWindow(gv->window);
-			minimap.setViewport(sf::Vector2f(0.77f, 0.02f), sf::Vector2f(0.22f, 0.391f));
+			minimap.setViewport(sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
 			minimap.setBorderSize(sf::Vector2f(minimap.getViewport().width * gv->getGameViewSize().x, minimap.getViewport().height * gv->getGameViewSize().y));
 			gv->setMenuViewSize(sf::Vector2f(static_cast<float>(gv->window.getSize().x), static_cast<float>(gv->window.getSize().y)));
 			gv->setMenuViewCenter(sf::Vector2f(gv->window.getSize().x / 2.f, gv->window.getSize().y / 2.f));
@@ -127,7 +184,7 @@ void graphicsSettingsMenuUpdate(GameVariable* gv, Minimap& minimap) // graphic s
 	else if (gv->getGameLanguage() == 'r') { applyButton->setText(L"Применить"); }
 	applyButton->setTextSize(35);
 	applyButton->setPosition("50%", "80%");
-	applyButton->onPress([&] { applyButtonPressed(gv, minimap); });
+	applyButton->onPress(&applyButtonPressed, gv, std::ref(minimap));
 	applyButton->setEnabled(false);
 	gv->gui.add(applyButton);
 
@@ -606,21 +663,21 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 	gv->setMenuTimer(0.f);
 
 	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(sf::Vector2f(3000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
 	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(sf::Vector2f(0.f, 2936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
+	entities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
 	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a playerPtr and throw it into the list of entities.
 	playerPtr = entities.back().get(); // assign the value of the pointer to the playerPtr.
 
-	for (int i = 0; i < 10 + rand() % 21; i++)
+	for (int i = 0; i < 10 + rand() % 41; i++)
 	{
-		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"Enemy"));
+		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4500), static_cast<float>(500 + rand() % 4500)), L"Enemy"));
 		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
 	}
 
-	for (int i = 0; i < 20 + rand() % 31; i++)
+	for (int i = 0; i < 20 + rand() % 51; i++)
 	{
-		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(100 + rand() % 2600), static_cast<float>(100 + rand() % 2600)), L"HPBonus"));
+		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4500), static_cast<float>(500 + rand() % 4500)), L"HPBonus"));
 	}
 
 	gv->setNumberOfPlayers(gv->getNumberOfPlayers() + 1);
@@ -633,6 +690,12 @@ void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities)
 
 void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2) // entity update function. 
 {
+	if (gv->getRestartGame() == true)
+	{
+		restartGame(gv, entities);
+		gv->setRestartGame(false);
+	}
+	gv->setDT(gv->gameClock.restart().asSeconds());
 	for (it = entities.begin(); it != entities.end();) // iterate through the list from beginning to end.
 	{
 		Entity* entity = (*it).get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
@@ -736,19 +799,25 @@ void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, 
 		}
 		else it++; // move on to the next entity.
 	}
+	setGameInfo(gv, getPlayerPtr(), entities); // call the function for setting game information.
 }
 
-void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap)
+void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it)
 {
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (dynamic_cast<Player*>((*it).get()) || dynamic_cast<Enemy*>((*it).get()))
+		Entity* entity = (*it).get();
+		if (dynamic_cast<Player*>(entity) || dynamic_cast<Enemy*>(entity))
 		{
-			gv->window.draw((*it)->getIcon());
+			gv->window.draw(entity->getIcon());
 		}
-		if (dynamic_cast<Wall*>((*it).get()))
+		if (dynamic_cast<Wall*>(entity))
 		{
-			gv->window.draw((*it)->getRectHitbox());
+			gv->window.draw(entity->getRectHitbox());
+		}
+		if (dynamic_cast<Box*>(entity))
+		{
+			gv->window.draw(entity->getSprite());
 		}
 	}
 }
@@ -757,38 +826,40 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 {
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (gv->getShowHitbox() == true || dynamic_cast<Wall*>((*it).get())) // if we show hitboxes.
+		Entity* entity = (*it).get();
+		if (gv->getShowHitbox() == true || dynamic_cast<Wall*>(entity)) // if we show hitboxes.
 		{
-			gv->window.draw((*it)->getRectHitbox()); // draw rectangular hitboxes.
+			gv->window.draw(entity->getRectHitbox()); // draw rectangular hitboxes.
 		}
 		else
 		{
-			gv->window.draw((*it)->getSprite()); // draw entity sprites.
+			gv->window.draw(entity->getSprite()); // draw entity sprites.
 		}
 
-		if ((*it)->getIsMove() == true && dynamic_cast<Player*>((*it).get())) // if the playerPtr is moving.
+		if (entity->getIsMove() == true && dynamic_cast<Player*>(entity)) // if the playerPtr is moving.
 		{
 			gv->window.draw(gv->playerDestination); // draw a label.
 		}
-		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && dynamic_cast<Player*>((*it).get())) // if we show the aiming laser.
+		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && dynamic_cast<Player*>(entity)) // if we show the aiming laser.
 		{
 			gv->window.draw(gv->aimLaser); // draw aiming laser.
 		}
 	}
 	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
 	{
-		if (dynamic_cast<Player*>((*it).get()) || dynamic_cast<Enemy*>((*it).get())) // if the entity is a playerPtr or enemy.
+		Entity* entity = (*it).get();
+		if (dynamic_cast<Player*>(entity) || dynamic_cast<Enemy*>(entity)) // if the entity is a playerPtr or enemy.
 		{
-			gv->window.draw((*it)->getHPBarOuter());
-			gv->window.draw((*it)->getHPBarInner());
-			if ((*it)->getIsReload() == true) // if the entity is reloading.
+			gv->window.draw(entity->getHPBarOuter());
+			gv->window.draw(entity->getHPBarInner());
+			if (entity->getIsReload() == true) // if the entity is reloading.
 			{
-				gv->window.draw((*it)->getReloadRectOuter());
-				gv->window.draw((*it)->getReloadRectInner());
-				gv->window.draw((*it)->getReloadText());
+				gv->window.draw(entity->getReloadRectOuter());
+				gv->window.draw(entity->getReloadRectInner());
+				gv->window.draw(entity->getReloadText());
 			}
-			gv->window.draw((*it)->getHPText());
-			gv->window.draw((*it)->getNameText());
+			gv->window.draw(entity->getHPText());
+			gv->window.draw(entity->getNameText());
 		}
 	}
 	minimap.drawBorder(gv);
@@ -796,23 +867,23 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 
 void drawGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap) // entity drawing function.
 {
-	if (playerPtr != nullptr)
+	gv->window.clear(gv->backgroundColor);
+	if (playerPtr != nullptr) { gv->setGameViewCenter(playerPtr->getSprite().getPosition()); }
+	if (gv->getShowMinimap() == true)
 	{
-		gv->setGameViewCenter(playerPtr->getSprite().getPosition());
-		if (gv->getShowMinimap() == true)
-		{
-			minimap.setViewCenter(playerPtr->getSprite().getPosition());
-			minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.27f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.48f * gv->getGameViewSize().y)));
-		}
-
-		gv->setWindowView(gv->getGameView());
-		drawEntities(gv, entities, it, minimap);
-
-		if (gv->getShowMinimap() == true)
-		{
-			gv->setWindowView(minimap.getView());
-			drawMinimap(gv, entities, it, minimap);
-			gv->setWindowView(gv->getGameView());
-		}
+		minimap.setViewCenter(sf::Vector2f((minimap.getView().getSize().x / 2.f) - 300.f, (minimap.getView().getSize().y / 2.f) - 250.f));
+		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.3f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.5f * gv->getGameViewSize().y)));
 	}
+
+	gv->setWindowView(gv->getGameView());
+	drawEntities(gv, entities, it, minimap);
+
+	if (gv->getShowMinimap() == true)
+	{
+		gv->setWindowView(minimap.getView());
+		drawMinimap(gv, entities, it);
+		gv->setWindowView(gv->getGameView());
+	}
+	drawGameInfo(gv); // calling the function for drawing game information.
+	gv->window.display();
 }

@@ -95,19 +95,34 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 
 	gv->setPlayerStartPos(sf::Vector2f(1500.f, 1500.f));
 
-	gv->boxStartPositions[0] = sf::Vector2f(250.f, 1100.f);
-	gv->boxStartPositions[1] = sf::Vector2f(750.f, 1100.f);
-	gv->boxStartPositions[2] = sf::Vector2f(1250.f, 1100.f);
-	gv->boxStartPositions[3] = sf::Vector2f(1750.f, 1100.f);
-	gv->boxStartPositions[4] = sf::Vector2f(2250.f, 1100.f);
-	gv->boxStartPositions[5] = sf::Vector2f(2750.f, 1100.f);
+	gv->boxStartPositions[0] = sf::Vector2f(1250.f, 1000.f);
+	gv->boxStartPositions[1] = sf::Vector2f(1750.f, 1000.f);
+	gv->boxStartPositions[2] = sf::Vector2f(2250.f, 1000.f);
+	gv->boxStartPositions[3] = sf::Vector2f(2750.f, 1000.f);
+	gv->boxStartPositions[4] = sf::Vector2f(3250.f, 1000.f);
+	gv->boxStartPositions[5] = sf::Vector2f(3750.f, 1000.f);
 
-	gv->boxStartPositions[6] = sf::Vector2f(250.f, 1900.f);
-	gv->boxStartPositions[7] = sf::Vector2f(750.f, 1900.f);
-	gv->boxStartPositions[8] = sf::Vector2f(1250.f, 1900.f);
-	gv->boxStartPositions[9] = sf::Vector2f(1750.f, 1900.f);
-	gv->boxStartPositions[10] = sf::Vector2f(2250.f, 1900.f);
-	gv->boxStartPositions[11] = sf::Vector2f(2750.f, 1900.f);
+	gv->boxStartPositions[6] = sf::Vector2f(1250.f, 2000.f);
+	gv->boxStartPositions[7] = sf::Vector2f(1750.f, 2000.f);
+	gv->boxStartPositions[8] = sf::Vector2f(2250.f, 2000.f);
+	gv->boxStartPositions[9] = sf::Vector2f(2750.f, 2000.f);
+	gv->boxStartPositions[10] = sf::Vector2f(3250.f, 2000.f);
+	gv->boxStartPositions[11] = sf::Vector2f(3750.f, 2000.f);
+
+	gv->boxStartPositions[12] = sf::Vector2f(1250.f, 3000.f);
+	gv->boxStartPositions[13] = sf::Vector2f(1750.f, 3000.f);
+	gv->boxStartPositions[14] = sf::Vector2f(2250.f, 3000.f);
+	gv->boxStartPositions[15] = sf::Vector2f(2750.f, 3000.f);
+	gv->boxStartPositions[16] = sf::Vector2f(3250.f, 3000.f);
+	gv->boxStartPositions[17] = sf::Vector2f(3750.f, 3000.f);
+
+	gv->boxStartPositions[18] = sf::Vector2f(1250.f, 4000.f);
+	gv->boxStartPositions[19] = sf::Vector2f(1750.f, 4000.f);
+	gv->boxStartPositions[20] = sf::Vector2f(2250.f, 4000.f);
+	gv->boxStartPositions[21] = sf::Vector2f(2750.f, 4000.f);
+	gv->boxStartPositions[22] = sf::Vector2f(3250.f, 4000.f);
+	gv->boxStartPositions[23] = sf::Vector2f(3750.f, 4000.f);
+
 
 	// FLOAT.
 	gv->setAimLaserLength(100.f);

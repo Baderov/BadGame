@@ -17,10 +17,6 @@ void Bullet::update(GameVariable* gv) // bullet update function.
 	if (isAlive == true) // if bullet is alive, then:
 	{
 		move(gv);
-		if ((currentPos.x <= 0) || (currentPos.y <= 0) || (currentPos.x >= 2936.f) || (currentPos.y >= 2936.f))
-		{
-			isAlive = false;
-		}
 		sprite.setPosition(currentPos);
 		rectHitbox.setPosition(currentPos);
 	}

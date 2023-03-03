@@ -42,9 +42,6 @@
     <ClCompile Include="Box.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Enemy.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -104,9 +101,6 @@
     <ClInclude Include="Box.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Collision.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -135,6 +129,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Minimap.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangularBoundaryCollision.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

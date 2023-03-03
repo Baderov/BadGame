@@ -4,7 +4,7 @@
 #include "Network.h" // header file for working with the network.
 #include "GameUpdate.h" // game update header file.
 #include "Chat.h" // header file for working with chat.
-#include "Minimap.h"
+#include "Minimap.h" // header file for minimap.
 
 void errorChecking(GameVariable* gv, int& countOfDotsInIP); // error checking function.
 
