@@ -8,9 +8,7 @@
 #define DEBUG_MSG(str) do { } while (false)
 #endif
 
-std::list<std::unique_ptr<Entity>> entities; // list of entities.
-std::list<std::unique_ptr<Entity>>::iterator it; // first iterator for passing through the list of entities.
-std::list<std::unique_ptr<Entity>>::iterator it2; // second iterator for passing through the list of entities.
+std::vector<std::unique_ptr<Entity>> s_entitiesVec; // entities vector for singleplayer.
 
 void updateFPS(GameVariable* gv) // FPS update function.
 {
@@ -19,7 +17,7 @@ void updateFPS(GameVariable* gv) // FPS update function.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling function.
+void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling function for singleplayer.
 {
 	switch (gv->event.type) // check by event type.
 	{
@@ -30,7 +28,7 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 		switch (gv->event.mouseButton.button) // check by mouse button.
 		{
 		case sf::Mouse::Left:
-			if (getPlayerPtr() != nullptr) // if the playerPtr is alive.
+			if (getPlayerPtr() != nullptr)
 			{
 				getPlayerPtr()->setMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
 				getPlayerPtr()->setIsMove(true);
@@ -39,7 +37,10 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 			}
 			break;
 		case sf::Mouse::Right:
-			if (getPlayerPtr() != nullptr) { getPlayerPtr()->setIsShoot(true); }
+			if (getPlayerPtr() != nullptr)
+			{
+				getPlayerPtr()->setIsShoot(true);
+			}
 			break;
 		}
 		break;
@@ -62,7 +63,7 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 			gv->setShowMinimap(!(gv->getShowMinimap()));
 			break;
 		case sf::Keyboard::R:
-			if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getIsReload() == false)
+			if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getMaxAmmo() >= 1 && getPlayerPtr()->getIsReload() == false)
 			{
 				getPlayerPtr()->setIsReload(true);
 				getPlayerPtr()->getReloadClock().restart();
@@ -71,29 +72,14 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 			}
 			break;
 		case sf::Keyboard::Escape:
-			gv->menuClock.restart();
-			menuEventHandler(gv, minimap);
-			gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
-
-			for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
-			{
-				Entity* entity = (*it).get();
-				if (getPlayerPtr() != nullptr && (dynamic_cast<Enemy*>(entity) || dynamic_cast<Player*>(entity)))
-				{
-					entity->setMenuTime(gv->getMenuTimer() + entity->getMenuTime());
-				}
-			}
-			gv->gameClock.restart();
-			if (gv->getSinglePlayerGame() == false) { return; }
-
-			gv->setWindowView(gv->getGameView());
+			if (s_enterMenu(gv, s_entitiesVec, minimap)) { return; }
 			break;
 		}
 		break;
 	}
 }
 
-void s_resetVariables(GameVariable* gv)
+void s_resetVariables(GameVariable* gv) // global variable reset function for singleplayer.
 {
 	gv->setNickname(L"");
 	gv->gameClock.restart();
@@ -103,7 +89,7 @@ void s_resetVariables(GameVariable* gv)
 	gv->setShowMinimap(true);
 }
 
-void singleplayerGame(GameVariable* gv, Minimap& minimap) // single playerPtr launch function.
+void singleplayerGame(GameVariable* gv, Minimap& minimap) // singleplayer launch function.
 {
 	s_resetVariables(gv);
 	while (gv->window.isOpen())
@@ -114,8 +100,8 @@ void singleplayerGame(GameVariable* gv, Minimap& minimap) // single playerPtr la
 			s_eventHandler(gv, minimap); // call the event handling function.
 			if (gv->getSinglePlayerGame() == false) { return; }
 		}
-		updateGame(gv, entities, it, it2); // calling the entity update function.
-		drawGame(gv, entities, it, minimap); // calling the entity drawing function.
+		updateGame(gv, s_entitiesVec); // calling the entity update function.
+		drawGame(gv, s_entitiesVec, minimap); // calling the entity drawing function.
 		updateFPS(gv); // call the FPS update function.
 	}
 }
@@ -130,18 +116,18 @@ void logsFunc(GameVariable* gv)
 
 int main() // the main function of the program.
 {
-	consoleSettings(); // call the function for setting settings for the console.
-	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
-	setVariables(gv); // setting values of global variables.
-	std::thread recvThread([&]() { receiveData(gv); });
-	std::thread sendThread([&]() { sendData(gv); });
-	recvThread.detach();
-	sendThread.detach();
 #ifdef _DEBUG
 	//std::thread logsThread([&]() { logsFunc(gv); });
 	//logsThread.detach();
 #endif
+	consoleSettings(); // call the function for setting settings for the console.
+	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
+	setVariables(gv); // setting values of global variables.
 	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
+	std::thread recvThread([&]() { receiveData(gv); });
+	std::thread sendThread([&]() { sendData(gv); });
+	recvThread.detach();
+	sendThread.detach();
 	menuEventHandler(gv, minimap); // calling the menu event handling function.
 	while (gv->window.isOpen())
 	{

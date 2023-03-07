@@ -20,67 +20,16 @@ const int CHAT_MAX_CHAR_NUM = 202;
 //ip - "192.168.1.34";
 //port - 2000;
 
-sf::UdpSocket sock;
 std::vector<std::unique_ptr<Clients>> clientsVec; // vector unique pointers for clients.
+std::vector<std::unique_ptr<Entity>> m_entitiesVec; // entities vector for multiplayer.
+
 std::mutex cVec_mtx;
 std::mutex g_mtx;
 
-const sf::Vector2f wallSize(5000.f, 64.f);
-
-std::list<std::unique_ptr<Entity>> networkEntities; // list of entities.
-std::list<std::unique_ptr<Entity>>::iterator networkIt; // first iterator for passing through the list of entities.
-
-sf::RectangleShape connectionErrorRS, OKButtonRS;
-sf::Text connectionErrorText, OKButtonText;
 PlayersList* playersListPtr = nullptr;
 Chat* chatPtr = nullptr;
 
-void createWalls()
-{
-	networkEntities.clear();
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	networkEntities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
-}
-
-void serverIsNotAvailable(GameVariable* gv)
-{
-	connectionErrorRS.setSize(sf::Vector2f(1000.f, 300.f));
-	connectionErrorRS.setFillColor(sf::Color(0, 0, 0, 200));
-	connectionErrorRS.setOrigin(connectionErrorRS.getSize() / 2.f);
-	g_mtx.lock();
-	connectionErrorRS.setPosition(getCurrentClientPos());
-	g_mtx.unlock();
-	OKButtonRS.setSize(sf::Vector2f(130.f, 130.f));
-	OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
-	OKButtonRS.setOrigin(OKButtonRS.getSize() / 2.f);
-	OKButtonRS.setPosition(connectionErrorRS.getPosition().x, connectionErrorRS.getPosition().y + 40.f);
-
-	connectionErrorText.setFont(gv->consolasFont);
-	connectionErrorText.setCharacterSize(70);
-	connectionErrorText.setFillColor(sf::Color::Red);
-	if (gv->getGameLanguage() == 'e') { connectionErrorText.setString(L"SERVER IS NOT AVAILABLE!"); }
-	else if (gv->getGameLanguage() == 'r') { connectionErrorText.setString(L"яепбеп меднярсоем!"); }
-	connectionErrorText.setOrigin(round(connectionErrorText.getLocalBounds().left + (connectionErrorText.getLocalBounds().width / 2.f)), round(connectionErrorText.getLocalBounds().top + (connectionErrorText.getLocalBounds().height / 2.f)));
-	connectionErrorText.setPosition(connectionErrorRS.getPosition().x, connectionErrorRS.getPosition().y - 80.f);
-
-	OKButtonText.setFont(gv->consolasFont);
-	OKButtonText.setCharacterSize(70);
-	OKButtonText.setFillColor(sf::Color::Black);
-	OKButtonText.setString("OK");
-	OKButtonText.setOrigin(round(OKButtonText.getLocalBounds().left + (OKButtonText.getLocalBounds().width / 2.f)), round(OKButtonText.getLocalBounds().top + (OKButtonText.getLocalBounds().height / 2.f)));
-	OKButtonText.setPosition(OKButtonRS.getPosition());
-}
-
-void setSocketBlocking(bool blocking)
-{
-	g_mtx.lock();
-	sock.setBlocking(blocking);
-	g_mtx.unlock();
-}
-
-sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec) // operator >> overload 
+sf::Packet& operator >> (sf::Packet & packet, std::vector<std::unique_ptr<Clients>>&clientsVec) // operator >> overload 
 {
 	cVec_mtx.lock();
 	for (auto& client : clientsVec)
@@ -102,7 +51,45 @@ sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients
 	return packet;
 }
 
-void enterMenu(GameVariable* gv, Minimap& minimap)
+void createWalls()
+{
+	m_entitiesVec.clear();
+	m_entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
+	m_entitiesVec.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
+	m_entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
+	m_entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
+}
+
+void serverIsNotAvailable(GameVariable* gv)
+{
+	gv->connectionErrorRS.setSize(sf::Vector2f(1000.f, 300.f));
+	gv->connectionErrorRS.setFillColor(sf::Color(0, 0, 0, 200));
+	gv->connectionErrorRS.setOrigin(gv->connectionErrorRS.getSize() / 2.f);
+	g_mtx.lock();
+	gv->connectionErrorRS.setPosition(getCurrentClientPos());
+	g_mtx.unlock();
+	gv->OKButtonRS.setSize(sf::Vector2f(130.f, 130.f));
+	gv->OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
+	gv->OKButtonRS.setOrigin(gv->OKButtonRS.getSize() / 2.f);
+	gv->OKButtonRS.setPosition(gv->connectionErrorRS.getPosition().x, gv->connectionErrorRS.getPosition().y + 40.f);
+
+	gv->connectionErrorText.setFont(gv->consolasFont);
+	gv->connectionErrorText.setCharacterSize(70);
+	gv->connectionErrorText.setFillColor(sf::Color::Red);
+	if (gv->getGameLanguage() == 'e') { gv->connectionErrorText.setString(L"SERVER IS NOT AVAILABLE!"); }
+	else if (gv->getGameLanguage() == 'r') { gv->connectionErrorText.setString(L"яепбеп меднярсоем!"); }
+	gv->connectionErrorText.setOrigin(round(gv->connectionErrorText.getLocalBounds().left + (gv->connectionErrorText.getLocalBounds().width / 2.f)), round(gv->connectionErrorText.getLocalBounds().top + (gv->connectionErrorText.getLocalBounds().height / 2.f)));
+	gv->connectionErrorText.setPosition(gv->connectionErrorRS.getPosition().x, gv->connectionErrorRS.getPosition().y - 80.f);
+
+	gv->OKButtonText.setFont(gv->consolasFont);
+	gv->OKButtonText.setCharacterSize(70);
+	gv->OKButtonText.setFillColor(sf::Color::Black);
+	gv->OKButtonText.setString("OK");
+	gv->OKButtonText.setOrigin(round(gv->OKButtonText.getLocalBounds().left + (gv->OKButtonText.getLocalBounds().width / 2.f)), round(gv->OKButtonText.getLocalBounds().top + (gv->OKButtonText.getLocalBounds().height / 2.f)));
+	gv->OKButtonText.setPosition(gv->OKButtonRS.getPosition());
+}
+
+void m_enterMenu(GameVariable* gv, Minimap& minimap) // enter menu for multiplayer.
 {
 	gv->setShowPlayersList(false);
 	gv->setInMenu(true);
@@ -119,7 +106,7 @@ void connectToServer(GameVariable* gv) // function to connect to the server.
 	std::wstring prefix = L"regNick";
 	sf::Packet packet;
 	packet << prefix << gv->getNickname();
-	sock.send(packet, gv->getServerIP(), gv->getServerPort());
+	gv->sock.send(packet, gv->getServerIP(), gv->getServerPort());
 }
 
 void startNetwork(GameVariable* gv) // function to start network.
@@ -194,7 +181,7 @@ void sendMessage(GameVariable* gv) // function to send message to the server.
 	packet.clear();
 	std::wstring prefix = L"msg";
 	packet << prefix << gv->getNickname() << gv->getUserStr() << gv->getNumOfLinesInUserTextBox();
-	sock.send(packet, gv->getServerIP(), gv->getServerPort());
+	gv->sock.send(packet, gv->getServerIP(), gv->getServerPort());
 	sf::sleep(sf::milliseconds(3));
 }
 
@@ -204,7 +191,7 @@ void sendMoveRequest(GameVariable* gv) // sending a move request to the server
 	packet.clear();
 	std::wstring prefix = L"move";
 	packet << prefix << gv->getNickname() << getCurrentClientStepPos().x << getCurrentClientStepPos().y;
-	sock.send(packet, gv->getServerIP(), gv->getServerPort());
+	gv->sock.send(packet, gv->getServerIP(), gv->getServerPort());
 	sf::sleep(sf::milliseconds(3));
 }
 
@@ -214,11 +201,11 @@ void sendMousePos(GameVariable* gv)
 	packet.clear();
 	std::wstring prefix = L"mousePos";
 	packet << prefix << gv->getNickname() << gv->getMousePos().x << gv->getMousePos().y;
-	sock.send(packet, gv->getServerIP(), gv->getServerPort());
+	gv->sock.send(packet, gv->getServerIP(), gv->getServerPort());
 	sf::sleep(sf::milliseconds(3));
 }
 
-void m_resetVariables(GameVariable* gv) // global variable reset function.
+void m_resetVariables(GameVariable* gv) // global variable reset function for multiplayer.
 {
 	gv->setServerIsNotAvailable(false);
 	gv->setInMenu(false);
@@ -241,7 +228,7 @@ void m_resetVariables(GameVariable* gv) // global variable reset function.
 	gv->gameClock.restart();
 }
 
-void m_eventHandler(GameVariable* gv, Minimap& minimap)
+void m_eventHandler(GameVariable* gv, Minimap& minimap) // event handler for multiplayer.
 {
 	if (currentClientIsNullptr() == true) { return; }
 	switch (gv->event.type) // check by event type.
@@ -315,7 +302,7 @@ void m_eventHandler(GameVariable* gv, Minimap& minimap)
 			if (gv->getShowPlayersList() == true) { gv->setShowPlayersList(false); }
 			break;
 		case sf::Keyboard::Escape:
-			enterMenu(gv, minimap);
+			m_enterMenu(gv, minimap);
 			break;
 		case sf::Keyboard::O:
 			if (gv->getChatEnterText() == false && gv->getServerIsNotAvailable() == false) { gv->setShowChat(!(gv->getShowChat())); }
@@ -501,11 +488,11 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			}
 		}
 
-		if ((gv == nullptr) || (gv->getMultiPlayerGame() == false) || (sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) || (!(packet >> prefix)))
+		if ((gv == nullptr) || (gv->getMultiPlayerGame() == false) || (gv->sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) || (!(packet >> prefix)))
 		{
 			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("recvData: gv == nullptr"); }
 			if (gv->getFuncName() == "multiplayerGame" && gv->getMultiPlayerGame() == false) { DEBUG_MSG("recvData: gv->getMultiPlayerGame() == false"); }
-			if (gv->getFuncName() == "multiplayerGame" && sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) { DEBUG_MSG("recvData: sock receive error"); }
+			if (gv->getFuncName() == "multiplayerGame" && gv->sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) { DEBUG_MSG("recvData: sock receive error"); }
 			if (gv->getFuncName() == "multiplayerGame" && (!(packet >> prefix))) { DEBUG_MSG("recvData: packet >> prefix error"); }
 			sf::sleep(sf::milliseconds(1));
 			continue;
@@ -528,7 +515,7 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 
 					packet.clear();
 					packet << prefix << gv->getNickname();
-					sock.send(packet, gv->getServerIP(), gv->getServerPort());
+					gv->sock.send(packet, gv->getServerIP(), gv->getServerPort());
 					break;
 				}
 			}
@@ -696,11 +683,11 @@ void gameUpdate(GameVariable* gv)
 		gv->setChatEnterText(false);
 		chatPtr->getUserTextBox().setFillColor(sf::Color(0, 0, 0, 100));
 	}
-	OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
-	if (OKButtonRS.getGlobalBounds().contains(gv->getMousePos().x, gv->getMousePos().y) && gv->getServerIsNotAvailable() == true)
+	gv->OKButtonRS.setFillColor(sf::Color(255, 255, 255, 200));
+	if (gv->OKButtonRS.getGlobalBounds().contains(gv->getMousePos().x, gv->getMousePos().y) && gv->getServerIsNotAvailable() == true)
 	{
 		gv->setMenuNum(3);
-		OKButtonRS.setFillColor(sf::Color::White);
+		gv->OKButtonRS.setFillColor(sf::Color::White);
 	}
 }
 
@@ -713,17 +700,17 @@ void minimapViewDraw(GameVariable* gv)
 	}
 	cVec_mtx.unlock();
 
-	for (networkIt = networkEntities.begin(); networkIt != networkEntities.end(); networkIt++) // iterate through the list from beginning to end.
+	for (auto& el : m_entitiesVec)
 	{
-		gv->window.draw((*networkIt)->getRectHitbox()); // draw rectangular hitboxes.
+		gv->window.draw(el->getRectHitbox()); // draw rectangular hitboxes.
 	}
 }
 
 void gameViewDraw(GameVariable* gv, Minimap& minimap)
 {
-	for (networkIt = networkEntities.begin(); networkIt != networkEntities.end(); networkIt++) // iterate through the list from beginning to end.
+	for (auto& el : m_entitiesVec)
 	{
-		gv->window.draw((*networkIt)->getRectHitbox()); // draw rectangular hitboxes.
+		gv->window.draw(el->getRectHitbox()); // draw rectangular hitboxes.
 	}
 
 	if (getCurrentClientIsMove() == true && gv->getServerIsNotAvailable() == false) { gv->window.draw(gv->playerDestination); }
@@ -733,10 +720,7 @@ void gameViewDraw(GameVariable* gv, Minimap& minimap)
 	{
 		gv->window.draw(client->sprite);
 		gv->window.draw(client->nickText);
-		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true) // if we show the aiming laser.
-		{
-			gv->window.draw(gv->aimLaser); // draw aiming laser.
-		}
+		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true)  { gv->window.draw(gv->aimLaser); }
 	}
 	cVec_mtx.unlock();
 
@@ -762,10 +746,10 @@ void gameViewDraw(GameVariable* gv, Minimap& minimap)
 
 	if (gv->getServerIsNotAvailable() == true)
 	{
-		gv->window.draw(connectionErrorRS);
-		gv->window.draw(OKButtonRS);
-		gv->window.draw(connectionErrorText);
-		gv->window.draw(OKButtonText);
+		gv->window.draw(gv->connectionErrorRS);
+		gv->window.draw(gv->OKButtonRS);
+		gv->window.draw(gv->connectionErrorText);
+		gv->window.draw(gv->OKButtonText);
 	}
 
 	minimap.drawBorder(gv);
@@ -813,6 +797,7 @@ void multiplayerGame(GameVariable* gv, Minimap& minimap) // multiplayer game lau
 	gv->setWindowView(gv->getGameView());
 
 	createWalls();
+
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;

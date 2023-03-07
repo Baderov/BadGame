@@ -16,10 +16,6 @@ void createWalls();
 
 void serverIsNotAvailable(GameVariable* gv);
 
-void setSocketBlocking(bool blocking); // socket blocking function.
-
-void enterMenu(GameVariable* gv, Minimap& minimap); // menu entry function.
-
 void connectToServer(GameVariable* gv); // function to connect to the server.
 
 void startNetwork(GameVariable* gv); // function to start network.
@@ -31,6 +27,8 @@ void sendMessage(GameVariable* gv); // function to send message to the server.
 void sendMoveRequest(GameVariable* gv); // function to send a move request to the server.
 
 void sendMousePos(GameVariable* gv); // function to send the mouse position to the server.
+
+void m_enterMenu(GameVariable* gv, Minimap& minimap); // menu entry function.
 
 void m_resetVariables(GameVariable* gv); // global variable reset function for multiplayer.
 

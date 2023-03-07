@@ -18,6 +18,7 @@ protected:
 	sf::Texture texture;
 	sf::Sprite sprite;
 	std::wstring name, creatorName;
+	std::string entityType;
 public:
 	Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name); // entity constructor.
 	Entity(sf::Vector2f startPos, std::wstring name); // entity constructor.
@@ -66,6 +67,7 @@ public:
 	sf::Sprite& getSprite();
 	std::wstring& getName();
 	std::wstring& getCreatorName();
+	std::string& getEntityType();
 
 	void setShootTime(float shootTime);
 	void setMenuTime(float menuTime);
@@ -103,4 +105,5 @@ public:
 	void setSprite(sf::Sprite sprite);
 	void setName(std::wstring name);
 	void setCreatorName(std::wstring creatorName);
+	void setEntityType(std::string entityType);
 };

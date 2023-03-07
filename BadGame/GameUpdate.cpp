@@ -3,10 +3,6 @@
 
 Entity* playerPtr = nullptr; // create a pointer to the player.
 
-int tempHP = 0; // initialize a temporary global variable to store HP.
-
-const sf::Vector2f wallSize(5000.f, 64.f);
-
 bool resolutionComboBoxChanged = false;
 bool languageComboBoxChanged = false;
 bool fpsComboBoxChanged = false;
@@ -18,53 +14,51 @@ Entity* getPlayerPtr()
 	return playerPtr;
 }
 
+void setPlayerPtr(Entity* ptr)
+{
+	playerPtr = ptr;
+}
+
 void collisionHandler(Entity* entity, Entity* entity2)
 {
-	if (collision::areColliding(entity->getRectHitbox(), entity2->getRectHitbox()) && entity != entity2)
+	if (entity != nullptr && entity2 != nullptr && entity != entity2 && collision::areColliding(entity->getRectHitbox(), entity2->getRectHitbox()))
 	{
-		if (dynamic_cast<Bullet*>(entity) && (dynamic_cast<Box*>(entity2) || dynamic_cast<Player*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Enemy*>(entity2)) && entity->getCreatorName() != entity2->getName())
+		if (entity->getEntityType() == "Bullet" && (entity2->getEntityType() == "Box" || entity2->getEntityType() == "Player" || entity2->getEntityType() == "Wall" || entity2->getEntityType() == "Enemy") && entity->getCreatorName() != entity2->getName())
 			// if the entity is a bullet or box or player or enemy and creator name does not equal entity name.
 		{
 			entity->setIsAlive(false);
 			entity2->setHP(entity2->getHP() - entity->getHP());
 		}
 
-		if (dynamic_cast<Player*>(entity)) // if the entity is a player.
+		if (entity->getEntityType() == "Player") // if the entity is a player.
 		{
-			if (dynamic_cast<Box*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Enemy*>(entity2)) // if the entity2 is a box or wall or enemy.
+			if (entity2->getEntityType() == "Box" || entity2->getEntityType() == "Wall" || entity2->getEntityType() == "Enemy") // if the entity2 is a box or wall or enemy.
 			{
-				if (entity->getIsMove() == true)
-				{
-					entity->setIsMove(false);
-				}
+				if (entity->getIsMove() == true) { entity->setIsMove(false); }
 				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
 			}
 
-			if (entity2->getName() == L"GoldCoin") // if the entity2 name is a gold coin.
+			if (entity2->getEntityType() == "Item" && entity2->getName() == L"GoldCoin") // if the entity2 name is a gold coin.
 			{
 				entity->setGoldCoins(entity->getGoldCoins() + 1);
 				entity2->setIsAlive(false);
 			}
-			if (entity2->getName() == L"HPBonus" && entity->getHP() < 100) // if the entity2 name is a HP bonus and entity HP less than 100.
+			if (entity2->getEntityType() == "Item" && entity2->getName() == L"HPBonus" && entity->getHP() < 100) // if the entity2 name is a HP bonus and entity HP less than 100.
 			{
 				entity->setHP(entity->getHP() + 30);
-				if (entity->getHP() >= 100)
-				{
-					tempHP = entity->getHP() - 100;
-					entity->setHP(entity->getHP() - tempHP);
-				}
+				if (entity->getHP() >= 100) { entity->setHP(entity->getHP() - (entity->getHP() - 100)); }
 				entity2->setIsAlive(false);
 			}
 		}
 
-		if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
+		if (entity->getEntityType() == "Enemy") // if the entity is an enemy.
 		{
-			if (dynamic_cast<Player*>(entity2)) // if the entity2 is a player.
+			if (entity2->getEntityType() == "Player") // if the entity2 is a player.
 			{
 				// for example - hit the player with a sword.
 			}
 
-			if (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2)) // if the entity2 is a wall or box.
+			if (entity2->getEntityType() == "Wall" || entity2->getEntityType() == "Box") // if the entity2 is a wall or box.
 			{
 				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
 			}
@@ -537,7 +531,7 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 	}
 	else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
 	{
-		if (playerPtr == nullptr)
+		if (getPlayerPtr() == nullptr)
 		{
 			tgui::Button::Ptr restartButton = tgui::Button::create();
 			restartButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
@@ -551,7 +545,7 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 			restartButton->onPress([=] { gv->setMenuNum(1); });
 			gv->gui.add(restartButton, "restartButton");
 		}
-		else if (playerPtr != nullptr)
+		else if (getPlayerPtr() != nullptr)
 		{
 			tgui::Button::Ptr continueButton = tgui::Button::create();
 			continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
@@ -654,115 +648,141 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 	}
 }
 
-void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities) // game restart function.
+void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec) // game restart function.
 {
-	entities.clear();
+	entitiesVec.clear();
 
 	gv->setNumberOfPlayers(0);
 	gv->setNumberOfEnemies(0);
 	gv->setMenuTimer(0.f);
 
-	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the list of entities.
-	entities.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the list of entities.
-	entities.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a playerPtr and throw it into the list of entities.
-	playerPtr = entities.back().get(); // assign the value of the pointer to the playerPtr.
-
+	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the vector of entities.
+	entitiesVec.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the vector of entities.
+	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the vector of entities.
+	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the vector of entities.
+	entitiesVec.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the vector of entities.
+	setPlayerPtr(entitiesVec.back().get()); // assign the value of the pointer to the player.
 	for (int i = 0; i < 10 + rand() % 41; i++)
 	{
-		entities.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4500), static_cast<float>(500 + rand() % 4500)), L"Enemy"));
+		entitiesVec.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"Enemy")); // create an enemy and throw it into the vector of entities.
 		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
 	}
 
 	for (int i = 0; i < 20 + rand() % 51; i++)
 	{
-		entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4500), static_cast<float>(500 + rand() % 4500)), L"HPBonus"));
+		entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
 	}
 
 	gv->setNumberOfPlayers(gv->getNumberOfPlayers() + 1);
 
 	for (int i = 0; i < std::size(gv->boxStartPositions); i++)
 	{
-		entities.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // create a box and send it to the end of the list.
+		entitiesVec.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // create a box and throw it into the vector of entities.
 	}
 }
 
-void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2) // entity update function. 
+bool s_enterMenu(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap) // enter menu for singleplayer.
 {
+	gv->menuClock.restart();
+	menuEventHandler(gv, minimap);
+	gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
+
+	for (auto& el : entitiesVec)
+	{
+		Entity* entity = el.get();
+		if (getPlayerPtr() != nullptr && (entity->getEntityType() == "Enemy" || entity->getEntityType() == "Player"))
+		{
+			entity->setMenuTime(gv->getMenuTimer() + entity->getMenuTime());
+		}
+	}
+
+	gv->gameClock.restart();
+	gv->setWindowView(gv->getGameView());
+	if (gv->getSinglePlayerGame() == false) { return true; }
+	else { return false; }
+}
+
+void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec) // game update function. 
+{
+	gv->setDT(gv->gameClock.restart().asSeconds());
 	if (gv->getRestartGame() == true)
 	{
-		restartGame(gv, entities);
+		restartGame(gv, entitiesVec);
 		gv->setRestartGame(false);
 	}
-	gv->setDT(gv->gameClock.restart().asSeconds());
-	for (it = entities.begin(); it != entities.end();) // iterate through the list from beginning to end.
+
+	for (auto& el : entitiesVec)
 	{
-		Entity* entity = (*it).get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
-		if (playerPtr == nullptr && dynamic_cast<Enemy*>(entity))
+		auto entity = el.get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
+		if (getPlayerPtr() == nullptr && entity->getEntityType() == "Enemy")
 		{
 			entity->setIsAlive(false);
-		}
-		for (it2 = entities.begin(); it2 != entities.end(); it2++) // iterate through the list from beginning to end.
-		{
-			Entity* entity2 = (*it2).get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
-			collisionHandler(entity, entity2); // calling the collision handling function.	
-			if (dynamic_cast<Enemy*>(entity) && dynamic_cast<Player*>(entity2))
-			{
-				entity->setAimPos(entity2->getCurrentPos());
-			}
+			continue;
 		}
 
-		if (playerPtr != nullptr && playerPtr->getCurrentAmmo() < 30 && playerPtr->getIsReload() == true && playerPtr->getReloadTime() >= 2.f)
+		for (auto& el2 : entitiesVec)
 		{
-			playerPtr->setMissingAmmo(playerPtr->getMagazineAmmo() - playerPtr->getCurrentAmmo());
-			if (playerPtr->getMaxAmmo() < playerPtr->getMagazineAmmo())
+			auto entity2 = el2.get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
+			collisionHandler(entity, entity2); // calling the collision handling function.	
+			if (entity->getEntityType() == "Enemy" && entity2->getEntityType() == "Player") { entity->setAimPos(entity2->getCurrentPos()); }
+		}
+		if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getIsReload() == true && getPlayerPtr()->getReloadTime() >= 2.f)
+		{
+			getPlayerPtr()->setMissingAmmo(getPlayerPtr()->getMagazineAmmo() - getPlayerPtr()->getCurrentAmmo());
+			if (getPlayerPtr()->getMaxAmmo() < getPlayerPtr()->getMagazineAmmo())
 			{
-				playerPtr->setCurrentAmmo(playerPtr->getCurrentAmmo() + playerPtr->getMaxAmmo());
-				playerPtr->setMaxAmmo(0);
+				if (getPlayerPtr()->getMaxAmmo() + getPlayerPtr()->getCurrentAmmo() <= 30)
+				{
+					getPlayerPtr()->setCurrentAmmo(getPlayerPtr()->getCurrentAmmo() + getPlayerPtr()->getMaxAmmo());
+					getPlayerPtr()->setMaxAmmo(0);
+				}
+				else
+				{
+					int tempAmmo = getPlayerPtr()->getMagazineAmmo() - getPlayerPtr()->getCurrentAmmo();
+					getPlayerPtr()->setCurrentAmmo(getPlayerPtr()->getCurrentAmmo() + tempAmmo);
+					getPlayerPtr()->setMaxAmmo(getPlayerPtr()->getMaxAmmo() - tempAmmo);
+				}
 			}
 			else
 			{
-				playerPtr->setCurrentAmmo(playerPtr->getCurrentAmmo() + playerPtr->getMissingAmmo());
-				playerPtr->setMaxAmmo(playerPtr->getMaxAmmo() - playerPtr->getMissingAmmo());
+				getPlayerPtr()->setCurrentAmmo(getPlayerPtr()->getCurrentAmmo() + getPlayerPtr()->getMissingAmmo());
+				getPlayerPtr()->setMaxAmmo(getPlayerPtr()->getMaxAmmo() - getPlayerPtr()->getMissingAmmo());
 			}
 
-			playerPtr->setIsReload(false);
+			getPlayerPtr()->setIsReload(false);
 		}
-
-		if (gv->getNumberOfEnemies() == 0 && playerPtr != nullptr)
+		if (getPlayerPtr() != nullptr && gv->getNumberOfEnemies() == 0)
 		{
-			int gc = playerPtr->getGoldCoins();
-			restartGame(gv, entities);
-			playerPtr->setGoldCoins(gc);
+			int gc = getPlayerPtr()->getGoldCoins();
+			restartGame(gv, entitiesVec);
+			getPlayerPtr()->setGoldCoins(gc);
 			return;
 		}
 		if (entity->getIsShoot() == true)
 		{
-			if (dynamic_cast<Player*>(entity)) // if the entity is a playerPtr.
+			if (entity->getEntityType() == "Player") // if the entity is a player.
 			{
-				if (entity->getCurrentAmmo() > 0 && playerPtr->getIsReload() == false)
+				if (entity->getCurrentAmmo() > 0 && getPlayerPtr()->getIsReload() == false)
 				{
-					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // create a bullet and send it to the end of the list.
+					entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // create a bullet and throw it into the vector of entities.
 					entity->setCurrentAmmo(entity->getCurrentAmmo() - 1);
 				}
 				entity->setIsShoot(false);
 			}
-			if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
+			if (entity->getEntityType() == "Enemy") // if the entity is an enemy.
 			{
 				float distance = sqrt(((entity->getAimPos().x - entity->getCurrentPos().x) * (entity->getAimPos().x - entity->getCurrentPos().x)) + ((entity->getAimPos().y - entity->getCurrentPos().y) * (entity->getAimPos().y - entity->getCurrentPos().y)));
 				if (distance < 750.f)
 				{
-					entities.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), entity->getAimPos())); // create a bullet and send it to the end of the list.
+					entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), entity->getAimPos())); // create a bullet and throw it into the vector of entities.
 				}
 				entity->setIsShoot(false);
 			}
 		}
-
 		entity->update(gv); // call the update function for all entities.
 		if (entity->getIsAlive() == false) // if entity is dead.
 		{
-			if (dynamic_cast<Box*>(entity)) // if the entity is a Box.
+			if (entity->getEntityType() == "Box") // if the entity is a Box.
 			{
 				int itemNum = 0 + rand() % 3;
 				{
@@ -770,85 +790,65 @@ void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, 
 					{
 						for (int i = 0; i < 0 + rand() % 2; i++)
 						{
-							entities.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"HPBonus"));
+							entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
 						}
 					}
 					else if (itemNum == 2)
 					{
 						for (int i = 0; i < 0 + rand() % 3; i++)
 						{
-							entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin"));
+							entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
 						}
 					}
 				}
 			}
-			if (dynamic_cast<Player*>(entity)) // if the entity is a playerPtr.
+			if (entity->getEntityType() == "Player") // if the entity is a player.
 			{
 				gv->setNumberOfPlayers(gv->getNumberOfPlayers() - 1);
-				playerPtr = nullptr;
+				setPlayerPtr(nullptr);
 			}
-			if (dynamic_cast<Enemy*>(entity)) // if the entity is an enemy.
+			if (entity->getEntityType() == "Enemy") // if the entity is an enemy.
 			{
 				gv->setNumberOfEnemies(gv->getNumberOfEnemies() - 1);
 				for (int i = 0; i < 0 + rand() % 6; i++)
 				{
-					entities.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin"));
+					entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
 				}
+
 			}
-			it = entities.erase(it); // remove list item.
 		}
-		else it++; // move on to the next entity.
 	}
-	setGameInfo(gv, getPlayerPtr(), entities); // call the function for setting game information.
+
+	entitiesVec.erase(std::remove_if(entitiesVec.begin(), entitiesVec.end(), [&](std::unique_ptr<Entity>& entity) { return entity->getIsAlive() == false; }), entitiesVec.end());
+	setGameInfo(gv, getPlayerPtr(), entitiesVec.size()); // call the function for setting game information.
 }
 
-void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it)
+void drawMinimap(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec)
 {
-	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
+	for (auto& el : entitiesVec)
 	{
-		Entity* entity = (*it).get();
-		if (dynamic_cast<Player*>(entity) || dynamic_cast<Enemy*>(entity))
-		{
-			gv->window.draw(entity->getIcon());
-		}
-		if (dynamic_cast<Wall*>(entity))
-		{
-			gv->window.draw(entity->getRectHitbox());
-		}
-		if (dynamic_cast<Box*>(entity))
-		{
-			gv->window.draw(entity->getSprite());
-		}
+		Entity* entity = el.get();
+		if (entity->getEntityType() == "Player" || entity->getEntityType() == "Enemy") { gv->window.draw(entity->getIcon()); }
+		if (entity->getEntityType() == "Wall") { gv->window.draw(entity->getRectHitbox()); }
+		if (entity->getEntityType() == "Box") { gv->window.draw(entity->getSprite()); }
 	}
 }
 
-void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap)
+void drawEntities(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap)
 {
-	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
+	for (auto& el : entitiesVec)
 	{
-		Entity* entity = (*it).get();
-		if (gv->getShowHitbox() == true || dynamic_cast<Wall*>(entity)) // if we show hitboxes.
-		{
-			gv->window.draw(entity->getRectHitbox()); // draw rectangular hitboxes.
-		}
-		else
-		{
-			gv->window.draw(entity->getSprite()); // draw entity sprites.
-		}
-
-		if (entity->getIsMove() == true && dynamic_cast<Player*>(entity)) // if the playerPtr is moving.
-		{
-			gv->window.draw(gv->playerDestination); // draw a label.
-		}
-		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && dynamic_cast<Player*>(entity)) // if we show the aiming laser.
-		{
-			gv->window.draw(gv->aimLaser); // draw aiming laser.
-		}
+		Entity* entity = el.get();
+		if (gv->getShowHitbox() == true || entity->getEntityType() == "Wall") { gv->window.draw(entity->getRectHitbox()); }
+		else { gv->window.draw(entity->getSprite()); }
+		if (entity->getIsMove() == true && entity->getEntityType() == "Player") { gv->window.draw(gv->playerDestination); }
+		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && entity->getEntityType() == "Player") { gv->window.draw(gv->aimLaser); }
 	}
-	for (it = entities.begin(); it != entities.end(); it++) // iterate through the list from beginning to end.
+
+	for (auto& el : entitiesVec)
 	{
-		Entity* entity = (*it).get();
-		if (dynamic_cast<Player*>(entity) || dynamic_cast<Enemy*>(entity)) // if the entity is a playerPtr or enemy.
+		Entity* entity = el.get();
+		if (entity->getEntityType() == "Player" || entity->getEntityType() == "Enemy") // if the entity is a player or enemy.
 		{
 			gv->window.draw(entity->getHPBarOuter());
 			gv->window.draw(entity->getHPBarInner());
@@ -862,26 +862,25 @@ void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities
 			gv->window.draw(entity->getNameText());
 		}
 	}
+
 	minimap.drawBorder(gv);
 }
 
-void drawGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap) // entity drawing function.
+void drawGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap) // game drawing function.
 {
 	gv->window.clear(gv->backgroundColor);
-	if (playerPtr != nullptr) { gv->setGameViewCenter(playerPtr->getSprite().getPosition()); }
+	if (getPlayerPtr() != nullptr) { gv->setGameViewCenter(getPlayerPtr()->getSprite().getPosition()); }
 	if (gv->getShowMinimap() == true)
 	{
 		minimap.setViewCenter(sf::Vector2f((minimap.getView().getSize().x / 2.f) - 300.f, (minimap.getView().getSize().y / 2.f) - 250.f));
 		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.3f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.5f * gv->getGameViewSize().y)));
 	}
-
 	gv->setWindowView(gv->getGameView());
-	drawEntities(gv, entities, it, minimap);
-
+	drawEntities(gv, entitiesVec, minimap);
 	if (gv->getShowMinimap() == true)
 	{
 		gv->setWindowView(minimap.getView());
-		drawMinimap(gv, entities, it);
+		drawMinimap(gv, entitiesVec);
 		gv->setWindowView(gv->getGameView());
 	}
 	drawGameInfo(gv); // calling the function for drawing game information.

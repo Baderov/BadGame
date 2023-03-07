@@ -2,6 +2,7 @@
 
 Wall::Wall(sf::Vector2f startPos, std::wstring name, sf::Vector2f size) : Entity(startPos, name) // wall constructor.
 {
+	entityType = "Wall";
 	rectHitbox.setSize(size);
 	rectHitbox.setOrigin(0.f, 0.f);
 	if (name == L"LeftWall" || name == L"RightWall") { rectHitbox.setRotation(90); }

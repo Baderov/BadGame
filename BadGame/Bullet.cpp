@@ -2,6 +2,7 @@
 
 Bullet::Bullet(sf::Image& image, sf::Vector2f startPos, std::wstring name, std::wstring creatorName, sf::Vector2f aimPos) : Entity(image, startPos, name) // bullet constructor.
 {
+	entityType = "Bullet";
 	this->creatorName = creatorName;
 	isMove = true;
 	currentVelocity = sf::Vector2f(0.3f, 0.3f);

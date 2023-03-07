@@ -2,6 +2,7 @@
 
 Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // enemy constructor.
 {
+	entityType = "Enemy";
 	currentVelocity = sf::Vector2f(0.4f, 0.4f);
 	maxSpeed = 5.f;
 	HP = 100;

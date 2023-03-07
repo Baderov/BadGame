@@ -2,6 +2,7 @@
 
 Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // player constructor.
 {
+	entityType = "Player";
 	isMove = false;
 	isReload = false;
 	currentVelocity = sf::Vector2f(0.6f, 0.6f);
@@ -46,6 +47,7 @@ void Player::update(GameVariable* gv) // player update function.
 {
 	if (isAlive == true)
 	{
+		gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)));
 		rotate(gv);
 		updateLaser(gv);
 		move(gv);
@@ -79,7 +81,6 @@ void Player::update(GameVariable* gv) // player update function.
 
 void Player::rotate(GameVariable* gv) // player rotate function.
 {
-	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 	float dX = gv->getMousePos().x - currentPos.x;
 	float dY = gv->getMousePos().y - currentPos.y;
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
@@ -94,7 +95,6 @@ void Player::move(GameVariable* gv) // player move function.
 
 void Player::updateLaser(GameVariable* gv) // laser update function.
 {
-	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 	float dist = sqrt(((gv->getMousePos().x - currentPos.x) * (gv->getMousePos().x - currentPos.x)) + ((gv->getMousePos().y - currentPos.y) * (gv->getMousePos().y - currentPos.y)));
 	gv->setAimLaserLength(dist);
 	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->getAimLaserLength()));

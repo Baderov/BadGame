@@ -4,8 +4,10 @@
 #include <SFML/Network.hpp> // SFML library for networking.
 #include <TGUI/TGUI.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
-#include <list> // header file for working with the list.
+#include <vector> // header file for working with the list.
 #include <mutex>
+
+const sf::Vector2f wallSize(5000.f, 64.f);
 
 enum class MultiplayerErrors // enumeration for menu errors.
 {
@@ -85,12 +87,15 @@ private:
 	} gVars;
 	std::mutex mtx_gv;
 public:
+	sf::UdpSocket sock;
 	sf::RenderWindow window;
 	tgui::Gui gui;
 	sf::Vector2f boxStartPositions[24];
 	sf::Text gameInfoText;
 	sf::Text playerInfoText;
 	sf::Text playerAmmoText;
+	sf::Text connectionErrorText;
+	sf::Text OKButtonText;
 	MultiplayerErrors multiplayerError;
 	sf::Event event;
 	sf::Image playerImage;
@@ -103,6 +108,8 @@ public:
 	sf::Texture goldCoinHUDTexture;
 	sf::Sprite goldCoinHUDSprite;
 	sf::RectangleShape aimLaser;
+	sf::RectangleShape connectionErrorRS;
+	sf::RectangleShape OKButtonRS;
 	sf::CircleShape playerDestination;
 	sf::Font consolasFont;
 	sf::Color backgroundColor;
@@ -143,11 +150,11 @@ public:
 	float getMenuTimer();
 	float getServerTime();
 	float getServerClockElapsedTime();
+	unsigned short getServerPort();
 	unsigned int getFPSLimiter();
 	int getNumberOfEnemies();
 	int getNumberOfPlayers();
 	int getMenuNum();
-	unsigned short getServerPort();
 	int getNumOfLinesInChat();
 	int getNumOfLinesInUserTextBox();
 	sf::Int32 getPingDelay();
@@ -181,7 +188,6 @@ public:
 
 	// SETTERS.
 	void setWindowView(sf::View view);
-
 	void setGameViewCenter(sf::Vector2f tempViewCenter);
 	void setGameViewSize(sf::Vector2f tempViewSize);
 	void setMenuViewCenter(sf::Vector2f tempViewCenter);
@@ -242,7 +248,6 @@ public:
 	void setGameLanguage(char tempGameLanguage);
 	void setSymbol(char tempSymbol);
 	void setInput(char tempInput);
-
 	void restartServerClock();
 };
 

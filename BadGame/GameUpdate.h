@@ -14,6 +14,10 @@
 
 Entity* getPlayerPtr();
 
+void setPlayerPtr(Entity* ptr);
+
+bool s_enterMenu(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap); // enter menu for singleplayer.
+
 void collisionHandler(Entity* entity, Entity* entity2);
 
 void applyButtonPressed(GameVariable* gv, Minimap& minimap);
@@ -26,12 +30,12 @@ void mainMenuUpdate(GameVariable* gv); // main menu update function.
 
 void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update function.
 
-void restartGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities); // game restart function.
+void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities); // game restart function.
 
-void updateGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, std::list<std::unique_ptr<Entity>>::iterator& it2); // entity update function.
+void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities); // entity update function.
 
-void drawMinimap(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it);
+void drawMinimap(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities);
 
-void drawEntities(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap);
+void drawEntities(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities, Minimap& minimap);
 
-void drawGame(GameVariable* gv, std::list<std::unique_ptr<Entity>>& entities, std::list<std::unique_ptr<Entity>>::iterator& it, Minimap& minimap); // entity drawing function.
+void drawGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities, Minimap& minimap); // entity drawing function.

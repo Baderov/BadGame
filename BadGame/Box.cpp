@@ -2,6 +2,7 @@
 
 Box::Box(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // box constructor.
 {
+	entityType = "Box";
 	isAlive = true;
 	HP = 30;
 	rectHitbox.setFillColor(sf::Color::Blue);

@@ -1,11 +1,11 @@
 #include "Text.h" // header file for working with text.
 
-void setGameInfo(GameVariable* gv, Entity* player, std::list<std::unique_ptr<Entity>>& entities) // function for setting game information.
+void setGameInfo(GameVariable* gv, Entity* player, size_t entitiesVecSize) // function for setting game information.
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 
 	gv->gameInfoText.setString("GAME INFO\nMouse X pos: " + std::to_string(gv->getMousePos().x) + "\nMouse Y pos: " + std::to_string(gv->getMousePos().y) +
-		"\nNumber of entities: " + std::to_string(entities.size()) + "\nFPS: " + std::to_string((int)gv->getFPS()));
+		"\nNumber of entities: " + std::to_string(entitiesVecSize) + "\nFPS: " + std::to_string((int)gv->getFPS()));
 
 	if (player != nullptr) // if the player is alive.
 	{

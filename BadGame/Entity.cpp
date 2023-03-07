@@ -190,7 +190,7 @@ sf::Vector2f& Entity::getAimDirNorm() { return aimDirNorm; }
 sf::Sprite& Entity::getSprite() { return sprite; }
 std::wstring& Entity::getName() { return name; }
 std::wstring& Entity::getCreatorName() { return creatorName; }
-
+std::string& Entity::getEntityType() { return entityType; }
 
 void Entity::setMenuTime(float menuTime) { this->menuTime = menuTime; }
 void Entity::setSpawnTime(float spawnTime) { this->spawnTime = spawnTime; }
@@ -228,3 +228,4 @@ void Entity::setAimDirNorm(sf::Vector2f aimDirNorm) { this->aimDirNorm = aimDirN
 void Entity::setSprite(sf::Sprite sprite) { this->sprite = sprite; }
 void Entity::setName(std::wstring name) { this->name = name; }
 void Entity::setCreatorName(std::wstring creatorName) { this->creatorName = creatorName; }
+void Entity::setEntityType(std::string entityType) { this->entityType = entityType; }
