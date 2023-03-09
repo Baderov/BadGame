@@ -10,5 +10,5 @@ public:
 	void rotate(GameVariable* gv); // player rotate function.
 	void move(GameVariable* gv); // player move function.
 	void updateLaser(GameVariable* gv); // laser update function.
-	void updateReloadRect(); // update reload rect function.
+	void updateReloadRect(GameVariable* gv); // update reload rect function.
 };

@@ -47,7 +47,6 @@ private:
 		float serverTime;
 
 		int numberOfEnemies;
-		int numberOfPlayers;
 		int menuNum;
 		unsigned short serverPort;
 		int numOfLinesInChat;
@@ -153,7 +152,6 @@ public:
 	unsigned short getServerPort();
 	unsigned int getFPSLimiter();
 	int getNumberOfEnemies();
-	int getNumberOfPlayers();
 	int getMenuNum();
 	int getNumOfLinesInChat();
 	int getNumOfLinesInUserTextBox();
@@ -215,7 +213,6 @@ public:
 	void setServerTime(float tempServerTime);
 	void setFPSLimiter(unsigned int tempFPSLimiter);
 	void setNumberOfEnemies(int tempNumberOfEnemies);
-	void setNumberOfPlayers(int tempNumberOfPlayers);
 	void setMenuNum(int tempMenuNum);
 	void setServerPort(unsigned short tempServerPort);
 	void setNumOfLinesInChat(int tempNumOfLinesInChat);

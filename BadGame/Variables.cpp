@@ -146,7 +146,6 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	// INT, SIZE_T, sf::INT8,sf::INT16, sf::INT32, sf::INT64.
 	gv->setFPSLimiter(75);
 	gv->setNumberOfEnemies(0);
-	gv->setNumberOfPlayers(0);
 	gv->setMenuNum(0);
 	gv->setNumOfLinesInChat(1);
 	gv->setNumOfLinesInUserTextBox(1);
@@ -420,14 +419,6 @@ int GameVariable::getNumberOfEnemies()
 	int tempNumberOfEnemies = gVars.numberOfEnemies;
 	mtx_gv.unlock();
 	return tempNumberOfEnemies;
-}
-
-int GameVariable::getNumberOfPlayers()
-{
-	mtx_gv.lock();
-	int tempNumberOfPlayers = gVars.numberOfPlayers;
-	mtx_gv.unlock();
-	return tempNumberOfPlayers;
 }
 
 int GameVariable::getMenuNum()
@@ -880,13 +871,6 @@ void GameVariable::setNumberOfEnemies(int tempNumberOfEnemies)
 {
 	mtx_gv.lock();
 	gVars.numberOfEnemies = tempNumberOfEnemies;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setNumberOfPlayers(int tempNumberOfPlayers)
-{
-	mtx_gv.lock();
-	gVars.numberOfPlayers = tempNumberOfPlayers;
 	mtx_gv.unlock();
 }
 

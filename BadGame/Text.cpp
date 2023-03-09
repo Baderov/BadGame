@@ -3,18 +3,21 @@
 void setGameInfo(GameVariable* gv, Entity* player, size_t entitiesVecSize) // function for setting game information.
 {
 	gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
-
-	gv->gameInfoText.setString("GAME INFO\nMouse X pos: " + std::to_string(gv->getMousePos().x) + "\nMouse Y pos: " + std::to_string(gv->getMousePos().y) +
-		"\nNumber of entities: " + std::to_string(entitiesVecSize) + "\nFPS: " + std::to_string((int)gv->getFPS()));
-
-	if (player != nullptr) // if the player is alive.
+	if (player != nullptr) { gv->playerInfoText.setString(std::to_string(player->getGoldCoins())); }
+	if (gv->getGameLanguage() == 'e')
 	{
-		gv->playerInfoText.setString(std::to_string(player->getGoldCoins()));
-		if (gv->getGameLanguage() == 'e')
+		gv->gameInfoText.setString("GAME INFO\nMouse X pos: " + std::to_string(gv->getMousePos().x) + "\nMouse Y pos: " + std::to_string(gv->getMousePos().y) +
+			"\nNumber of entities: " + std::to_string(entitiesVecSize) + "\nNumber of enemies: " + std::to_string(gv->getNumberOfEnemies()) + "\nFPS: " + std::to_string((int)gv->getFPS()));
+		if (player != nullptr) // if the player is alive.
 		{
 			gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo()));
 		}
-		else if (gv->getGameLanguage() == 'r')
+	}
+	else if (gv->getGameLanguage() == 'r')
+	{
+		gv->gameInfoText.setString(L"ÈÃÐÎÂÀß ÈÍÔÎÐÌÀÖÈß\nÏîçèöèÿ ìûøè X: " + std::to_wstring(gv->getMousePos().x) + L"\nÏîçèöèÿ ìûøè Y: " + std::to_wstring(gv->getMousePos().y) +
+			L"\nÊîëè÷åñòâî ñóùíîñòåé: " + std::to_wstring(entitiesVecSize) + L"\nÊîëè÷åñòâî âðàãîâ: " + std::to_wstring(gv->getNumberOfEnemies()) + L"\nÔÏÑ: " + std::to_wstring((int)gv->getFPS()));
+		if (player != nullptr) // if the player is alive.
 		{
 			gv->playerAmmoText.setString(L"Ïàòðîíû: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo()));
 		}

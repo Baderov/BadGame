@@ -652,7 +652,6 @@ void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitie
 {
 	entitiesVec.clear();
 
-	gv->setNumberOfPlayers(0);
 	gv->setNumberOfEnemies(0);
 	gv->setMenuTimer(0.f);
 
@@ -662,22 +661,21 @@ void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitie
 	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the vector of entities.
 	entitiesVec.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the vector of entities.
 	setPlayerPtr(entitiesVec.back().get()); // assign the value of the pointer to the player.
-	for (int i = 0; i < 10 + rand() % 41; i++)
-	{
-		entitiesVec.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"Enemy")); // create an enemy and throw it into the vector of entities.
-		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
-	}
 
 	for (int i = 0; i < 20 + rand() % 51; i++)
 	{
 		entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
 	}
 
-	gv->setNumberOfPlayers(gv->getNumberOfPlayers() + 1);
-
 	for (int i = 0; i < std::size(gv->boxStartPositions); i++)
 	{
 		entitiesVec.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // create a box and throw it into the vector of entities.
+	}
+
+	for (int i = 0; i < 10 + rand() % 41; i++)
+	{
+		entitiesVec.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"Enemy")); // create an enemy and throw it into the vector of entities.
+		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
 	}
 }
 
@@ -717,6 +715,7 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 		if (getPlayerPtr() == nullptr && entity->getEntityType() == "Enemy")
 		{
 			entity->setIsAlive(false);
+			gv->setNumberOfEnemies(0);
 			continue;
 		}
 
@@ -804,7 +803,6 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 			}
 			if (entity->getEntityType() == "Player") // if the entity is a player.
 			{
-				gv->setNumberOfPlayers(gv->getNumberOfPlayers() - 1);
 				setPlayerPtr(nullptr);
 			}
 			if (entity->getEntityType() == "Enemy") // if the entity is an enemy.

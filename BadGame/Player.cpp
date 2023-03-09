@@ -56,7 +56,7 @@ void Player::update(GameVariable* gv) // player update function.
 		{
 			reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
 			if (reloadTime < 0.f) { reloadTime = 0.f; }
-			updateReloadRect();
+			updateReloadRect(gv);
 		}
 		nameText.setPosition(currentPos.x, currentPos.y - 90.f);
 
@@ -64,7 +64,7 @@ void Player::update(GameVariable* gv) // player update function.
 		icon.setPosition(currentPos);
 		rectHitbox.setPosition(currentPos);
 		gv->aimLaser.setPosition(currentPos);
-	
+
 		gv->setGameViewCenter(sprite.getPosition());
 		updateHPBar();
 
@@ -100,15 +100,26 @@ void Player::updateLaser(GameVariable* gv) // laser update function.
 	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->getAimLaserLength()));
 }
 
-void Player::updateReloadRect() // update reload rect function.
+void Player::updateReloadRect(GameVariable* gv) // update reload rect function.
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
+	reloadRectOuter.setOrigin(reloadRectOuter.getSize() / 2.f);
 	float tempReloadTime = 0.f;
 	if (reloadTime > 0.f) { tempReloadTime = (reloadTime * 1000.f) / 10.f; }
 	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
 	if (tempReloadTime < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y)); }
 	else { reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y)); }
-	reloadRectOuter.setPosition(currentPos.x - 90.f, currentPos.y + 300.f);
-	reloadRectInner.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y);
-	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);
+	reloadRectOuter.setPosition(currentPos.x, currentPos.y + 400.f);
+	reloadRectInner.setPosition(reloadRectOuter.getPosition().x - (reloadRectOuter.getSize().x / 2.f), reloadRectOuter.getPosition().y - (reloadRectOuter.getSize().y / 2.f));
+	if (gv->getGameLanguage() == 'e')
+	{
+		reloadText.setString("RELOAD");
+		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));
+	}
+	else if (gv->getGameLanguage() == 'r')
+	{
+		reloadText.setString(L"œ≈–≈«¿–ﬂƒ ¿");
+		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));
+	}
+	reloadText.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y - 50.f);
 }
