@@ -29,7 +29,9 @@ std::mutex g_mtx;
 PlayersList* playersListPtr = nullptr;
 Chat* chatPtr = nullptr;
 
-sf::Packet& operator >> (sf::Packet & packet, std::vector<std::unique_ptr<Clients>>&clientsVec) // operator >> overload 
+bool isConnected = false;
+
+sf::Packet& operator >> (sf::Packet& packet, std::vector<std::unique_ptr<Clients>>& clientsVec) // operator >> overload 
 {
 	cVec_mtx.lock();
 	for (auto& client : clientsVec)
@@ -111,34 +113,24 @@ void connectToServer(GameVariable* gv) // function to connect to the server.
 
 void startNetwork(GameVariable* gv) // function to start network.
 {
-	auto nicknameEditBox = gv->gui.get<tgui::EditBox>("nicknameEditBox");
-	auto IPEditBox = gv->gui.get<tgui::EditBox>("IPEditBox");
-	auto portEditBox = gv->gui.get<tgui::EditBox>("portEditBox");
-	auto connectButton = gv->gui.get<tgui::Button>("connectButton");
-	auto backButton = gv->gui.get<tgui::Button>("backButton");
-
-	connectButton->setEnabled(false);
-	backButton->setEnabled(false);
-	nicknameEditBox->setEnabled(false);
-	IPEditBox->setEnabled(false);
-	portEditBox->setEnabled(false);
-
+	gv->setConnectsToServer(true);
 	sf::Clock connectionClock;
 	float connectionTime;
-	gv->setNetworkEnd(false);
 	connectToServer(gv);
 	connectionClock.restart();
 	while (gv->window.isOpen())
 	{
-		if (gv->multiplayerError == MultiplayerErrors::NoErrors && gv->getNetworkEnd() == true)
+		if (gv->multiplayerError == MultiplayerErrors::NoErrors && gv->getConnectsToServer() == false)
 		{
 			DEBUG_MSG("You are connected!");
+			isConnected = true;
 			break;
 		}
 		else if (gv->multiplayerError == MultiplayerErrors::NicknameIsAlreadyTaken)
 		{
 			DEBUG_MSG("Error: NicknameIsAlreadyTaken!");
 			gv->setMultiPlayerGame(false);
+			isConnected = false;
 			break;
 		}
 		connectionTime = connectionClock.getElapsedTime().asSeconds();
@@ -147,18 +139,12 @@ void startNetwork(GameVariable* gv) // function to start network.
 			gv->multiplayerError = MultiplayerErrors::ServerIsNotAvailable;
 			DEBUG_MSG("Error: ServerIsNotAvailable!");
 			gv->setMultiPlayerGame(false);
+			isConnected = false;
 			break;
 		}
 		sf::sleep(sf::milliseconds(1));
 	}
-
-	connectButton->setEnabled(true);
-	backButton->setEnabled(true);
-	nicknameEditBox->setEnabled(true);
-	IPEditBox->setEnabled(true);
-	portEditBox->setEnabled(true);
-
-	gv->setNetworkEnd(true);
+	gv->setConnectsToServer(false);
 }
 
 bool checkConnection(GameVariable* gv)
@@ -436,20 +422,15 @@ void m_eventHandler(GameVariable* gv, Minimap& minimap) // event handler for mul
 
 void sendData(GameVariable* gv) // function to send data to the server.
 {
-	while (true)
+	DEBUG_MSG("SEND DATA START");
+	while (gv->getMultiPlayerGame() == true)
 	{
-		if ((gv == nullptr) || (gv->getInMenu() == true) || (gv->getFocusEvent() == false) || (gv->getMultiPlayerGame() == false) || (currentClientIsNullptr() == true))
-		{
-			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("sendData: gv == nullptr"); }
-			if (gv->getFuncName() == "multiplayerGame" && gv->getInMenu() == true) { DEBUG_MSG("sendData: gv->getInMenu() == true"); }
-			if (gv->getFuncName() == "multiplayerGame" && gv->getFocusEvent() == false) { DEBUG_MSG("sendData: gv->getFocusEvent() == false"); }
-			if (gv->getFuncName() == "multiplayerGame" && gv->getMultiPlayerGame() == false) { DEBUG_MSG("sendData: gv->getMultiPlayerGame() == false"); }
-			if (gv->getFuncName() == "multiplayerGame" && currentClientIsNullptr() == true) { DEBUG_MSG("sendData: clientIsNullptr() == true"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
+		if (gv == nullptr) { DEBUG_MSG("sendData: gv == nullptr"); sf::sleep(sf::milliseconds(1)); continue; }
+		if (gv->getInMenu() == true) { DEBUG_MSG("sendData: gv->getInMenu() == true"); sf::sleep(sf::milliseconds(1)); continue; }
+		if (gv->getFocusEvent() == false) { DEBUG_MSG("sendData: gv->getFocusEvent() == false"); sf::sleep(sf::milliseconds(1)); continue; }
+		if (currentClientIsNullptr() == true) { DEBUG_MSG("sendData: clientIsNullptr() == true"); sf::sleep(sf::milliseconds(1)); continue; }
 
-		if (gv->getServerIsNotAvailable() == false)
+		if (isConnected == true)
 		{
 			sendMousePos(gv);
 			if (gv->getSendMsg() == true)
@@ -466,37 +447,30 @@ void sendData(GameVariable* gv) // function to send data to the server.
 
 		sf::sleep(sf::milliseconds(1));
 	}
+	DEBUG_MSG("SEND DATA END");
 }
 
 void receiveData(GameVariable* gv) // function to receive data from the server.
 {
+	DEBUG_MSG("RECV DATA START");
 	sf::IpAddress serverIP = gv->getServerIP();
 	unsigned short serverPort = gv->getServerPort();
-	while (true)
+	while (gv->getMultiPlayerGame() == true)
 	{
 		sf::Packet packet;
 		packet.clear();
 		std::wstring prefix = L"";
 
-		if (gv != nullptr && gv->getMultiPlayerGame() == true && gv->getFuncName() == "multiplayerGame")
+		gv->setServerTime(gv->getServerClockElapsedTime());
+		if (gv->getServerTime() >= 5.f)
 		{
-			gv->setServerTime(gv->getServerClockElapsedTime());
-			if (gv->getServerTime() >= 5.f)
-			{
-				DEBUG_MSG("SERVER IS NOT AVAILABLE!");
-				gv->setServerIsNotAvailable(true);
-			}
+			DEBUG_MSG("SERVER IS NOT AVAILABLE!");
+			gv->setServerIsNotAvailable(true);
 		}
 
-		if ((gv == nullptr) || (gv->getMultiPlayerGame() == false) || (gv->sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) || (!(packet >> prefix)))
-		{
-			if (gv->getFuncName() == "multiplayerGame" && gv == nullptr) { DEBUG_MSG("recvData: gv == nullptr"); }
-			if (gv->getFuncName() == "multiplayerGame" && gv->getMultiPlayerGame() == false) { DEBUG_MSG("recvData: gv->getMultiPlayerGame() == false"); }
-			if (gv->getFuncName() == "multiplayerGame" && gv->sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) { DEBUG_MSG("recvData: sock receive error"); }
-			if (gv->getFuncName() == "multiplayerGame" && (!(packet >> prefix))) { DEBUG_MSG("recvData: packet >> prefix error"); }
-			sf::sleep(sf::milliseconds(1));
-			continue;
-		}
+		if (gv->sock.receive(packet, serverIP, serverPort) != sf::Socket::Done) { DEBUG_MSG("recvData: sock receive error"); sf::sleep(sf::milliseconds(1)); continue; }
+		if ((!(packet >> prefix))) { DEBUG_MSG("recvData: packet >> prefix error"); sf::sleep(sf::milliseconds(1)); continue; }
+		if (gv == nullptr) { DEBUG_MSG("recvData: gv == nullptr"); sf::sleep(sf::milliseconds(1)); continue; }
 
 		if (prefix == L"ping")
 		{
@@ -525,13 +499,13 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 		{
 			gv->multiplayerError = MultiplayerErrors::NicknameIsAlreadyTaken;
 			gv->setMultiPlayerGame(false);
-			gv->setNetworkEnd(true);
+			gv->setConnectsToServer(false);
 		}
 		else if (prefix == L"regNick")
 		{
 			gv->multiplayerError = MultiplayerErrors::NoErrors;
 			gv->setMultiPlayerGame(true);
-			gv->setNetworkEnd(true);
+			gv->setConnectsToServer(false);
 		}
 		else if (prefix == L"mousePos")
 		{
@@ -655,9 +629,10 @@ void receiveData(GameVariable* gv) // function to receive data from the server.
 			std::swap(clientsVec[currentClientID], clientsVec[clientsVec.size() - 1]);
 			cVec_mtx.unlock();
 		}
-		else if (gv->getFuncName() == "multiplayerGame") { DEBUG_MSG("Reading error!"); }
+		else { DEBUG_MSG("Reading error!"); }
 		sf::sleep(sf::milliseconds(1));
 	}
+	DEBUG_MSG("RECV DATA END");
 }
 
 void gameUpdate(GameVariable* gv)
@@ -720,7 +695,7 @@ void gameViewDraw(GameVariable* gv, Minimap& minimap)
 	{
 		gv->window.draw(client->sprite);
 		gv->window.draw(client->nickText);
-		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true)  { gv->window.draw(gv->aimLaser); }
+		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true) { gv->window.draw(gv->aimLaser); }
 	}
 	cVec_mtx.unlock();
 
@@ -790,25 +765,19 @@ void multiplayerGame(GameVariable* gv, Minimap& minimap) // multiplayer game lau
 	PlayersList playersList;
 	chatPtr = &chat;
 	playersListPtr = &playersList;
-	gv->restartServerClock();
-
 	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
 	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
 	gv->setWindowView(gv->getGameView());
-
 	createWalls();
-
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		if (currentClientIsNullptr() == true) { DEBUG_MSG("client is nullptr!"); continue; }
-
 		while (gv->window.pollEvent(gv->event))
 		{
 			m_eventHandler(gv, minimap);
 			if (checkConnection(gv) == false) { return; }
 		}
-
 		gameUpdate(gv);
 		gameDraw(gv, minimap);
 	}

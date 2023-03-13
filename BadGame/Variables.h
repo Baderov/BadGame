@@ -73,7 +73,7 @@ private:
 		bool sendMsg;
 		bool leftFromServer;
 		bool joinToServer;
-		bool networkEnd;
+		bool connectsToServer;
 		bool showChat;
 		bool inMenu;
 		bool serverIsNotAvailable;
@@ -160,7 +160,7 @@ public:
 	bool getShowPlayersList();
 	bool getShowChat();
 	bool getInMenu();
-	bool getNetworkEnd();
+	bool getConnectsToServer();
 	bool getShowHitbox();
 	bool getShowAimLaser();
 	bool getShowLogs();
@@ -222,7 +222,7 @@ public:
 	void setShowPlayersList(bool tempShowPlayersList);
 	void setShowChat(bool tempShowChat);
 	void setInMenu(bool tempInMenu);
-	void setNetworkEnd(bool tempNetworkEnd);
+	void setConnectsToServer(bool tempConnectsToServer);
 	void setShowHitbox(bool tempShowHitbox);
 	void setShowAimLaser(bool tempShowAimLaser);
 	void setShowLogs(bool tempShowLogs);

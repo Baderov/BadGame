@@ -78,6 +78,8 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	consolasFontTGUI.setGlobalFont("consolas.ttf");
 	gv->gui.setFont(consolasFontTGUI);
 
+	gv->sock.setBlocking(false);
+
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	setColor(gv);
@@ -170,7 +172,7 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setSendMsg(false);
 	gv->setLeftFromServer(false);
 	gv->setJoinToServer(false);
-	gv->setNetworkEnd(true);
+	gv->setConnectsToServer(false);
 	//gv->setChatAutoScroll(true);
 
 	// CHAR.
@@ -493,12 +495,12 @@ bool GameVariable::getInMenu()
 	return tempInMenu;
 }
 
-bool GameVariable::getNetworkEnd()
+bool GameVariable::getConnectsToServer()
 {
 	mtx_gv.lock();
-	bool tempNetworkEnd = gVars.networkEnd;
+	bool tempConnectsToServer = gVars.connectsToServer;
 	mtx_gv.unlock();
-	return tempNetworkEnd;
+	return tempConnectsToServer;
 }
 
 bool GameVariable::getShowHitbox()
@@ -937,10 +939,10 @@ void GameVariable::setInMenu(bool tempInMenu)
 	mtx_gv.unlock();
 }
 
-void GameVariable::setNetworkEnd(bool tempNetworkEnd)
+void GameVariable::setConnectsToServer(bool tempConnectsToServer)
 {
 	mtx_gv.lock();
-	gVars.networkEnd = tempNetworkEnd;
+	gVars.connectsToServer = tempConnectsToServer;
 	mtx_gv.unlock();
 }
 

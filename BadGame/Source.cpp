@@ -10,6 +10,14 @@
 
 std::vector<std::unique_ptr<Entity>> s_entitiesVec; // entities vector for singleplayer.
 
+void logsFunc(GameVariable * gv)
+{
+	while (gv->window.isOpen())
+	{
+		DEBUG_MSG("function name: " << gv->getFuncName());
+	}
+}
+
 void updateFPS(GameVariable* gv) // FPS update function.
 {
 	gv->fpsCurrentTime = gv->fpsClock.getElapsedTime(); // assign the variable gv->fpsPreviousTime variable to elapsed time.
@@ -106,14 +114,6 @@ void singleplayerGame(GameVariable* gv, Minimap& minimap) // singleplayer launch
 	}
 }
 
-void logsFunc(GameVariable* gv)
-{
-	while (gv->window.isOpen())
-	{
-		DEBUG_MSG("function name: " << gv->getFuncName());
-	}
-}
-
 int main() // the main function of the program.
 {
 #ifdef _DEBUG
@@ -124,17 +124,13 @@ int main() // the main function of the program.
 	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
 	setVariables(gv); // setting values of global variables.
 	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
-	std::thread recvThread([&]() { receiveData(gv); });
-	std::thread sendThread([&]() { sendData(gv); });
-	recvThread.detach();
-	sendThread.detach();
 	menuEventHandler(gv, minimap); // calling the menu event handling function.
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
 		if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false) { singleplayerGame(gv, minimap); }
-		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getNetworkEnd() == true) { multiplayerGame(gv, minimap); }
+		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getConnectsToServer() == false) { multiplayerGame(gv, minimap); }
 		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false) { menuEventHandler(gv, minimap); }
 	}
 	delete gv; // clear memory.

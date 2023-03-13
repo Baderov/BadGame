@@ -66,17 +66,41 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 	gv->setMenuNum(0);
 	gv->multiplayerError = MultiplayerErrors::NoErrors;
 	int countOfDotsInIP = 0;
+
+	auto nicknameEditBox = gv->gui.get<tgui::EditBox>("nicknameEditBox");
+	auto IPEditBox = gv->gui.get<tgui::EditBox>("IPEditBox");
+	auto portEditBox = gv->gui.get<tgui::EditBox>("portEditBox");
 	auto connectButton = gv->gui.get<tgui::Button>("connectButton");
+	auto backButton = gv->gui.get<tgui::Button>("backButton");
+
 	while (gv->window.isOpen())
 	{
 		if (gv->getMenuNum() > 0) { return; }
 		DEBUG_SET_FUNC_NAME;
 		gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
-		if (gv->getMultiPlayerGame() == true && gv->getNetworkEnd() == true)
+		if (gv->getMultiPlayerGame() == true && gv->getConnectsToServer() == false)
 		{
 			gv->setMenuNum(9);
 			return;
 		}
+
+		if (gv->getConnectsToServer() == true)
+		{
+			connectButton->setEnabled(false);
+			backButton->setEnabled(false);
+			nicknameEditBox->setEnabled(false);
+			IPEditBox->setEnabled(false);
+			portEditBox->setEnabled(false);
+		}
+		else
+		{
+			connectButton->setEnabled(true);
+			backButton->setEnabled(true);
+			nicknameEditBox->setEnabled(true);
+			IPEditBox->setEnabled(true);
+			portEditBox->setEnabled(true);
+		}
+
 		errorChecking(gv, countOfDotsInIP);
 		while (gv->window.pollEvent(gv->event))
 		{
@@ -87,17 +111,23 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 				return;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); return; }
-			if (connectButton->isEnabled() == true && gv->getNetworkEnd() == true && gv->getConnectButtonPressed() == true)
+
+			if (connectButton->isEnabled() == true && gv->getConnectsToServer() == false && gv->getConnectButtonPressed() == true)
 			{
 				gv->setConnectButtonPressed(false);
 				gv->multiplayerError = MultiplayerErrors::NoErrors;
 				if (gv->getNickname().size() < 3) { gv->multiplayerError = MultiplayerErrors::NickMustContainMoreChars; break; }
 				if (countOfDotsInIP != 3) { gv->multiplayerError = MultiplayerErrors::WrongIP; break; }
 				if (gv->getTempPort().size() < 1) { gv->multiplayerError = MultiplayerErrors::WrongPort; break; }
-				m_resetVariables(gv);
 				gv->setMultiPlayerGame(true);
-				std::thread networkThread([&]() { startNetwork(gv); });
-				networkThread.detach();
+				m_resetVariables(gv);
+				gv->restartServerClock();
+				std::thread recvThread([&]() { receiveData(gv); });
+				std::thread sendThread([&]() { sendData(gv); });
+				recvThread.detach();
+				sendThread.detach();
+				std::thread connectionThread([&]() { startNetwork(gv); });
+				connectionThread.detach();
 			}
 		}
 		gv->window.clear(sf::Color::Black);
