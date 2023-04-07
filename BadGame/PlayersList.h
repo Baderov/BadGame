@@ -1,8 +1,4 @@
 #pragma once
-#include <SFML/Graphics.hpp> // SFML library for working with graphics.
-#include <SFML/Network.hpp> // SFML library for networking.
-#include <iostream> // header that defines the standard input/output stream objects.
-#include <mutex>
 #include "Clients.h"
 
 const size_t NUM_OF_DISPLAYED_PLAYERS = 10;
@@ -12,11 +8,11 @@ class PlayersList
 public:
 	PlayersList();
 	void updateRSPos(float x, float y);
-	void updateText(GameVariable* gv, std::vector<std::unique_ptr<Clients>>& clientsVec);
-	void updateScrollbarDir(size_t clientsVecSize);
-	void scrollUp(size_t clientsVecSize);
-	void scrollDown(size_t clientsVecSize);
-	void updatePL(GameVariable* gv, std::mutex& cVec_mtx, std::vector<std::unique_ptr<Clients>>& clientsVec);
+	void updateText(GameVariable* gv, int numOfClients);
+	void updateScrollbarDir(int numOfClients);
+	void scrollUp(int numOfClients);
+	void scrollDown(int numOfClients);
+	void updatePL(GameVariable* gv, int numOfClients);
 	void updatePLScrollbar();
 	void setScrollbarDir(std::wstring tempScrollbarDir);
 	size_t getScrollbarStepNumber();
@@ -29,6 +25,4 @@ public:
 	sf::RectangleShape RS, outerScrollBar, innerScrollBar;
 	sf::Font font;
 	sf::Text text;
-	std::mutex PL_mtx;
 };
-

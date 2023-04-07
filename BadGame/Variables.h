@@ -1,11 +1,6 @@
 #pragma once // used to provide additional control at compile time.
-#include <iostream> // header that defines the standard input/output stream objects.
-#include <SFML/Graphics.hpp> // SFML library for working with graphics.
-#include <SFML/Network.hpp> // SFML library for networking.
-#include <TGUI/TGUI.hpp>
-#include <TGUI/Backend/SFML-Graphics.hpp>
-#include <vector> // header file for working with the list.
-#include <mutex>
+#include "Entity.h"
+#include "Chat.h"
 
 const sf::Vector2f wallSize(5000.f, 64.f);
 
@@ -26,31 +21,20 @@ private:
 		sf::View gameView;
 		sf::View menuView;
 
-		std::wstring senderNickname;
 		std::wstring nickname;
-		std::wstring chatStr;
-		std::wstring userStr;
-		std::wstring chatPrefix;
-		std::wstring leftNick;
-		std::wstring joinedNick;
-		std::wstring joinedMsg;
-		std::wstring leftMsg;
 		std::wstring moveDir;
 		std::string funcName;
 		std::string serverIP;
 		std::string tempPort;
 
 		float fps;
-		float aimLaserLength;
 		float dt;
 		float menuTimer;
 		float serverTime;
 
-		int numberOfEnemies;
 		int menuNum;
 		unsigned short serverPort;
-		int numOfLinesInChat;
-		int numOfLinesInUserTextBox;
+
 		sf::Int32 ping;
 		sf::Int32 pingDelay;
 		unsigned int fpsLimiter;
@@ -60,25 +44,19 @@ private:
 		bool showAimLaser;
 		bool showLogs;
 		bool showMinimap;
+		bool isConnected;
 		bool isFullscreen;
 		bool isVsync;
-		bool multiPlayerGame;
-		bool singlePlayerGame;
+		bool isMultiplayer;
+		bool isSingleplayer;
 		bool focusEvent;
 		bool mainMenu;
 		bool restartGame;
-		bool chatContainsMouse;
-		bool chatEnterText;
-		bool recvMsg;
-		bool sendMsg;
-		bool leftFromServer;
-		bool joinToServer;
 		bool connectsToServer;
-		bool showChat;
 		bool inMenu;
 		bool serverIsNotAvailable;
 		bool connectButtonPressed;
-	//	bool chatAutoScroll;
+		//	bool chatAutoScroll;
 
 		char gameLanguage;
 		char symbol;
@@ -86,6 +64,8 @@ private:
 	} gVars;
 	std::mutex mtx_gv;
 public:
+	std::vector<std::unique_ptr<Entity>> entitiesVec;
+	std::mutex entities_mtx;
 	sf::UdpSocket sock;
 	sf::RenderWindow window;
 	tgui::Gui gui;
@@ -130,35 +110,26 @@ public:
 	sf::Vector2f getMousePos();
 	sf::Vector2f getPlayerStartPos();
 	sf::Vector2u getWindowSize();
-	std::wstring getSenderNickname();
+
 	std::wstring getMoveDir();
 	std::wstring getNickname();
-	std::wstring getUserStr();
-	std::wstring getChatStr();
-	std::wstring getChatPrefix();
-	std::wstring getLeftNick();
-	std::wstring getJoinedNick();
-	std::wstring getLeftMsg();
-	std::wstring getJoinedMsg();
+
 	std::string getFuncName();
 	std::string getServerIP();
 	std::string getTempPort();
 	float getFPS();
-	float getAimLaserLength();
 	float getDT();
 	float getMenuTimer();
 	float getServerTime();
 	float getServerClockElapsedTime();
 	unsigned short getServerPort();
 	unsigned int getFPSLimiter();
-	int getNumberOfEnemies();
 	int getMenuNum();
-	int getNumOfLinesInChat();
-	int getNumOfLinesInUserTextBox();
+
 	sf::Int32 getPingDelay();
+	bool getIsConnected();
 	bool getConnectButtonPressed();
 	bool getShowPlayersList();
-	bool getShowChat();
 	bool getInMenu();
 	bool getConnectsToServer();
 	bool getShowHitbox();
@@ -167,17 +138,12 @@ public:
 	bool getShowMinimap();
 	bool getIsVsync();
 	bool getIsFullscreen();
-	bool getMultiPlayerGame();
-	bool getSinglePlayerGame();
+	bool getIsMultiplayer();
+	bool getIsSingleplayer();
 	bool getFocusEvent();
 	bool getMainMenu();
 	bool getRestartGame();
-	bool getChatContainsMouse();
-	bool getChatEnterText();
-	bool getRecvMsg();
-	bool getSendMsg();
-	bool getLeftFromServer();
-	bool getJoinToServer();
+
 	bool getServerIsNotAvailable();
 	//bool getChatAutoScroll();
 	char getGameLanguage();
@@ -193,34 +159,23 @@ public:
 	void setMousePos(sf::Vector2f tempMousePos);
 	void setPlayerStartPos(sf::Vector2f tempPlayerStartPos);
 	void setWindowSize(sf::Vector2u tempWindowSize);
-	void setSenderNickname(std::wstring tempSenderNickname);
 	void setMoveDir(std::wstring tempMoveDir);
 	void setNickname(std::wstring tempNickname);
-	void setUserStr(std::wstring tempUserStr);
-	void setChatStr(std::wstring tempChatStr);
-	void setChatPrefix(std::wstring tempChatPrefix);
-	void setLeftNick(std::wstring tempLeftNick);
-	void setJoinedNick(std::wstring tempJoinedNick);
-	void setLeftMsg(std::wstring tempLefMsg);
-	void setJoinedMsg(std::wstring tempJoinedMsg);
 	void setFuncName(std::string tempFuncName);
 	void setServerIP(std::string tempServerIP);
 	void setTempPort(std::string temporaryPort);
 	void setFPS(float tempFPS);
-	void setAimLaserLength(float tempAimLaserLength);
 	void setDT(float tempDT);
 	void setMenuTimer(float tempMenuTimer);
 	void setServerTime(float tempServerTime);
 	void setFPSLimiter(unsigned int tempFPSLimiter);
-	void setNumberOfEnemies(int tempNumberOfEnemies);
 	void setMenuNum(int tempMenuNum);
 	void setServerPort(unsigned short tempServerPort);
-	void setNumOfLinesInChat(int tempNumOfLinesInChat);
-	void setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox);
 	void setPingDelay(sf::Int32 tempPingDelay);
+	void setIsConnected(bool tempIsConnected);
 	void setConnectButtonPressed(bool tempConnectButtonPressed);
 	void setShowPlayersList(bool tempShowPlayersList);
-	void setShowChat(bool tempShowChat);
+
 	void setInMenu(bool tempInMenu);
 	void setConnectsToServer(bool tempConnectsToServer);
 	void setShowHitbox(bool tempShowHitbox);
@@ -229,17 +184,12 @@ public:
 	void setShowMinimap(bool tempShowMinimap);
 	void setIsFullscreen(bool tempIsFullscreen);
 	void setIsVsync(bool tempIsVsync);
-	void setMultiPlayerGame(bool tempMultiplayerGame);
-	void setSinglePlayerGame(bool tempSinglePlayerGame);
+	void setIsMultiplayer(bool tempIsMultiplayer);
+	void setIsSingleplayer(bool tempIsSingleplayer);
 	void setFocusEvent(bool tempFocusEvent);
 	void setMainMenu(bool tempMainMenu);
 	void setRestartGame(bool tempRestartGame);
-	void setChatContainsMouse(bool tempChatContainsMouse);
-	void setChatEnterText(bool tempChatEnterText);
-	void setRecvMsg(bool tempRecvMsg);
-	void setSendMsg(bool tempSendMsg);
-	void setLeftFromServer(bool tempLeftFromServer);
-	void setJoinToServer(bool tempJoinToServer);
+
 	void setServerIsNotAvailable(bool tempServerIsNotAvailable);
 	//void setChatAutoScroll(bool tempChatAutoScroll);
 	void setGameLanguage(char tempGameLanguage);
@@ -260,4 +210,8 @@ void setTexture(GameVariable* gv); // function for setting value for textures.
 
 void setSprite(GameVariable* gv); // function to set value for sprites.
 
-void setVariables(GameVariable* gv); // function for setting the values of global variables.
+void setVariables(GameVariable* gv, Chat& chat); // function for setting the values of global variables.
+
+void resetVariables(GameVariable* gv, Chat& chat); // global variable reset function.
+
+void clearEntitiesVec(GameVariable* gv);

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Console.h" // header file for working with the console.
 
 void consoleSettings() // function for console settings.

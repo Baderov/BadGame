@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "GameUpdate.h" // game update header file.
 #include "RectangularBoundaryCollision.hpp"
 
@@ -19,7 +20,7 @@ void setPlayerPtr(Entity* ptr)
 	playerPtr = ptr;
 }
 
-void collisionHandler(Entity* entity, Entity* entity2)
+void collisionHandler(Entity* entity, Entity* entity2) // collision handler function for singleplayer. 
 {
 	if (entity != nullptr && entity2 != nullptr && entity != entity2 && collision::areColliding(entity->getRectHitbox(), entity2->getRectHitbox()))
 	{
@@ -35,7 +36,7 @@ void collisionHandler(Entity* entity, Entity* entity2)
 			if (entity2->getEntityType() == "Box" || entity2->getEntityType() == "Wall" || entity2->getEntityType() == "Enemy") // if the entity2 is a box or wall or enemy.
 			{
 				if (entity->getIsMove() == true) { entity->setIsMove(false); }
-				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
+				entity->getSprite().setPosition(entity->getSprite().getPosition() - entity->getStepPos());
 			}
 
 			if (entity2->getEntityType() == "Item" && entity2->getName() == L"GoldCoin") // if the entity2 name is a gold coin.
@@ -60,7 +61,7 @@ void collisionHandler(Entity* entity, Entity* entity2)
 
 			if (entity2->getEntityType() == "Wall" || entity2->getEntityType() == "Box") // if the entity2 is a wall or box.
 			{
-				entity->setCurrentPos(entity->getCurrentPos() - entity->getStepPos());
+				entity->getSprite().setPosition(entity->getSprite().getPosition() - entity->getStepPos());
 			}
 		}
 	}
@@ -479,7 +480,7 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 	float halfWinSizeY = static_cast<float>(gv->window.getSize().y) / 2.f;
 	gv->gui.removeAllWidgets();
 
-	if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false)
+	if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == false)
 	{
 		tgui::Button::Ptr singleplayerButton = tgui::Button::create();
 		singleplayerButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
@@ -529,7 +530,7 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 		exitButton->onPress([=] { gv->setMenuNum(3); });
 		gv->gui.add(exitButton, "exitButton");
 	}
-	else if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false)
+	else if (gv->getIsSingleplayer() == true && gv->getIsMultiplayer() == false)
 	{
 		if (getPlayerPtr() == nullptr)
 		{
@@ -596,7 +597,7 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 		exitButton->onPress([=] { gv->setMenuNum(3); });
 		gv->gui.add(exitButton, "exitButton");
 	}
-	else if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true)
+	else if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == true)
 	{
 		tgui::Button::Ptr continueButton = tgui::Button::create();
 		continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
@@ -648,82 +649,73 @@ void mainMenuUpdate(GameVariable* gv) // main menu update function.
 	}
 }
 
-void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec) // game restart function.
+void restartGame(GameVariable* gv) // game restart function.
 {
-	entitiesVec.clear();
-
-	gv->setNumberOfEnemies(0);
+	clearEntitiesVec(gv);
+	Entity::setNumOfEnemies(0);
 	gv->setMenuTimer(0.f);
 
-	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the vector of entities.
-	entitiesVec.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the vector of entities.
-	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the vector of entities.
-	entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the vector of entities.
-	entitiesVec.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the vector of entities.
-	setPlayerPtr(entitiesVec.back().get()); // assign the value of the pointer to the player.
+	gv->entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"LeftWall", wallSize)); // create a left wall and throw it into the vector of entities.
+	gv->entitiesVec.emplace_back(new Wall(sf::Vector2f(5000.f, 0.f), L"RightWall", wallSize)); // create a right wall and throw it into the vector of entities.
+	gv->entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 0.f), L"TopWall", wallSize)); // create a top wall and throw it into the vector of entities.
+	gv->entitiesVec.emplace_back(new Wall(sf::Vector2f(0.f, 4936.f), L"BottomWall", wallSize)); // create a bottom wall and throw it into the vector of entities.
+	gv->entitiesVec.emplace_back(new Player(gv->playerImage, sf::Vector2f(gv->getPlayerStartPos()), gv->getNickname())); // create a player and throw it into the vector of entities.
+	setPlayerPtr(gv->entitiesVec.back().get()); // assign the value of the pointer to the player.
 
 	for (int i = 0; i < 20 + rand() % 51; i++)
 	{
-		entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
+		gv->entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
 	}
 
 	for (int i = 0; i < std::size(gv->boxStartPositions); i++)
 	{
-		entitiesVec.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // create a box and throw it into the vector of entities.
+		gv->entitiesVec.emplace_back(new Box(gv->boxImage, sf::Vector2f(gv->boxStartPositions[i]), L"Box")); // create a box and throw it into the vector of entities.
 	}
 
 	for (int i = 0; i < 10 + rand() % 41; i++)
 	{
-		entitiesVec.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"Enemy")); // create an enemy and throw it into the vector of entities.
-		gv->setNumberOfEnemies(gv->getNumberOfEnemies() + 1);
+		gv->entitiesVec.emplace_back(new Enemy(gv->enemyImage, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)), L"Enemy")); // create an enemy and throw it into the vector of entities.
 	}
 }
 
-bool s_enterMenu(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap) // enter menu for singleplayer.
+bool s_enterMenu(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // enter menu for singleplayer.
 {
 	gv->menuClock.restart();
-	menuEventHandler(gv, minimap);
+	menuEventHandler(gv, minimap, playersList, chat);
 	gv->setMenuTimer(gv->menuClock.getElapsedTime().asSeconds());
-
-	for (auto& el : entitiesVec)
+	for (auto& entity : gv->entitiesVec)
 	{
-		Entity* entity = el.get();
 		if (getPlayerPtr() != nullptr && (entity->getEntityType() == "Enemy" || entity->getEntityType() == "Player"))
 		{
 			entity->setMenuTime(gv->getMenuTimer() + entity->getMenuTime());
 		}
 	}
-
 	gv->gameClock.restart();
 	gv->setWindowView(gv->getGameView());
-	if (gv->getSinglePlayerGame() == false) { return true; }
+
+	if (gv->getIsSingleplayer() == false) { return true; }
 	else { return false; }
 }
 
-void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec) // game update function. 
+void updateGame(GameVariable* gv) // game update function. 
 {
 	gv->setDT(gv->gameClock.restart().asSeconds());
 	if (gv->getRestartGame() == true)
 	{
-		restartGame(gv, entitiesVec);
+		restartGame(gv);
 		gv->setRestartGame(false);
 	}
-
-	for (auto& el : entitiesVec)
+	for (auto& entity : gv->entitiesVec)
 	{
-		auto entity = el.get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
 		if (getPlayerPtr() == nullptr && entity->getEntityType() == "Enemy")
 		{
 			entity->setIsAlive(false);
-			gv->setNumberOfEnemies(0);
 			continue;
 		}
-
-		for (auto& el2 : entitiesVec)
+		for (auto& entity2 : gv->entitiesVec)
 		{
-			auto entity2 = el2.get(); // create a pointer object and assign the value of the first iterator to make the code easier to read.
-			collisionHandler(entity, entity2); // calling the collision handling function.	
-			if (entity->getEntityType() == "Enemy" && entity2->getEntityType() == "Player") { entity->setAimPos(entity2->getCurrentPos()); }
+			collisionHandler(entity.get(), entity2.get()); // calling the collision handling function.	
+			if (entity->getEntityType() == "Enemy" && entity2->getEntityType() == "Player") { entity->setAimPos(entity2->getSprite().getPosition()); }
 		}
 		if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getIsReload() == true && getPlayerPtr()->getReloadTime() >= 2.f)
 		{
@@ -750,12 +742,12 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 
 			getPlayerPtr()->setIsReload(false);
 		}
-		if (getPlayerPtr() != nullptr && gv->getNumberOfEnemies() == 0)
+		if (getPlayerPtr() != nullptr && Entity::getNumOfEnemies() == 0)
 		{
 			int gc = getPlayerPtr()->getGoldCoins();
-			restartGame(gv, entitiesVec);
+			restartGame(gv);
 			getPlayerPtr()->setGoldCoins(gc);
-			return;
+			break;
 		}
 		if (entity->getIsShoot() == true)
 		{
@@ -763,22 +755,23 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 			{
 				if (entity->getCurrentAmmo() > 0 && getPlayerPtr()->getIsReload() == false)
 				{
-					entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // create a bullet and throw it into the vector of entities.
+					gv->entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getSprite().getPosition()), L"Bullet", entity->getName(), gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)))); // create a bullet and throw it into the vector of entities.
 					entity->setCurrentAmmo(entity->getCurrentAmmo() - 1);
 				}
 				entity->setIsShoot(false);
 			}
 			if (entity->getEntityType() == "Enemy") // if the entity is an enemy.
 			{
-				float distance = sqrt(((entity->getAimPos().x - entity->getCurrentPos().x) * (entity->getAimPos().x - entity->getCurrentPos().x)) + ((entity->getAimPos().y - entity->getCurrentPos().y) * (entity->getAimPos().y - entity->getCurrentPos().y)));
+				float distance = sqrt(((entity->getAimPos().x - entity->getSprite().getPosition().x) * (entity->getAimPos().x - entity->getSprite().getPosition().x)) + ((entity->getAimPos().y - entity->getSprite().getPosition().y) * (entity->getAimPos().y - entity->getSprite().getPosition().y)));
 				if (distance < 750.f)
 				{
-					entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getCurrentPos()), L"Bullet", entity->getName(), entity->getAimPos())); // create a bullet and throw it into the vector of entities.
+					gv->entitiesVec.emplace_back(new Bullet(gv->bulletImage, sf::Vector2f(entity->getSprite().getPosition()), L"Bullet", entity->getName(), entity->getAimPos())); // create a bullet and throw it into the vector of entities.
 				}
 				entity->setIsShoot(false);
 			}
 		}
-		entity->update(gv); // call the update function for all entities.
+		entity->update(gv->window, gv->aimLaser, gv->getMousePos(), gv->getGameLanguage(), gv->getDT(), gv->getIsSingleplayer()); // call the update function for all entities.
+		if (entity->getEntityType() == "Player") { gv->setGameViewCenter(entity->getSprite().getPosition()); }
 		if (entity->getIsAlive() == false) // if entity is dead.
 		{
 			if (entity->getEntityType() == "Box") // if the entity is a Box.
@@ -789,14 +782,14 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 					{
 						for (int i = 0; i < 0 + rand() % 2; i++)
 						{
-							entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
+							gv->entitiesVec.emplace_back(new Item(gv->hpBonusImage, sf::Vector2f(entity->getSprite().getPosition().x + (i * 15), entity->getSprite().getPosition().y), L"HPBonus")); // create a HP Bonus and throw it into the vector of entities.
 						}
 					}
 					else if (itemNum == 2)
 					{
 						for (int i = 0; i < 0 + rand() % 3; i++)
 						{
-							entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
+							gv->entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getSprite().getPosition().x + (i * 15), entity->getSprite().getPosition().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
 						}
 					}
 				}
@@ -807,45 +800,41 @@ void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities
 			}
 			if (entity->getEntityType() == "Enemy") // if the entity is an enemy.
 			{
-				gv->setNumberOfEnemies(gv->getNumberOfEnemies() - 1);
 				for (int i = 0; i < 0 + rand() % 6; i++)
 				{
-					entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getCurrentPos().x + (i * 15), entity->getCurrentPos().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
+					gv->entitiesVec.emplace_back(new Item(gv->goldCoinImage, sf::Vector2f(entity->getSprite().getPosition().x + (i * 15), entity->getSprite().getPosition().y), L"GoldCoin")); // create a gold coin and throw it into the vector of entities.
 				}
-
 			}
+			gv->entitiesVec.erase(std::remove(gv->entitiesVec.begin(), gv->entitiesVec.end(), entity), gv->entitiesVec.end());
+			break;
 		}
 	}
 
-	entitiesVec.erase(std::remove_if(entitiesVec.begin(), entitiesVec.end(), [&](std::unique_ptr<Entity>& entity) { return entity->getIsAlive() == false; }), entitiesVec.end());
-	setGameInfo(gv, getPlayerPtr(), entitiesVec.size()); // call the function for setting game information.
+	setGameInfo(gv, getPlayerPtr(), gv->entitiesVec.size()); // call the function for setting game information.
 }
 
-void drawMinimap(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec)
+void drawMinimap(GameVariable* gv)
 {
-	for (auto& el : entitiesVec)
+	for (auto& entity : gv->entitiesVec)
 	{
-		Entity* entity = el.get();
 		if (entity->getEntityType() == "Player" || entity->getEntityType() == "Enemy") { gv->window.draw(entity->getIcon()); }
 		if (entity->getEntityType() == "Wall") { gv->window.draw(entity->getRectHitbox()); }
 		if (entity->getEntityType() == "Box") { gv->window.draw(entity->getSprite()); }
 	}
 }
 
-void drawEntities(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap)
+void drawEntities(GameVariable* gv, Minimap& minimap)
 {
-	for (auto& el : entitiesVec)
+	for (auto& entity : gv->entitiesVec)
 	{
-		Entity* entity = el.get();
 		if (gv->getShowHitbox() == true || entity->getEntityType() == "Wall") { gv->window.draw(entity->getRectHitbox()); }
 		else { gv->window.draw(entity->getSprite()); }
 		if (entity->getIsMove() == true && entity->getEntityType() == "Player") { gv->window.draw(gv->playerDestination); }
 		if (gv->getShowAimLaser() == true && gv->getFocusEvent() == true && entity->getEntityType() == "Player") { gv->window.draw(gv->aimLaser); }
 	}
 
-	for (auto& el : entitiesVec)
+	for (auto& entity : gv->entitiesVec)
 	{
-		Entity* entity = el.get();
 		if (entity->getEntityType() == "Player" || entity->getEntityType() == "Enemy") // if the entity is a player or enemy.
 		{
 			gv->window.draw(entity->getHPBarOuter());
@@ -864,7 +853,7 @@ void drawEntities(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entiti
 	minimap.drawBorder(gv);
 }
 
-void drawGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap) // game drawing function.
+void drawGame(GameVariable* gv, Minimap& minimap) // game drawing function.
 {
 	gv->window.clear(gv->backgroundColor);
 	if (getPlayerPtr() != nullptr) { gv->setGameViewCenter(getPlayerPtr()->getSprite().getPosition()); }
@@ -874,11 +863,11 @@ void drawGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVe
 		minimap.setBorderPos(sf::Vector2f(gv->getGameViewCenter().x + (0.3f * gv->getGameViewSize().x), gv->getGameViewCenter().y - (0.5f * gv->getGameViewSize().y)));
 	}
 	gv->setWindowView(gv->getGameView());
-	drawEntities(gv, entitiesVec, minimap);
+	drawEntities(gv, minimap);
 	if (gv->getShowMinimap() == true)
 	{
 		gv->setWindowView(minimap.getView());
-		drawMinimap(gv, entitiesVec);
+		drawMinimap(gv);
 		gv->setWindowView(gv->getGameView());
 	}
 	drawGameInfo(gv); // calling the function for drawing game information.

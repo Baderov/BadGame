@@ -1,8 +1,12 @@
+#include "pch.h"
 #include "Enemy.h" // header file for enemies.
 
 Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // enemy constructor.
 {
 	entityType = "Enemy";
+
+	numOfEnemies++;
+
 	currentVelocity = sf::Vector2f(0.4f, 0.4f);
 	maxSpeed = 5.f;
 	HP = 100;
@@ -20,7 +24,7 @@ Enemy::Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entit
 	icon.setFillColor(sf::Color::Red);
 }
 
-void Enemy::update(GameVariable* gv) // enemy update function.
+void Enemy::update(sf::RenderWindow& window, sf::RectangleShape& aimLaser, sf::Vector2f mousePos, char gameLanguage, float dt, bool isSinglePlayer)
 {
 	if (isAlive == true)
 	{
@@ -34,26 +38,23 @@ void Enemy::update(GameVariable* gv) // enemy update function.
 			moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
 			moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 		}
-		rotate();
-		move(gv);
+		rotate(aimLaser, aimPos);
+		move(aimLaser, dt, isSinglePlayer);
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
-		sprite.setPosition(currentPos);
-		icon.setPosition(currentPos);
-		rectHitbox.setPosition(currentPos);
+		icon.setPosition(sprite.getPosition());
+		rectHitbox.setPosition(sprite.getPosition());
 		if (HP <= 0) { isAlive = false; } // if the enemy's health is zero or less, then isAlive is false.
 	}
 }
-
-void Enemy::rotate() // enemy rotate function.
+void Enemy::move(sf::RectangleShape& aimLaser, float dt, bool isSinglePlayer)
 {
-	float dX = aimPos.x - currentPos.x;
-	float dY = aimPos.y - currentPos.y;
-	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees.
-	sprite.setRotation(rotation);
+	moveToTarget(moveTargetPos, dt, isSinglePlayer);
 }
-
-void Enemy::move(GameVariable* gv) // enemy move function.
+void Enemy::rotate(sf::RectangleShape& aimLaser, sf::Vector2f targetPos)
 {
-	moveToTarget(moveTargetPos, gv);
+	float dX = targetPos.x - sprite.getPosition().x;
+	float dY = targetPos.y - sprite.getPosition().y;
+	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
+	sprite.setRotation(rotation);
 }

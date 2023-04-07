@@ -1,4 +1,5 @@
-﻿#include "Source.h" // main header file.
+﻿#include "pch.h"
+#include "Source.h" // main header file.
 
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
@@ -8,9 +9,7 @@
 #define DEBUG_MSG(str) do { } while (false)
 #endif
 
-std::vector<std::unique_ptr<Entity>> s_entitiesVec; // entities vector for singleplayer.
-
-void logsFunc(GameVariable * gv)
+void logsFunc(GameVariable* gv)
 {
 	while (gv->window.isOpen())
 	{
@@ -25,7 +24,7 @@ void updateFPS(GameVariable* gv) // FPS update function.
 	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling function for singleplayer.
+void s_eventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // event handling function for singleplayer.
 {
 	switch (gv->event.type) // check by event type.
 	{
@@ -45,10 +44,7 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 			}
 			break;
 		case sf::Mouse::Right:
-			if (getPlayerPtr() != nullptr)
-			{
-				getPlayerPtr()->setIsShoot(true);
-			}
+			if (getPlayerPtr() != nullptr) { getPlayerPtr()->setIsShoot(true); }
 			break;
 		}
 		break;
@@ -80,36 +76,26 @@ void s_eventHandler(GameVariable* gv, Minimap& minimap) // event handling functi
 			}
 			break;
 		case sf::Keyboard::Escape:
-			if (s_enterMenu(gv, s_entitiesVec, minimap)) { return; }
+			if (s_enterMenu(gv, minimap, playersList, chat)) { return; }
 			break;
 		}
 		break;
 	}
 }
 
-void s_resetVariables(GameVariable* gv) // global variable reset function for singleplayer.
+void singleplayerGame(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // singleplayer launch function.
 {
-	gv->setNickname(L"");
-	gv->gameClock.restart();
-	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
-	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
-	gv->setWindowView(gv->getGameView());
-	gv->setShowMinimap(true);
-}
-
-void singleplayerGame(GameVariable* gv, Minimap& minimap) // singleplayer launch function.
-{
-	s_resetVariables(gv);
+	resetVariables(gv, chat);
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		while (gv->window.pollEvent(gv->event))
 		{
-			s_eventHandler(gv, minimap); // call the event handling function.
-			if (gv->getSinglePlayerGame() == false) { return; }
+			s_eventHandler(gv, minimap, playersList, chat); // call the event handling function.
+			if (gv->getIsSingleplayer() == false) { return; }
 		}
-		updateGame(gv, s_entitiesVec); // calling the entity update function.
-		drawGame(gv, s_entitiesVec, minimap); // calling the entity drawing function.
+		updateGame(gv); // calling the entity update function.
+		drawGame(gv, minimap); // calling the entity drawing function.
 		updateFPS(gv); // call the FPS update function.
 	}
 }
@@ -121,17 +107,20 @@ int main() // the main function of the program.
 	//logsThread.detach();
 #endif
 	consoleSettings(); // call the function for setting settings for the console.
-	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
-	setVariables(gv); // setting values of global variables.
 	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
-	menuEventHandler(gv, minimap); // calling the menu event handling function.
+	Chat chat;
+	PlayersList playersList;
+	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
+	setVariables(gv, chat); // setting values of global variables.
+
+	menuEventHandler(gv, minimap, playersList, chat); // calling the menu event handling function.
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
-		if (gv->getSinglePlayerGame() == true && gv->getMultiPlayerGame() == false) { singleplayerGame(gv, minimap); }
-		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == true && gv->getConnectsToServer() == false) { multiplayerGame(gv, minimap); }
-		if (gv->getSinglePlayerGame() == false && gv->getMultiPlayerGame() == false) { menuEventHandler(gv, minimap); }
+		if (gv->getIsSingleplayer() == true && gv->getIsMultiplayer() == false) { singleplayerGame(gv, minimap, playersList, chat); }
+		if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == true && gv->getConnectsToServer() == false) { multiplayerGame(gv, minimap, playersList, chat); }
+		if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == false) { menuEventHandler(gv, minimap, playersList, chat); }
 	}
 	delete gv; // clear memory.
 	DEBUG_MSG("Memory cleared!"); // send message in console.

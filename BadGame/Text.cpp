@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Text.h" // header file for working with text.
 
 void setGameInfo(GameVariable* gv, Entity* player, size_t entitiesVecSize) // function for setting game information.
@@ -7,7 +8,7 @@ void setGameInfo(GameVariable* gv, Entity* player, size_t entitiesVecSize) // fu
 	if (gv->getGameLanguage() == 'e')
 	{
 		gv->gameInfoText.setString("GAME INFO\nMouse X pos: " + std::to_string(gv->getMousePos().x) + "\nMouse Y pos: " + std::to_string(gv->getMousePos().y) +
-			"\nNumber of entities: " + std::to_string(entitiesVecSize) + "\nNumber of enemies: " + std::to_string(gv->getNumberOfEnemies()) + "\nFPS: " + std::to_string((int)gv->getFPS()));
+			"\nNumber of entities: " + std::to_string(entitiesVecSize) + "\nNumber of enemies: " + std::to_string(Entity::getNumOfEnemies()) + "\nFPS: " + std::to_string((int)gv->getFPS()));
 		if (player != nullptr) // if the player is alive.
 		{
 			gv->playerAmmoText.setString("Ammo: " + std::to_string(player->getCurrentAmmo()) + "/" + std::to_string(player->getMaxAmmo()));
@@ -16,7 +17,7 @@ void setGameInfo(GameVariable* gv, Entity* player, size_t entitiesVecSize) // fu
 	else if (gv->getGameLanguage() == 'r')
 	{
 		gv->gameInfoText.setString(L"ИГРОВАЯ ИНФОРМАЦИЯ\nПозиция мыши X: " + std::to_wstring(gv->getMousePos().x) + L"\nПозиция мыши Y: " + std::to_wstring(gv->getMousePos().y) +
-			L"\nКоличество сущностей: " + std::to_wstring(entitiesVecSize) + L"\nКоличество врагов: " + std::to_wstring(gv->getNumberOfEnemies()) + L"\nФПС: " + std::to_wstring((int)gv->getFPS()));
+			L"\nКоличество сущностей: " + std::to_wstring(entitiesVecSize) + L"\nКоличество врагов: " + std::to_wstring(Entity::getNumOfEnemies()) + L"\nФПС: " + std::to_wstring((int)gv->getFPS()));
 		if (player != nullptr) // if the player is alive.
 		{
 			gv->playerAmmoText.setString(L"Патроны: " + std::to_wstring(player->getCurrentAmmo()) + L"/" + std::to_wstring(player->getMaxAmmo()));

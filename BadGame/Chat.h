@@ -1,8 +1,5 @@
 #pragma once // used to provide additional control at compile time.
-#include <SFML/Graphics.hpp> // SFML library for working with graphics.
 #include "RichText.hpp" // improved sf::Text.
-#include "Variables.h" // header file for global variables.
-#include <windows.h> // windows-specific header file for the C and C++ programming languages which contains declarations for all of the functions in the Windows API.
 #include "Clients.h"
 
 class Chat // declare a class for creating a chat.
@@ -24,7 +21,10 @@ public:
 		bool joinedTheServer = false;
 		bool leftTheServer = false;
 	};
+
+	void createChat();
 	Chat(); // chat constructor.
+
 	sf::RectangleShape& getOuterScrollBar(); // function to get outer scrollbar.
 	sf::RectangleShape& getInnerScrollBar(); // function to get inner scrollbar.
 	sf::RectangleShape& getChatTextBox(); // function to get chat textbox.
@@ -33,9 +33,26 @@ public:
 	sf::Font& getFont(); // function to get font.
 	sfe::RichText& getChatText(); // function to get chat text.
 	sfe::RichText& getUserText(); // function to get user text.
-	float getScrollbarDivisor();
-	size_t getScrollbarStepNumber();
-	std::wstring getScrollbarDir();
+	std::wstring& getScrollbarDir();
+	std::wstring& getSenderNickname();
+	std::wstring& getUserStr();
+	std::wstring& getChatStr();
+	std::wstring& getChatPrefix();
+	std::wstring& getLeftNick();
+	std::wstring& getJoinedNick();
+	std::wstring& getLeftMsg();
+	std::wstring& getJoinedMsg();
+	int& getNumOfLinesInChat();
+	int& getNumOfLinesInUserTextBox();
+	size_t& getScrollbarStepNumber();
+	float& getScrollbarDivisor();
+	bool& getShowChat();
+	bool& getChatContainsMouse();
+	bool& getChatEnterText();
+	bool& getRecvMsg();
+	bool& getSendMsg();
+	bool& getLeftFromServer();
+	bool& getJoinToServer();
 
 	void setOuterScrollBarPos(float posX, float posY);
 	void setInnerScrollBarPos(float posX, float posY);
@@ -44,31 +61,65 @@ public:
 	void setChatTextPos(float posX, float posY);
 	void setUserTextPos(float posX, float posY);
 	void setScrollbarDivisor(float tempDivisor);
+	void setNumOfLinesInChat(int tempNumOfLinesInChat);
+	void setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox);
 	void setScrollbarStepNumber(size_t tempStepNumber);
 	void setScrollbarDir(std::wstring tempDir);
+	void setSenderNickname(std::wstring tempSenderNickname);
+	void setUserStr(std::wstring tempUserStr);
+	void setChatStr(std::wstring tempChatStr);
+	void setChatPrefix(std::wstring tempChatPrefix);
+	void setLeftNick(std::wstring tempLeftNick);
+	void setJoinedNick(std::wstring tempJoinedNick);
+	void setLeftMsg(std::wstring tempLefMsg);
+	void setJoinedMsg(std::wstring tempJoinedMsg);
+	void setShowChat(bool tempShowChat);
+	void setChatContainsMouse(bool tempChatContainsMouse);
+	void setChatEnterText(bool tempChatEnterText);
+	void setRecvMsg(bool tempRecvMsg);
+	void setSendMsg(bool tempSendMsg);
+	void setLeftFromServer(bool tempLeftFromServer);
+	void setJoinToServer(bool tempJoinToServer);
 
 	void chatPosUpdate(sf::Vector2f clientPos);
-	void addString(GameVariable* gv); // function to add a string to a vector.
-	void addEndLine(GameVariable* gv); // function to add the end of the line.
-	void scrollUp(GameVariable* gv); // function to scroll up the chat.
-	void scrollDown(GameVariable* gv); // function to scroll down the chat.
-	bool trimString(std::wstring& str, GameVariable* gv); // string trim function.
-
-
+	void addString(); // function to add a string to a vector.
+	void addEndLine(); // function to add the end of the line.
+	void scrollUp(); // function to scroll up the chat.
+	void scrollDown(); // function to scroll down the chat.
+	bool trimString(std::wstring& str); // string trim function.
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;
 	std::vector<std::unique_ptr<chatStrings>> strVector;
 	sf::Font font;
 	sfe::RichText chatText, userText;
-	std::mutex chat_mtx;
+	std::mutex mtx;
 
+	std::wstring senderNickname;
+	std::wstring chatStr;
+	std::wstring userStr;
+	std::wstring chatPrefix;
+	std::wstring leftNick;
+	std::wstring joinedNick;
+	std::wstring joinedMsg;
+	std::wstring leftMsg;
+	std::wstring scrollbarDir;
+
+	int numOfLinesInChat;
+	int numOfLinesInUserTextBox;
+	size_t scrollbarStepNumber;
 	float scrollbarDivisor;
 	float scrollbarYPos;
-	size_t scrollbarStepNumber;
-	std::wstring scrollbarDir;
+
+	bool chatContainsMouse;
+	bool chatEnterText;
+	bool recvMsg;
+	bool sendMsg;
+	bool leftFromServer;
+	bool joinToServer;
+	bool showChat;
 };
 
-void chatUpdate(GameVariable* gv, Chat& chat);
-void updateUserTextBox(GameVariable* gv, Chat& chat);
-void updateScrollbarDir(GameVariable* gv, Chat& chat);
+void chatUpdate(Chat& chat, std::wstring nickname, sf::Vector2f mousePos);
+void updateUserTextBox(Chat& chat, sf::Vector2f mousePos);
+void updateScrollbarDir(Chat& chat);

@@ -1,8 +1,7 @@
 #ifndef RECTANGULAR_BOUNDARY_COLLISION_HPP
 #define RECTANGULAR_BOUNDARY_COLLISION_HPP
 
-#include <SFML/Graphics.hpp>
-#include <array>
+#include "pch.h"
 
 namespace collision
 {

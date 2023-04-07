@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Minimap.h" // header file for minimap.
 
 Minimap::Minimap(sf::Vector2f gameViewSize, sf::Vector2f minimapCenter, sf::Vector2f minimapSize, sf::Vector2f viewportPos, sf::Vector2f viewportSize)

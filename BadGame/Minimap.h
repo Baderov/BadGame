@@ -1,7 +1,4 @@
 #pragma once
-#include <iostream> // header that defines the standard input/output stream objects.
-#include <SFML/Graphics.hpp> // SFML library for working with graphics.
-#include "Variables.h"
 class Minimap
 {
 private:

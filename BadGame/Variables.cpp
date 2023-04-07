@@ -1,4 +1,4 @@
-#include "Variables.h" // header file for global variables.
+#include "pch.h"
 
 void setColor(GameVariable* gv) // function for setting values for color.
 {
@@ -64,7 +64,7 @@ void setSprite(GameVariable* gv) // function to set value for sprites.
 	gv->aimLaser.setFillColor(sf::Color::Red);
 }
 
-void setVariables(GameVariable* gv) // function for setting the values of global variables.
+void setVariables(GameVariable* gv, Chat& chat) // function for setting the values of global variables.
 {
 	gv->setWindowSize(sf::Vector2u(1366, 768));
 	sf::ContextSettings settings;
@@ -125,32 +125,29 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->boxStartPositions[22] = sf::Vector2f(3250.f, 4000.f);
 	gv->boxStartPositions[23] = sf::Vector2f(3750.f, 4000.f);
 
-
 	// FLOAT.
-	gv->setAimLaserLength(100.f);
 	gv->setMenuTimer(0.f);
 	gv->setDT(0.f);
 
 	// STRING.
-	gv->setSenderNickname(L"");
+	chat.setSenderNickname(L"");
 	gv->setNickname(L"");
-	gv->setChatStr(L"");
-	gv->setUserStr(L"");
-	gv->setChatPrefix(L"");
+	chat.setChatStr(L"");
+	chat.setUserStr(L"");
+	chat.setChatPrefix(L"");
 	gv->setServerIP("");
 	gv->setTempPort("");
-	gv->setLeftNick(L"");
-	gv->setJoinedNick(L"");
-	gv->setJoinedMsg(L"");
-	gv->setLeftMsg(L"");
+	chat.setLeftNick(L"");
+	chat.setJoinedNick(L"");
+	chat.setJoinedMsg(L"");
+	chat.setLeftMsg(L"");
 	gv->setFuncName("");
 
 	// INT, SIZE_T, sf::INT8,sf::INT16, sf::INT32, sf::INT64.
 	gv->setFPSLimiter(75);
-	gv->setNumberOfEnemies(0);
 	gv->setMenuNum(0);
-	gv->setNumOfLinesInChat(1);
-	gv->setNumOfLinesInUserTextBox(1);
+	chat.setNumOfLinesInChat(1);
+	chat.setNumOfLinesInUserTextBox(1);
 	gv->setPingDelay(100);
 
 	// BOOL.
@@ -162,16 +159,16 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 	gv->setIsFullscreen(false);
 	gv->setIsVsync(true);
 	gv->setFocusEvent(true);
-	gv->setMultiPlayerGame(false);
-	gv->setSinglePlayerGame(false);
+	gv->setIsMultiplayer(false);
+	gv->setIsSingleplayer(false);
 	gv->setRestartGame(false);
 	gv->setMainMenu(true);
-	gv->setChatEnterText(false);
-	gv->setChatContainsMouse(false);
-	gv->setRecvMsg(false);
-	gv->setSendMsg(false);
-	gv->setLeftFromServer(false);
-	gv->setJoinToServer(false);
+	chat.setChatEnterText(false);
+	chat.setChatContainsMouse(false);
+	chat.setRecvMsg(false);
+	chat.setSendMsg(false);
+	chat.setLeftFromServer(false);
+	chat.setJoinToServer(false);
 	gv->setConnectsToServer(false);
 	//gv->setChatAutoScroll(true);
 
@@ -182,927 +179,615 @@ void setVariables(GameVariable* gv) // function for setting the values of global
 
 }
 
+void clearEntitiesVec(GameVariable* gv)
+{
+	std::lock_guard<std::mutex> lock(gv->entities_mtx);
+	gv->entitiesVec.clear();
+}
+
+void resetVariables(GameVariable* gv, Chat& chat) // global variable reset function.
+{
+	if (gv->getIsSingleplayer() == true && gv->getIsMultiplayer() == false) { gv->setNickname(L""); }
+	else if (gv->getIsMultiplayer() == true && gv->getIsSingleplayer() == false)
+	{
+		clearEntitiesVec(gv);
+		chat.setUserStr(L"");
+		chat.setChatStr(L"");
+		chat.setChatPrefix(L"");
+		chat.setJoinedMsg(L"");
+		chat.setLeftMsg(L"");
+		chat.setNumOfLinesInChat(1);
+		chat.setNumOfLinesInUserTextBox(1);
+
+		gv->setIsConnected(false);
+		chat.setChatEnterText(false);
+		chat.setChatContainsMouse(false);
+		chat.setRecvMsg(false);
+		chat.setSendMsg(false);
+		chat.setLeftFromServer(false);
+		chat.setJoinToServer(true);
+		gv->setServerIsNotAvailable(false);
+		gv->setInMenu(false);
+		gv->setShowPlayersList(false);
+		chat.setShowChat(true);
+	}
+	gv->setGameViewSize(sf::Vector2f(1920.f, 1080.f));
+	gv->setGameViewCenter(sf::Vector2f(0.f, 0.f));
+	gv->setWindowView(gv->getGameView());
+	gv->setShowMinimap(true);
+	gv->gameClock.restart();
+}
+
 // GETTERS.
 sf::Vector2f GameVariable::getGameViewCenter()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempViewCenter = gVars.gameView.getCenter();
-	mtx_gv.unlock();
 	return tempViewCenter;
 }
 
 sf::Vector2f GameVariable::getGameViewSize()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempViewSize = gVars.gameView.getSize();
-	mtx_gv.unlock();
 	return tempViewSize;
 }
 
 sf::Vector2f GameVariable::getMenuViewCenter()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempViewCenter = gVars.menuView.getCenter();
-	mtx_gv.unlock();
 	return tempViewCenter;
 }
 
 sf::Vector2f GameVariable::getMenuViewSize()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempViewSize = gVars.menuView.getSize();
-	mtx_gv.unlock();
 	return tempViewSize;
 }
 
 sf::Vector2u GameVariable::getWindowSize()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2u tempWindowSize = gVars.windowSize;
-	mtx_gv.unlock();
 	return tempWindowSize;
 }
 
 sf::View GameVariable::getGameView()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::View tempView = gVars.gameView;
-	mtx_gv.unlock();
 	return tempView;
 }
 
 sf::View GameVariable::getMenuView()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::View tempView = gVars.menuView;
-	mtx_gv.unlock();
 	return tempView;
 }
 
 sf::Vector2f GameVariable::getMousePos()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempMousePos = gVars.mousePos;
-	mtx_gv.unlock();
 	return tempMousePos;
 }
 
 sf::Vector2f GameVariable::getPlayerStartPos()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Vector2f tempPlayerStartPos = gVars.playerStartPos;
-	mtx_gv.unlock();
 	return tempPlayerStartPos;
-}
-
-std::wstring GameVariable::getSenderNickname()
-{
-	mtx_gv.lock();
-	std::wstring tempSenderNickname = gVars.senderNickname;
-	mtx_gv.unlock();
-	return tempSenderNickname;
 }
 
 std::wstring GameVariable::getMoveDir()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	std::wstring tempMoveDir = gVars.moveDir;
-	mtx_gv.unlock();
 	return tempMoveDir;
 }
 
 std::wstring GameVariable::getNickname()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	std::wstring tempNickname = gVars.nickname;
-	mtx_gv.unlock();
 	return tempNickname;
-}
-
-std::wstring GameVariable::getUserStr()
-{
-	mtx_gv.lock();
-	std::wstring tempUserStr = gVars.userStr;
-	mtx_gv.unlock();
-	return tempUserStr;
-}
-
-std::wstring GameVariable::getChatStr()
-{
-	mtx_gv.lock();
-	std::wstring tempChatStr = gVars.chatStr;
-	mtx_gv.unlock();
-	return tempChatStr;
-}
-
-std::wstring GameVariable::getChatPrefix()
-{
-	mtx_gv.lock();
-	std::wstring tempChatPrefix = gVars.chatPrefix;
-	mtx_gv.unlock();
-	return tempChatPrefix;
-}
-
-std::wstring GameVariable::getLeftNick()
-{
-	mtx_gv.lock();
-	std::wstring tempLeftNick = gVars.leftNick;
-	mtx_gv.unlock();
-	return tempLeftNick;
-}
-
-std::wstring GameVariable::getJoinedNick()
-{
-	mtx_gv.lock();
-	std::wstring tempJoinedNick = gVars.joinedNick;
-	mtx_gv.unlock();
-	return tempJoinedNick;
-}
-
-std::wstring GameVariable::getLeftMsg()
-{
-	mtx_gv.lock();
-	std::wstring tempLefMsg = gVars.leftMsg;
-	mtx_gv.unlock();
-	return tempLefMsg;
-}
-
-std::wstring GameVariable::getJoinedMsg()
-{
-	mtx_gv.lock();
-	std::wstring tempJoinedMsg = gVars.joinedMsg;
-	mtx_gv.unlock();
-	return tempJoinedMsg;
 }
 
 std::string GameVariable::getFuncName()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	std::string tempFuncName = gVars.funcName;
-	mtx_gv.unlock();
 	return tempFuncName;
 }
 
 std::string GameVariable::getServerIP()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	std::string tempServerIP = gVars.serverIP;
-	mtx_gv.unlock();
 	return tempServerIP;
 }
 
 std::string GameVariable::getTempPort()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	std::string temporaryPort = gVars.tempPort;
-	mtx_gv.unlock();
 	return temporaryPort;
 }
 
 float GameVariable::getFPS()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	float tempFPS = gVars.fps;
-	mtx_gv.unlock();
 	return tempFPS;
-}
-
-float GameVariable::getAimLaserLength()
-{
-	mtx_gv.lock();
-	float tempAimLaserLength = gVars.aimLaserLength;
-	mtx_gv.unlock();
-	return tempAimLaserLength;
 }
 
 float GameVariable::getMenuTimer()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	float tempMenuTimer = gVars.menuTimer;
-	mtx_gv.unlock();
 	return tempMenuTimer;
 }
 
 float GameVariable::getDT()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	float tempDT = gVars.dt;
-	mtx_gv.unlock();
 	return tempDT;
 }
 
 float GameVariable::getServerTime()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	float tempServerTime = gVars.serverTime;
-	mtx_gv.unlock();
 	return tempServerTime;
 }
 
 float GameVariable::getServerClockElapsedTime()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	float serverClockElapsedTime = serverClock.getElapsedTime().asSeconds();
-	mtx_gv.unlock();
 	return serverClockElapsedTime;
 }
 
 unsigned int GameVariable::getFPSLimiter()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	unsigned int tempFPSLimiter = gVars.fpsLimiter;
-	mtx_gv.unlock();
 	return tempFPSLimiter;
-}
-
-int GameVariable::getNumberOfEnemies()
-{
-	mtx_gv.lock();
-	int tempNumberOfEnemies = gVars.numberOfEnemies;
-	mtx_gv.unlock();
-	return tempNumberOfEnemies;
 }
 
 int GameVariable::getMenuNum()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	int tempMenuNum = gVars.menuNum;
-	mtx_gv.unlock();
 	return tempMenuNum;
 }
 
 unsigned short GameVariable::getServerPort()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	unsigned short tempServerPort = gVars.serverPort;
-	mtx_gv.unlock();
 	return tempServerPort;
-}
-
-int GameVariable::getNumOfLinesInChat()
-{
-	mtx_gv.lock();
-	int tempNumOfLinesInChat = gVars.numOfLinesInChat;
-	mtx_gv.unlock();
-	return tempNumOfLinesInChat;
-}
-
-int GameVariable::getNumOfLinesInUserTextBox()
-{
-	mtx_gv.lock();
-	int tempNumOfLinesInUserTextBox = gVars.numOfLinesInUserTextBox;
-	mtx_gv.unlock();
-	return tempNumOfLinesInUserTextBox;
 }
 
 sf::Int32 GameVariable::getPingDelay()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	sf::Int32 tempPingDelay = gVars.pingDelay;
-	mtx_gv.unlock();
 	return tempPingDelay;
+}
+
+bool GameVariable::getIsConnected()
+{
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	bool tempIsConnected = gVars.isConnected;
+	return tempIsConnected;
 }
 
 bool GameVariable::getConnectButtonPressed()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempConnectButtonPressed = gVars.connectButtonPressed;
-	mtx_gv.unlock();
 	return tempConnectButtonPressed;
 }
 
 bool GameVariable::getShowPlayersList()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempShowPlayersList = gVars.showPlayersList;
-	mtx_gv.unlock();
 	return tempShowPlayersList;
-}
-
-bool GameVariable::getShowChat()
-{
-	mtx_gv.lock();
-	bool tempShowChat = gVars.showChat;
-	mtx_gv.unlock();
-	return tempShowChat;
 }
 
 bool GameVariable::getInMenu()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempInMenu = gVars.inMenu;
-	mtx_gv.unlock();
 	return tempInMenu;
 }
 
 bool GameVariable::getConnectsToServer()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempConnectsToServer = gVars.connectsToServer;
-	mtx_gv.unlock();
 	return tempConnectsToServer;
 }
 
 bool GameVariable::getShowHitbox()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempShowHitbox = gVars.showHitbox;
-	mtx_gv.unlock();
 	return tempShowHitbox;
 }
 
 bool GameVariable::getShowAimLaser()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempShowAimLaser = gVars.showAimLaser;
-	mtx_gv.unlock();
 	return tempShowAimLaser;
 }
 
 bool GameVariable::getShowLogs()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempShowLogs = gVars.showLogs;
-	mtx_gv.unlock();
 	return tempShowLogs;
 }
 
 bool GameVariable::getShowMinimap()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempShowMinimap = gVars.showMinimap;
-	mtx_gv.unlock();
 	return tempShowMinimap;
 }
 
 bool GameVariable::getIsFullscreen()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempIsFullscreen = gVars.isFullscreen;
-	mtx_gv.unlock();
 	return tempIsFullscreen;
 }
 
 bool GameVariable::getIsVsync()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempIsVsync = gVars.isVsync;
-	mtx_gv.unlock();
 	return tempIsVsync;
 }
 
-bool GameVariable::getMultiPlayerGame()
+bool GameVariable::getIsMultiplayer()
 {
-	mtx_gv.lock();
-	bool tempMultiplayerGame = gVars.multiPlayerGame;
-	mtx_gv.unlock();
-	return tempMultiplayerGame;
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	bool tempIsMultiplayer = gVars.isMultiplayer;
+	return tempIsMultiplayer;
 }
 
-bool GameVariable::getSinglePlayerGame()
+bool GameVariable::getIsSingleplayer()
 {
-	mtx_gv.lock();
-	bool tempSinglePlayerGame = gVars.singlePlayerGame;
-	mtx_gv.unlock();
-	return tempSinglePlayerGame;
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	bool tempIsSinglePlayer = gVars.isSingleplayer;
+	return tempIsSinglePlayer;
 }
 
 bool GameVariable::getFocusEvent()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempFocusEvent = gVars.focusEvent;
-	mtx_gv.unlock();
 	return tempFocusEvent;
 }
 
 bool GameVariable::getMainMenu()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempMainMenu = gVars.mainMenu;
-	mtx_gv.unlock();
 	return tempMainMenu;
 }
 
 bool GameVariable::getRestartGame()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempRestartGame = gVars.restartGame;
-	mtx_gv.unlock();
 	return tempRestartGame;
 }
 
-bool GameVariable::getChatContainsMouse()
-{
-	mtx_gv.lock();
-	bool tempChatContainsMouse = gVars.chatContainsMouse;
-	mtx_gv.unlock();
-	return tempChatContainsMouse;
-}
 
-bool GameVariable::getChatEnterText()
-{
-	mtx_gv.lock();
-	bool tempChatEnterText = gVars.chatEnterText;
-	mtx_gv.unlock();
-	return tempChatEnterText;
-}
-
-bool GameVariable::getRecvMsg()
-{
-	mtx_gv.lock();
-	bool tempRecvMsg = gVars.recvMsg;
-	mtx_gv.unlock();
-	return tempRecvMsg;
-}
-
-bool GameVariable::getSendMsg()
-{
-	mtx_gv.lock();
-	bool tempSendMsg = gVars.sendMsg;
-	mtx_gv.unlock();
-	return tempSendMsg;
-}
-
-bool GameVariable::getLeftFromServer()
-{
-	mtx_gv.lock();
-	bool tempLeftFromServer = gVars.leftFromServer;
-	mtx_gv.unlock();
-	return tempLeftFromServer;
-}
-
-bool GameVariable::getJoinToServer()
-{
-	mtx_gv.lock();
-	bool tempJoinToServer = gVars.joinToServer;
-	mtx_gv.unlock();
-	return tempJoinToServer;
-}
 
 //bool GameVariable::getChatAutoScroll()
 //{
-//	mtx_gv.lock();
+//	
 //	bool tempChatAutoScroll = gVars.chatAutoScroll;
-//	mtx_gv.unlock();
+//	
 //	return tempChatAutoScroll;
 //}
 
 bool GameVariable::getServerIsNotAvailable()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	bool tempServerIsNotAvailable = gVars.serverIsNotAvailable;
-	mtx_gv.unlock();
 	return tempServerIsNotAvailable;
 }
 
 char GameVariable::getGameLanguage()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	char tempGameLanguage = gVars.gameLanguage;
-	mtx_gv.unlock();
 	return tempGameLanguage;
 }
 
 char GameVariable::getSymbol()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	char tempSymbol = gVars.symbol;
-	mtx_gv.unlock();
 	return tempSymbol;
 }
 
 char GameVariable::getInput()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	char tempInput = gVars.input;
-	mtx_gv.unlock();
 	return tempInput;
 }
 
 // SETTERS.
-
 void GameVariable::setWindowView(sf::View view)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	window.setView(view);
-	mtx_gv.unlock();
 }
 
 void GameVariable::setGameViewCenter(sf::Vector2f tempViewCenter)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.gameView.setCenter(tempViewCenter);
-	mtx_gv.unlock();
 }
 
 void GameVariable::setGameViewSize(sf::Vector2f tempViewSize)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.gameView.setSize(tempViewSize);
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMenuViewCenter(sf::Vector2f tempViewCenter)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.menuView.setCenter(tempViewCenter);
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMenuViewSize(sf::Vector2f tempViewSize)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.menuView.setSize(tempViewSize);
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMousePos(sf::Vector2f tempMousePos)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.mousePos = tempMousePos;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setPlayerStartPos(sf::Vector2f tempPlayerStartPos)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.playerStartPos = tempPlayerStartPos;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setWindowSize(sf::Vector2u tempWindowSize)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.windowSize = tempWindowSize;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setSenderNickname(std::wstring tempSenderNickname)
-{
-	mtx_gv.lock();
-	gVars.senderNickname = tempSenderNickname;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMoveDir(std::wstring tempMoveDir)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.moveDir = tempMoveDir;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setNickname(std::wstring tempNickname)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.nickname = tempNickname;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setUserStr(std::wstring tempUserStr)
-{
-	mtx_gv.lock();
-	gVars.userStr = tempUserStr;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setChatStr(std::wstring tempChatStr)
-{
-	mtx_gv.lock();
-	gVars.chatStr = tempChatStr;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setChatPrefix(std::wstring tempChatPrefix)
-{
-	mtx_gv.lock();
-	gVars.chatPrefix = tempChatPrefix;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setLeftNick(std::wstring tempLeftNick)
-{
-	mtx_gv.lock();
-	gVars.leftNick = tempLeftNick;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setJoinedNick(std::wstring tempJoinedNick)
-{
-	mtx_gv.lock();
-	gVars.joinedNick = tempJoinedNick;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setLeftMsg(std::wstring tempLefMsg)
-{
-	mtx_gv.lock();
-	gVars.leftMsg = tempLefMsg;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setJoinedMsg(std::wstring tempJoinedMsg)
-{
-	mtx_gv.lock();
-	gVars.joinedMsg = tempJoinedMsg;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setFuncName(std::string tempFuncName)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.funcName = tempFuncName;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setServerIP(std::string tempServerIP)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.serverIP = tempServerIP;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setTempPort(std::string temporaryPort)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.tempPort = temporaryPort;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setFPS(float tempFPS)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.fps = tempFPS;
-	mtx_gv.unlock();
-}
-void GameVariable::setAimLaserLength(float tempAimLaserLength)
-{
-	mtx_gv.lock();
-	gVars.aimLaserLength = tempAimLaserLength;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMenuTimer(float tempMenuTimer)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.menuTimer = tempMenuTimer;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setDT(float tempDT)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.dt = tempDT;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setServerTime(float tempServerTime)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.serverTime = tempServerTime;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setFPSLimiter(unsigned int tempFPSLimiter)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.fpsLimiter = tempFPSLimiter;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setNumberOfEnemies(int tempNumberOfEnemies)
-{
-	mtx_gv.lock();
-	gVars.numberOfEnemies = tempNumberOfEnemies;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMenuNum(int tempMenuNum)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.menuNum = tempMenuNum;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setServerPort(unsigned short tempServerPort)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.serverPort = tempServerPort;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setNumOfLinesInChat(int tempNumOfLinesInChat)
-{
-	mtx_gv.lock();
-	gVars.numOfLinesInChat = tempNumOfLinesInChat;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setNumOfLinesInUserTextBox(int tempNumOfLinesInUserTextBox)
-{
-	mtx_gv.lock();
-	gVars.numOfLinesInUserTextBox = tempNumOfLinesInUserTextBox;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setPingDelay(sf::Int32 tempPingDelay)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.pingDelay = tempPingDelay;
-	mtx_gv.unlock();
+}
+
+void GameVariable::setIsConnected(bool tempIsConnected)
+{
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	gVars.isConnected = tempIsConnected;
 }
 
 void GameVariable::setConnectButtonPressed(bool tempConnectButtonPressed)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.connectButtonPressed = tempConnectButtonPressed;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setShowPlayersList(bool tempShowPlayersList)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.showPlayersList = tempShowPlayersList;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setShowChat(bool tempShowChat)
-{
-	mtx_gv.lock();
-	gVars.showChat = tempShowChat;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setInMenu(bool tempInMenu)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.inMenu = tempInMenu;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setConnectsToServer(bool tempConnectsToServer)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.connectsToServer = tempConnectsToServer;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setShowHitbox(bool tempShowHitbox)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.showHitbox = tempShowHitbox;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setShowAimLaser(bool tempShowAimLaser)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.showAimLaser = tempShowAimLaser;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setShowLogs(bool tempShowLogs)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.showLogs = tempShowLogs;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setShowMinimap(bool tempShowMinimap)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.showMinimap = tempShowMinimap;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setIsFullscreen(bool tempIsFullscreen)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.isFullscreen = tempIsFullscreen;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setIsVsync(bool tempIsVsync)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.isVsync = tempIsVsync;
-	mtx_gv.unlock();
 }
 
-void GameVariable::setMultiPlayerGame(bool tempMultiplayerGame)
+void GameVariable::setIsMultiplayer(bool tempIsMultiplayer)
 {
-	mtx_gv.lock();
-	gVars.multiPlayerGame = tempMultiplayerGame;
-	mtx_gv.unlock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	gVars.isMultiplayer = tempIsMultiplayer;
 }
 
-void GameVariable::setSinglePlayerGame(bool tempSinglePlayerGame)
+void GameVariable::setIsSingleplayer(bool tempIsSingleplayer)
 {
-	mtx_gv.lock();
-	gVars.singlePlayerGame = tempSinglePlayerGame;
-	mtx_gv.unlock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
+	gVars.isSingleplayer = tempIsSingleplayer;
 }
 
 void GameVariable::setFocusEvent(bool tempFocusEvent)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.focusEvent = tempFocusEvent;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setMainMenu(bool tempMainMenu)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.mainMenu = tempMainMenu;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setRestartGame(bool tempRestartGame)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.restartGame = tempRestartGame;
-	mtx_gv.unlock();
 }
 
-void GameVariable::setChatContainsMouse(bool tempChatContainsMouse)
-{
-	mtx_gv.lock();
-	gVars.chatContainsMouse = tempChatContainsMouse;
-	mtx_gv.unlock();
-}
 
-void GameVariable::setChatEnterText(bool tempChatEnterText)
-{
-	mtx_gv.lock();
-	gVars.chatEnterText = tempChatEnterText;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setRecvMsg(bool tempRecvMsg)
-{
-	mtx_gv.lock();
-	gVars.recvMsg = tempRecvMsg;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setSendMsg(bool tempSendMsg)
-{
-	mtx_gv.lock();
-	gVars.sendMsg = tempSendMsg;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setLeftFromServer(bool tempLeftFromServer)
-{
-	mtx_gv.lock();
-	gVars.leftFromServer = tempLeftFromServer;
-	mtx_gv.unlock();
-}
-
-void GameVariable::setJoinToServer(bool tempJoinToServer)
-{
-	mtx_gv.lock();
-	gVars.joinToServer = tempJoinToServer;
-	mtx_gv.unlock();
-}
 
 //void GameVariable::setChatAutoScroll(bool tempChatAutoScroll)
 //{
-//	mtx_gv.lock();
+//	
 //	gVars.chatAutoScroll = tempChatAutoScroll;
-//	mtx_gv.unlock();
+//	
 //}
 
 void GameVariable::setServerIsNotAvailable(bool tempServerIsNotAvailable)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.serverIsNotAvailable = tempServerIsNotAvailable;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setGameLanguage(char tempGameLanguage)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.gameLanguage = tempGameLanguage;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setSymbol(char tempSymbol)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.symbol = tempSymbol;
-	mtx_gv.unlock();
 }
 
 void GameVariable::setInput(char tempInput)
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	gVars.input = tempInput;
-	mtx_gv.unlock();
 }
 
 void GameVariable::restartServerClock()
 {
-	mtx_gv.lock();
+	std::lock_guard<std::mutex> lock(mtx_gv);
 	serverClock.restart();
-	mtx_gv.unlock();
 }

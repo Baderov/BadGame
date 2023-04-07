@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "PlayersList.h"
 
 PlayersList::PlayersList()
@@ -32,6 +33,7 @@ PlayersList::PlayersList()
 	text.setFont(font);
 	text.setCharacterSize(50);
 	text.setFillColor(sf::Color::Cyan);
+
 }
 
 void PlayersList::updateRSPos(float x, float y)
@@ -41,119 +43,91 @@ void PlayersList::updateRSPos(float x, float y)
 	innerScrollBar.setPosition(outerScrollBar.getPosition());
 }
 
-void PlayersList::updateText(GameVariable* gv, std::vector<std::unique_ptr<Clients>>& clientsVec)
+void PlayersList::updateText(GameVariable* gv, int numOfClients)
 {
-	size_t max = clientsVec.size() - scrollbarStepNumber;
+	if (gv->getGameLanguage() == 'e')
+	{
+		text.setString(L"	 PLAYERS ONLINE\nNICKNAME			PING\n");
+	}
+	else if (gv->getGameLanguage() == 'r')
+	{
+		text.setString(L"	 »√–Œ » ŒÕÀ¿…Õ\nÕ» Õ≈…Ã			œ»Õ√\n");
+	}
+
+	size_t current = 0;
+	size_t max = numOfClients - scrollbarStepNumber; // max = 20 - 0 = 20.
+	size_t numOfPasses = 0;
 	if (max >= NUM_OF_DISPLAYED_PLAYERS)
 	{
 		if (scrollbarStepNumber >= 0)
 		{
-			scrollbarDivisor = static_cast<float>(clientsVec.size()) - 9.f;
+			scrollbarDivisor = static_cast<float>(numOfClients) - 9.f;
 			if (scrollbarDivisor <= 0.f) { scrollbarDivisor = 1.f; }
 			innerScrollBar.setSize(sf::Vector2f(30.f, std::round(outerScrollBar.getSize().y / scrollbarDivisor)));
 			innerScrollBar.setOrigin(innerScrollBar.getSize() / 2.f);
 			innerScrollBar.setPosition(outerScrollBar.getPosition().x, std::round((((outerScrollBar.getPosition().y + outerScrollBar.getSize().y / 2.f) - innerScrollBar.getSize().y / 2.f) + scrollbarYPos)));
 		}
+		current = max - NUM_OF_DISPLAYED_PLAYERS; // current = 20 - 10 = 10.
+		numOfPasses = current;
+	}
 
-		size_t current = max - NUM_OF_DISPLAYED_PLAYERS;
-		if (gv->getGameLanguage() == 'e')
-		{
-			text.setString(L"	 PLAYERS ONLINE\nNICKNAME			PING\n");
-		}
-		else if (gv->getGameLanguage() == 'r')
-		{
-			text.setString(L"	 »√–Œ » ŒÕÀ¿…Õ\nÕ» Õ≈…Ã			œ»Õ√\n");
-		}
-		for (; current < max; current++)
-		{
-			std::wstring tab = L"";
-			size_t tabSize = 20 - clientsVec[current]->getNickname().size();
-			tab.append(tabSize, ' ');
-			text.setString(text.getString() + clientsVec[current]->getNickname() + tab + std::to_wstring(clientsVec[current]->getPing()) + '\n');
-		}
-	}
-	else
+	for (auto& entity : gv->entitiesVec)
 	{
-		size_t current = 0;
-		if (gv->getGameLanguage() == 'e')
+		if (current >= max) { break; }
+
+		if (entity->getEntityType() == "Client")
 		{
-			text.setString(L"	 PLAYERS ONLINE\nNICKNAME			PING\n");
-		}
-		else if (gv->getGameLanguage() == 'r')
-		{
-			text.setString(L"	 »√–Œ » ŒÕÀ¿…Õ\nÕ» Õ≈…Ã			œ»Õ√\n");
-		}
-		for (; current < max; current++)
-		{
+			if (numOfPasses > 0) { numOfPasses--; continue; }
 			std::wstring tab = L"";
-			size_t tabSize = 20 - clientsVec[current]->getNickname().size();
+			size_t tabSize = 20 - entity->getName().size();
 			tab.append(tabSize, ' ');
-			text.setString(text.getString() + clientsVec[current]->getNickname() + tab + std::to_wstring(clientsVec[current]->getPing()) + '\n');
+			text.setString(text.getString() + entity->getName() + tab + std::to_wstring(entity->getPing()) + '\n');
+			current++;
 		}
 	}
+
 	text.setPosition(RS.getPosition().x - 325.f, (RS.getPosition().y - (RS.getSize().y / 2.f)));
 }
 
-void PlayersList::updateScrollbarDir(size_t clientsVecSize)
+void PlayersList::updateScrollbarDir(int numOfClients)
 {
 	if (scrollbarDir == L"up" && ((innerScrollBar.getPosition().y - (innerScrollBar.getSize().y / 2.f))) > outerScrollBar.getPosition().y - (outerScrollBar.getSize().y / 2.f))
 	{
-		scrollUp(clientsVecSize);
+		scrollUp(numOfClients);
 	}
 	else if (scrollbarDir == L"down" && ((innerScrollBar.getPosition().y + (innerScrollBar.getSize().y / 2.f))) < outerScrollBar.getPosition().y + (outerScrollBar.getSize().y / 2.f))
 	{
-		scrollDown(clientsVecSize);
+		scrollDown(numOfClients);
 	}
 }
 
-void PlayersList::scrollUp(size_t clientsVecSize)
+void PlayersList::scrollUp(int numOfClients)
 {
 	scrollbarYPos += std::round(-(outerScrollBar.getSize().y / scrollbarDivisor));
-	if ((clientsVecSize > scrollbarStepNumber) && (clientsVecSize - scrollbarStepNumber > NUM_OF_DISPLAYED_PLAYERS)) { scrollbarStepNumber++; }
+	if ((numOfClients > scrollbarStepNumber) && (numOfClients - scrollbarStepNumber > NUM_OF_DISPLAYED_PLAYERS)) { scrollbarStepNumber++; }
 	scrollbarDir = L"";
 }
 
-void PlayersList::scrollDown(size_t clientsVecSize)
+void PlayersList::scrollDown(int numOfClients)
 {
 	scrollbarYPos += std::round(outerScrollBar.getSize().y / scrollbarDivisor);
-	if (scrollbarStepNumber > 0 && clientsVecSize > NUM_OF_DISPLAYED_PLAYERS) { scrollbarStepNumber--; }
+	if (scrollbarStepNumber > 0 && numOfClients > NUM_OF_DISPLAYED_PLAYERS) { scrollbarStepNumber--; }
 	scrollbarDir = L"";
 }
 
-void PlayersList::updatePL(GameVariable* gv, std::mutex& cVec_mtx, std::vector<std::unique_ptr<Clients>>& clientsVec)
+void PlayersList::updatePL(GameVariable* gv, int numOfClients)
 {
-	cVec_mtx.lock();
-	PL_mtx.lock();
-
 	updateRSPos(getCurrentClientPos().x, getCurrentClientPos().y);
-	updateText(gv, clientsVec);
-	updateScrollbarDir(clientsVec.size());
-
-	PL_mtx.unlock();
-	cVec_mtx.unlock();
+	updateText(gv, numOfClients);
+	updateScrollbarDir(numOfClients);
 }
 
 void PlayersList::updatePLScrollbar()
 {
-	PL_mtx.lock();
-
 	scrollbarStepNumber = 0;
 	scrollbarYPos = 0;
-
-	PL_mtx.unlock();
 }
 
-void PlayersList::setScrollbarDir(std::wstring tempScrollbarDir)
-{
-	PL_mtx.lock();
-	scrollbarDir = tempScrollbarDir;
-	PL_mtx.unlock();
-}
+void PlayersList::setScrollbarDir(std::wstring tempScrollbarDir) { scrollbarDir = tempScrollbarDir; }
 
-size_t PlayersList::getScrollbarStepNumber()
-{
-	PL_mtx.lock();
-	size_t tempStepNumber = scrollbarStepNumber;
-	PL_mtx.unlock();
-	return tempStepNumber;
-}
+size_t PlayersList::getScrollbarStepNumber() { return scrollbarStepNumber; }

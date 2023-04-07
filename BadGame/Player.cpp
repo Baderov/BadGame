@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Player.h" // header file for player.
 
 Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // player constructor.
@@ -10,7 +11,7 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 	HP = 100;
 	goldCoins = 0;
 	maxHP = HP;
-	moveTargetPos = currentPos;
+	moveTargetPos = sprite.getPosition();
 
 	magazineAmmo = 30;
 	currentAmmo = magazineAmmo;
@@ -43,29 +44,26 @@ Player::Player(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Ent
 	icon.setFillColor(sf::Color::Green);
 }
 
-void Player::update(GameVariable* gv) // player update function.
+void Player::update(sf::RenderWindow& window, sf::RectangleShape& aimLaser, sf::Vector2f mousePos, char gameLanguage, float dt, bool isSinglePlayer) // player update function.
 {
 	if (isAlive == true)
 	{
-		gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window)));
-		rotate(gv);
-		updateLaser(gv);
-		move(gv);
+		mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		move(aimLaser, dt, isSinglePlayer);
+		rotate(aimLaser, mousePos);
+		updateLaser(mousePos, aimLaser);
 
 		if (isReload == true)
 		{
 			reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
 			if (reloadTime < 0.f) { reloadTime = 0.f; }
-			updateReloadRect(gv);
+			updateReloadRect(gameLanguage);
 		}
-		nameText.setPosition(currentPos.x, currentPos.y - 90.f);
+		nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 90.f);
 
-		sprite.setPosition(currentPos);
-		icon.setPosition(currentPos);
-		rectHitbox.setPosition(currentPos);
-		gv->aimLaser.setPosition(currentPos);
-
-		gv->setGameViewCenter(sprite.getPosition());
+		icon.setPosition(sprite.getPosition());
+		rectHitbox.setPosition(sprite.getPosition());
+		aimLaser.setPosition(sprite.getPosition());
 		updateHPBar();
 
 		hpText.setString(std::to_string(HP));
@@ -73,34 +71,27 @@ void Player::update(GameVariable* gv) // player update function.
 
 		if (HP <= 0) // if the player's health is zero or less, then he is dead.
 		{
-			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
+			aimLaser.setSize(sf::Vector2f(0.f, 0.f));
 			isAlive = false;
 		}
 	}
 }
 
-void Player::rotate(GameVariable* gv) // player rotate function.
+void Player::rotate(sf::RectangleShape& aimLaser, sf::Vector2f targetPos) // rotate function.
 {
-	float dX = gv->getMousePos().x - currentPos.x;
-	float dY = gv->getMousePos().y - currentPos.y;
+	float dX = targetPos.x - sprite.getPosition().x;
+	float dY = targetPos.y - sprite.getPosition().y;
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	sprite.setRotation(rotation);
-	gv->aimLaser.setRotation(rotation + 90.f);
+	aimLaser.setRotation(rotation + 90.f);
 }
 
-void Player::move(GameVariable* gv) // player move function.
+void Player::move(sf::RectangleShape& aimLaser, float dt, bool isSinglePlayer) // player move function.
 {
-	if (isMove == true) { moveToTarget(moveTargetPos, gv); }
+	if (isMove == true) { moveToTarget(moveTargetPos, dt, isSinglePlayer); }
 }
 
-void Player::updateLaser(GameVariable* gv) // laser update function.
-{
-	float dist = sqrt(((gv->getMousePos().x - currentPos.x) * (gv->getMousePos().x - currentPos.x)) + ((gv->getMousePos().y - currentPos.y) * (gv->getMousePos().y - currentPos.y)));
-	gv->setAimLaserLength(dist);
-	gv->aimLaser.setSize(sf::Vector2f(2.25f, -gv->getAimLaserLength()));
-}
-
-void Player::updateReloadRect(GameVariable* gv) // update reload rect function.
+void Player::updateReloadRect(char gameLanguage) // update reload rect function.
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
 	reloadRectOuter.setOrigin(reloadRectOuter.getSize() / 2.f);
@@ -109,14 +100,14 @@ void Player::updateReloadRect(GameVariable* gv) // update reload rect function.
 	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
 	if (tempReloadTime < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y)); }
 	else { reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y)); }
-	reloadRectOuter.setPosition(currentPos.x, currentPos.y + 400.f);
+	reloadRectOuter.setPosition(sprite.getPosition().x, sprite.getPosition().y + 400.f);
 	reloadRectInner.setPosition(reloadRectOuter.getPosition().x - (reloadRectOuter.getSize().x / 2.f), reloadRectOuter.getPosition().y - (reloadRectOuter.getSize().y / 2.f));
-	if (gv->getGameLanguage() == 'e')
+	if (gameLanguage == 'e')
 	{
 		reloadText.setString("RELOAD");
 		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));
 	}
-	else if (gv->getGameLanguage() == 'r')
+	else if (gameLanguage == 'r')
 	{
 		reloadText.setString(L"œ≈–≈«¿–ﬂƒ ¿");
 		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));

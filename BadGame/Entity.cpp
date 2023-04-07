@@ -1,8 +1,11 @@
+#include "pch.h"
 #include "Entity.h" // header file for entities.
+
+int Entity::numOfClients = 0;
+int Entity::numOfEnemies = 0;
 
 Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // entity constructor.
 {
-	currentVelocity = sf::Vector2f(0.f, 0.f);
 	grayColor.r = 160;
 	grayColor.g = 160;
 	grayColor.b = 160;
@@ -10,22 +13,46 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 	DTMultiplier = 1000.f;
 	maxSpeed = 0.f;
 	menuTime = 0.f;
-	currentPos = startPos;
-	this->name = name;
-	creatorName = L"";
+	spawnTime = 0.f;
+	reloadTime = 0.f;
+	shootTime = 0.f;
+	shootDelay = 1.f;
+	shootOffset = 0.f;
+	HP = 100;
+	maxHP = 100;
+	goldCoins = 0;
+	currentAmmo = 30;
+	maxAmmo = 500;
+	missingAmmo = 0;
+	magazineAmmo = 30;
+
 	isAlive = true;
 	isShoot = false;
+	isMove = false;
+	isReload = false;
+
+	moveTargetPos = sf::Vector2f(0.f, 0.f);
+	currentVelocity = sf::Vector2f(0.f, 0.f);
+	stepPos = sf::Vector2f(0.f, 0.f);
+	aimPos = sf::Vector2f(0.f, 0.f);
+	aimDir = sf::Vector2f(0.f, 0.f);
+	aimDirNorm = sf::Vector2f(0.f, 0.f);
+
+	this->name = name;
+	creatorName = L"";
+	entityType = "";
+	ping = 0;
 
 	texture.loadFromImage(image);
 	sprite.setTexture(texture);
 	w = static_cast<float>(texture.getSize().x);
 	h = static_cast<float>(texture.getSize().y);
 	sprite.setOrigin(w / 2.f, h / 2.f);
-	sprite.setPosition(currentPos);
+	sprite.setPosition(startPos);
 
 	rectHitbox.setSize(sf::Vector2f(w, h));
 	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
-	rectHitbox.setPosition(currentPos);
+	rectHitbox.setPosition(sprite.getPosition());
 
 	HPBarInner.setFillColor(sf::Color::Green);
 	HPBarInner.setOutlineThickness(2.f);
@@ -56,7 +83,6 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 
 Entity::Entity(sf::Vector2f startPos, std::wstring name) // entity constructor.
 {
-	currentVelocity = sf::Vector2f(0.f, 0.f);
 	grayColor.r = 160;
 	grayColor.g = 160;
 	grayColor.b = 160;
@@ -64,15 +90,39 @@ Entity::Entity(sf::Vector2f startPos, std::wstring name) // entity constructor.
 	DTMultiplier = 1000.f;
 	maxSpeed = 0.f;
 	menuTime = 0.f;
-	currentPos = startPos;
-	this->name = name;
-	creatorName = L"";
+	spawnTime = 0.f;
+	reloadTime = 0.f;
+	shootTime = 0.f;
+	shootDelay = 1.f;
+	shootOffset = 0.f;
+	HP = 100;
+	maxHP = 100;
+	goldCoins = 0;
+	currentAmmo = 30;
+	maxAmmo = 500;
+	missingAmmo = 0;
+	magazineAmmo = 30;
+
 	isAlive = true;
 	isShoot = false;
+	isMove = false;
+	isReload = false;
+
+	moveTargetPos = sf::Vector2f(0.f, 0.f);
+	currentVelocity = sf::Vector2f(0.f, 0.f);
+	stepPos = sf::Vector2f(0.f, 0.f);
+	aimPos = sf::Vector2f(0.f, 0.f);
+	aimDir = sf::Vector2f(0.f, 0.f);
+	aimDirNorm = sf::Vector2f(0.f, 0.f);
+
+	this->name = name;
+	creatorName = L"";
+	entityType = "";
+	ping = 0;
 
 	rectHitbox.setSize(sf::Vector2f(w, h));
 	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
-	rectHitbox.setPosition(currentPos);
+	rectHitbox.setPosition(startPos);
 
 	HPBarInner.setFillColor(sf::Color::Green);
 	HPBarInner.setOutlineThickness(2.f);
@@ -101,9 +151,15 @@ Entity::Entity(sf::Vector2f startPos, std::wstring name) // entity constructor.
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 }
 
+Entity::~Entity()
+{
+	if (entityType == "Enemy") { numOfEnemies--; }
+	else if (entityType == "Client") { numOfClients--; }
+}
+
 void Entity::calcDirection() // function to calculate direction.
 {
-	aimDir = aimPos - currentPos; // distance from the mouse to the current position of the sprite.
+	aimDir = aimPos - sprite.getPosition(); // distance from the mouse to the current position of the sprite.
 	aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
 	currentVelocity = aimDirNorm * maxSpeed; // vector speed = direction * linear speed.
 }
@@ -111,21 +167,20 @@ void Entity::calcDirection() // function to calculate direction.
 void Entity::moveToDirection() // function to move the sprite in direction.
 {
 	sprite.move(currentVelocity);
-	currentPos = sprite.getPosition();
 }
 
-void Entity::moveToTarget(sf::Vector2f targetPos, GameVariable* gv) // a function to move the sprite to the target.
+void Entity::moveToTarget(sf::Vector2f targetPos, float& dt, bool& isSinglePlayer) // a function to move the sprite to the target.
 {
 	// distance from the current position of the sprite to the target position.
-	distance = sqrt(((targetPos.x - currentPos.x) * (targetPos.x - currentPos.x)) + ((targetPos.y - currentPos.y) * (targetPos.y - currentPos.y)));
+	distance = sqrt(((targetPos.x - sprite.getPosition().x) * (targetPos.x - sprite.getPosition().x)) + ((targetPos.y - sprite.getPosition().y) * (targetPos.y - sprite.getPosition().y)));
 
 	// crutch, so that the player does not twitch when reaching the goal.
 	if (distance > 7)
 	{
 		// stepPos - increment to the current position.
-		stepPos.x = round((currentVelocity.x * (gv->getDT() * DTMultiplier) * (targetPos.x - currentPos.x)) / distance);
-		stepPos.y = round((currentVelocity.y * (gv->getDT() * DTMultiplier) * (targetPos.y - currentPos.y)) / distance);
-		currentPos += stepPos;
+		stepPos.x = round((currentVelocity.x * (dt * DTMultiplier) * (targetPos.x - sprite.getPosition().x)) / distance);
+		stepPos.y = round((currentVelocity.y * (dt * DTMultiplier) * (targetPos.y - sprite.getPosition().y)) / distance);
+		if (isSinglePlayer) { sprite.move(stepPos); }
 	}
 	else { isMove = false; } // else don`t move.
 }
@@ -133,7 +188,7 @@ void Entity::moveToTarget(sf::Vector2f targetPos, GameVariable* gv) // a functio
 void Entity::updateHPBar() // function to update HP Bar.
 {
 	HPBarOuter.setSize(sf::Vector2f(static_cast<float>(maxHP), 20.f));
-	HPBarOuter.setPosition(currentPos.x - 50.f, currentPos.y - 60.f);
+	HPBarOuter.setPosition(sprite.getPosition().x - 50.f, sprite.getPosition().y - 60.f);
 
 	HPBarInner.setSize(sf::Vector2f(static_cast<float>(HP), HPBarOuter.getSize().y));
 	HPBarInner.setPosition(HPBarOuter.getPosition().x, HPBarOuter.getPosition().y);
@@ -152,6 +207,14 @@ void Entity::updateHPBar() // function to update HP Bar.
 	}
 }
 
+void Entity::updateLaser(sf::Vector2f mousePos, sf::RectangleShape& aimLaser)
+{
+	float dist = sqrt(((mousePos.x - sprite.getPosition().x) * (mousePos.x - sprite.getPosition().x)) + ((mousePos.y - sprite.getPosition().y) * (mousePos.y - sprite.getPosition().y)));
+	aimLaser.setSize(sf::Vector2f(2.25f, -dist));
+}
+
+int& Entity::getNumOfEnemies() { return numOfEnemies; }
+int& Entity::getNumOfClients() { return numOfClients; }
 float& Entity::getMenuTime() { return menuTime; }
 float& Entity::getShootTime() { return shootTime; }
 float& Entity::getSpawnTime() { return spawnTime; }
@@ -171,6 +234,7 @@ bool& Entity::getIsShoot() { return isShoot; }
 bool& Entity::getIsReload() { return isReload; }
 sf::Clock& Entity::getReloadClock() { return reloadClock; }
 sf::Clock& Entity::getShootClock() { return shootClock; }
+sf::Clock& Entity::getPingClock() { return pingClock; }
 sf::Text& Entity::getHPText() { return hpText; }
 sf::Text& Entity::getNameText() { return nameText; }
 sf::Text& Entity::getReloadText() { return reloadText; }
@@ -181,7 +245,6 @@ sf::RectangleShape& Entity::getHPBarOuter() { return HPBarOuter; }
 sf::RectangleShape& Entity::getReloadRectInner() { return reloadRectInner; }
 sf::RectangleShape& Entity::getReloadRectOuter() { return reloadRectOuter; }
 sf::Vector2f& Entity::getMoveTargetPos() { return moveTargetPos; }
-sf::Vector2f& Entity::getCurrentPos() { return currentPos; }
 sf::Vector2f& Entity::getCurrentVelocity() { return currentVelocity; }
 sf::Vector2f& Entity::getStepPos() { return stepPos; }
 sf::Vector2f& Entity::getAimPos() { return aimPos; }
@@ -191,13 +254,26 @@ sf::Sprite& Entity::getSprite() { return sprite; }
 std::wstring& Entity::getName() { return name; }
 std::wstring& Entity::getCreatorName() { return creatorName; }
 std::string& Entity::getEntityType() { return entityType; }
+sf::Int32 Entity::getPing() { return ping; }
 
+void Entity::setNickPosition()
+{
+	nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 80.f);
+}
+void Entity::setClientPosition(sf::Vector2f tempStepPos)
+{
+	sprite.move(tempStepPos);
+	icon.move(tempStepPos);
+}
+void Entity::setPing(sf::Int32 tempPing) { ping = tempPing; }
 void Entity::setMenuTime(float menuTime) { this->menuTime = menuTime; }
 void Entity::setSpawnTime(float spawnTime) { this->spawnTime = spawnTime; }
 void Entity::setReloadTime(float reloadTime) { this->reloadTime = reloadTime; }
 void Entity::setShootTime(float shootTime) { this->shootTime = shootTime; }
 void Entity::setShootDelay(float shootDelay) { this->shootDelay = shootDelay; }
 void Entity::setShootOffset(float shootOffset) { this->shootOffset = shootOffset; }
+void Entity::setNumOfClients(int tempNumOfClients) { numOfClients = tempNumOfClients; }
+void Entity::setNumOfEnemies(int tempNumOfEnemies) { numOfEnemies = tempNumOfEnemies; }
 void Entity::setHP(int HP) { this->HP = HP; }
 void Entity::setMaxHP(int maxHP) { this->maxHP = maxHP; }
 void Entity::setGoldCoins(int goldCoins) { this->goldCoins = goldCoins; }
@@ -219,7 +295,6 @@ void Entity::setHPBarOuter(sf::RectangleShape HPBarOuter) { this->HPBarOuter = H
 void Entity::setReloadRectInner(sf::RectangleShape reloadRectInner) { this->reloadRectInner = reloadRectInner; }
 void Entity::setReloadRectOuter(sf::RectangleShape reloadRectOuter) { this->reloadRectOuter = reloadRectOuter; }
 void Entity::setMoveTargetPos(sf::Vector2f moveTargetPos) { this->moveTargetPos = moveTargetPos; }
-void Entity::setCurrentPos(sf::Vector2f currentPos) { this->currentPos = currentPos; }
 void Entity::setCurrentVelocity(sf::Vector2f currentVelocity) { this->currentVelocity = currentVelocity; }
 void Entity::setStepPos(sf::Vector2f stepPos) { this->stepPos = stepPos; }
 void Entity::setAimPos(sf::Vector2f aimPos) { this->aimPos = aimPos; }

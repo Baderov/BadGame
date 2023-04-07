@@ -1,17 +1,5 @@
 #pragma once // used to provide additional control at compile time.
 
-//////////////////////////////////////////////////////////////////////////
-// Headers
-//////////////////////////////////////////////////////////////////////////
-#include <vector>
-
-#include <SFML/Graphics/Transformable.hpp>
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Text.hpp>
-
-#include <SFML/System/Vector2.hpp>
-
 namespace sf
 {
 class Font;

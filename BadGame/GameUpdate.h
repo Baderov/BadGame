@@ -1,6 +1,4 @@
 #pragma once // used to provide additional control at compile time.
-#include <chrono> // time library.
-#include "Variables.h" // header file for global variables.
 #include "Entity.h" // header file for entities.
 #include "Bullet.h" // header file for bullets.
 #include "Player.h" // header file for player.
@@ -10,15 +8,17 @@
 #include "Item.h" // header file for items.
 #include "Network.h"
 #include "Minimap.h" // header file for minimap.
+#include "Chat.h"
+#include "PlayersList.h"
 #include "Text.h" // header file for working with text.
 
 Entity* getPlayerPtr();
 
 void setPlayerPtr(Entity* ptr);
 
-bool s_enterMenu(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entitiesVec, Minimap& minimap); // enter menu for singleplayer.
+bool s_enterMenu(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // enter menu for singleplayer.
 
-void collisionHandler(Entity* entity, Entity* entity2);
+void collisionHandler(Entity* entity, Entity* entity2); // collision handler function for singleplayer. 
 
 void applyButtonPressed(GameVariable* gv, Minimap& minimap);
 
@@ -30,12 +30,12 @@ void mainMenuUpdate(GameVariable* gv); // main menu update function.
 
 void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update function.
 
-void restartGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities); // game restart function.
+void restartGame(GameVariable* gv); // game restart function.
 
-void updateGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities); // entity update function.
+void updateGame(GameVariable* gv); // entity update function.
 
-void drawMinimap(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities);
+void drawMinimap(GameVariable* gv);
 
-void drawEntities(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities, Minimap& minimap);
+void drawEntities(GameVariable* gv, Minimap& minimap);
 
-void drawGame(GameVariable* gv, std::vector<std::unique_ptr<Entity>>& entities, Minimap& minimap); // entity drawing function.
+void drawGame(GameVariable* gv, Minimap& minimap); // entity drawing function.

@@ -1,4 +1,6 @@
+#include "pch.h"
 #include "Menu.h" // header file for working with the menu.
+
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
 #define DEBUG_MSG(str) do { std::wcout << str << std::endl; } while(false)
@@ -59,7 +61,7 @@ void updateFields(GameVariable* gv) // function for update fields in multiplayer
 	gv->setServerPort(2000);
 }
 
-void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
+void multiplayerMenu(GameVariable* gv, PlayersList& playersList, Chat& chat) // multiplayer menu function.
 {
 	updateFields(gv);
 	multiplayerMenuUpdate(gv);
@@ -76,9 +78,12 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 	while (gv->window.isOpen())
 	{
 		if (gv->getMenuNum() > 0) { return; }
+
 		DEBUG_SET_FUNC_NAME;
+
 		gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
-		if (gv->getMultiPlayerGame() == true && gv->getConnectsToServer() == false)
+
+		if (gv->getIsMultiplayer() == true && gv->getConnectsToServer() == false)
 		{
 			gv->setMenuNum(9);
 			return;
@@ -119,14 +124,20 @@ void multiplayerMenu(GameVariable* gv) // multiplayer menu function.
 				if (gv->getNickname().size() < 3) { gv->multiplayerError = MultiplayerErrors::NickMustContainMoreChars; break; }
 				if (countOfDotsInIP != 3) { gv->multiplayerError = MultiplayerErrors::WrongIP; break; }
 				if (gv->getTempPort().size() < 1) { gv->multiplayerError = MultiplayerErrors::WrongPort; break; }
-				gv->setMultiPlayerGame(true);
-				m_resetVariables(gv);
+				gv->setIsMultiplayer(true);
+				resetVariables(gv, chat);
+				Entity::setNumOfClients(0);
+				chat.getChatText().clear();
+				chat.getStrVector().clear();
+				chat.createChat();
+				playersList.updatePLScrollbar();
 				gv->restartServerClock();
-				std::thread recvThread([&]() { receiveData(gv); });
-				std::thread sendThread([&]() { sendData(gv); });
+				setCurrentClient(nullptr);
+				std::thread recvThread(receiveData, std::ref(gv), std::ref(playersList), std::ref(chat));
+				std::thread sendThread(sendData, std::ref(gv), std::ref(chat));
 				recvThread.detach();
 				sendThread.detach();
-				std::thread connectionThread([&]() { startNetwork(gv); });
+				std::thread connectionThread(startNetwork, std::ref(gv));
 				connectionThread.detach();
 			}
 		}
@@ -199,7 +210,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && (gv->getSinglePlayerGame() == true || gv->getMultiPlayerGame() == true))
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && (gv->getIsSingleplayer() == true || gv->getIsMultiplayer() == true))
 			{
 				gv->setMenuNum(9);
 				return;
@@ -212,7 +223,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 	}
 }
 
-void menuEventHandler(GameVariable* gv, Minimap& minimap) // function to handle menu events.
+void menuEventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // function to handle menu events.
 {
 	gv->setWindowView(gv->getMenuView());
 	mainMenu(gv);
@@ -226,7 +237,7 @@ void menuEventHandler(GameVariable* gv, Minimap& minimap) // function to handle 
 		case 1:
 			gv->setMenuNum(0);
 			gv->setRestartGame(true);
-			gv->setSinglePlayerGame(true);
+			gv->setIsSingleplayer(true);
 			return;
 		case 2:
 			gv->setMenuNum(0);
@@ -234,8 +245,8 @@ void menuEventHandler(GameVariable* gv, Minimap& minimap) // function to handle 
 			break;
 		case 3:
 			gv->setMenuNum(0);
-			gv->setSinglePlayerGame(false);
-			gv->setMultiPlayerGame(false);
+			gv->setIsSingleplayer(false);
+			gv->setIsMultiplayer(false);
 			gv->window.close();
 			return;
 		case 4:
@@ -252,12 +263,12 @@ void menuEventHandler(GameVariable* gv, Minimap& minimap) // function to handle 
 			break;
 		case 7:
 			gv->setMenuNum(0);
-			if (gv->getSinglePlayerGame() == true) { gv->setSinglePlayerGame(false); }
-			if (gv->getMultiPlayerGame() == true) { gv->setMultiPlayerGame(false); }
+			if (gv->getIsSingleplayer() == true) { gv->setIsSingleplayer(false); }
+			if (gv->getIsMultiplayer() == true) { gv->setIsMultiplayer(false); }
 			return;
 		case 8:
 			gv->setMenuNum(0);
-			multiplayerMenu(gv);
+			multiplayerMenu(gv, playersList, chat);
 			break;
 		case 9:
 			gv->setMenuNum(0);
