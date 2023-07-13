@@ -13,132 +13,186 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\Entities">
+      <UniqueIdentifier>{54bf1514-e029-4d7d-a078-ee8be64c5d11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Singleplayer">
+      <UniqueIdentifier>{48f7af78-4f18-4dac-a665-5f36a870865a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Multiplayer">
+      <UniqueIdentifier>{1f28df87-ca08-4b01-9783-a628e1517090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Entities">
+      <UniqueIdentifier>{3632e81d-ba30-4fcd-86b5-f09e70338035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Multiplayer">
+      <UniqueIdentifier>{60b8249a-6141-4240-b4f6-a52e73e111c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Singleplayer">
+      <UniqueIdentifier>{9fcd21c6-8308-4af2-80e6-301792fc05ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Other">
+      <UniqueIdentifier>{72e31b6c-a373-4ec2-82d4-f9942ee3aa36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Other">
+      <UniqueIdentifier>{80f0d574-b36a-412d-9304-d75a9782a14c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Box.cpp">
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Bullet.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Variables.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Text.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="GameUpdate.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Console.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Client.cpp">
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Wall.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Item.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Menu.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Player.cpp">
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Network.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Wall.cpp">
+      <Filter>Исходные файлы\Entities</Filter>
     </ClCompile>
     <ClCompile Include="Chat.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Multiplayer</Filter>
     </ClCompile>
-    <ClCompile Include="RichText.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="ClientRequest.cpp">
+      <Filter>Исходные файлы\Multiplayer</Filter>
     </ClCompile>
-    <ClCompile Include="Clients.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Network.cpp">
+      <Filter>Исходные файлы\Multiplayer</Filter>
     </ClCompile>
     <ClCompile Include="PlayersList.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Multiplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="GameUpdate.cpp">
+      <Filter>Исходные файлы\Singleplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source.cpp">
+      <Filter>Исходные файлы\Singleplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Исходные файлы\Singleplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Исходные файлы\Other</Filter>
     </ClCompile>
     <ClCompile Include="Minimap.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Other</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="RichText.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Variables.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerIsNotAvailable.cpp">
+      <Filter>Исходные файлы\Multiplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="TGUI.cpp">
+      <Filter>Исходные файлы\Singleplayer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Player.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Source.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Box.h">
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Variables.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Text.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="GameUpdate.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Console.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Box.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Client.h">
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Wall.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Entity.h">
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Player.h">
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="Network.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Wall.h">
+      <Filter>Файлы заголовков\Entities</Filter>
     </ClInclude>
     <ClInclude Include="Chat.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Multiplayer</Filter>
     </ClInclude>
-    <ClInclude Include="RichText.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Clients.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="ClientRequest.h">
+      <Filter>Файлы заголовков\Multiplayer</Filter>
     </ClInclude>
     <ClInclude Include="PlayersList.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Multiplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Файлы заголовков\Multiplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="GameUpdate.h">
+      <Filter>Файлы заголовков\Singleplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Файлы заголовков\Singleplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source.h">
+      <Filter>Файлы заголовков\Singleplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Файлы заголовков\Other</Filter>
     </ClInclude>
     <ClInclude Include="Minimap.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Other</Filter>
     </ClInclude>
-    <ClInclude Include="RectangularBoundaryCollision.hpp">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="ObjectPool.hpp">
+      <Filter>Файлы заголовков\Other</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="profile.hpp">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="RectangularBoundaryCollision.hpp">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="RichText.hpp">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="Variables.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerIsNotAvailable.h">
+      <Filter>Файлы заголовков\Multiplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="TGUI.h">
+      <Filter>Файлы заголовков\Singleplayer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

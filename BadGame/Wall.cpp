@@ -1,24 +1,29 @@
 #include "pch.h"
-#include "Wall.h" // header file for walls.
+#include "ObjectPool.hpp"
+#include "Wall.h" 
 
-Wall::Wall(sf::Vector2f startPos, std::wstring name, sf::Vector2f size) : Entity(startPos, name) // wall constructor.
+Wall::Wall(std::unique_ptr<GameVariable>& gv) : Entity(gv) {}
+
+void Wall::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, std::wstring name)
 {
-	entityType = "Wall";
-	rectHitbox.setSize(size);
+	isAlive = true;
+
+	this->startPos = std::move(startPos);
+	this->name = std::move(name);
+
+	texture.loadFromImage(gv->wallImage);
+	sprite.setTexture(texture, true);
+	sprite.setOrigin(0.f, 0.f);
+	if (this->name == L"LeftWall" || this->name == L"RightWall") { sprite.setRotation(90); }
+	sprite.setPosition(this->startPos);
+
+	rectHitbox.setSize(sf::Vector2f(texture.getSize()));
 	rectHitbox.setOrigin(0.f, 0.f);
-	if (name == L"LeftWall" || name == L"RightWall") { rectHitbox.setRotation(90); }
-	rectHitbox.setFillColor(sf::Color(153, 0, 76));
-	rectHitbox.setPosition(startPos);
+	if (this->name == L"LeftWall" || this->name == L"RightWall") { rectHitbox.setRotation(90); }
+	rectHitbox.setFillColor(sf::Color::Black);
+	rectHitbox.setPosition(this->startPos);
 }
-void Wall::update(sf::RenderWindow& window, sf::RectangleShape& aimLaser, sf::Vector2f mousePos, char gameLanguage, float dt, bool isSinglePlayer)
-{
 
-}
-void Wall::move(sf::RectangleShape& aimLaser, float dt, bool isSinglePlayer)
-{
-
-}
-void Wall::rotate(sf::RectangleShape& aimLaser, sf::Vector2f targetPos)
-{
-
-}
+void Wall::update(std::unique_ptr<GameVariable>& gv) {}
+void Wall::move(std::unique_ptr<GameVariable>& gv) {}
+void Wall::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos) {}

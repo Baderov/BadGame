@@ -1,41 +1,36 @@
-#pragma once // used to provide additional control at compile time.
-#include "Menu.h" // header file for working with the menu.
-#include "Clients.h"
+#ifndef NETWORK_H
+#define NETWORK_H
+
+#include "Collision.h"
+#include "ObjectPool.hpp"
+#include "Menu.h"
+#include "Client.h"
 #include "Entity.h"
 #include "PlayersList.h"
-#include "Chat.h" // header file for working with chat.
-#include "Minimap.h" // header file for minimap.
+#include "Chat.h"
+#include "Minimap.h" 
+#include "Variables.h"
+#include "ClientRequest.h"
+#include "ServerIsNotAvailable.h"
 
-void createWalls(GameVariable* gv);
+void startNetwork(std::unique_ptr<GameVariable>& gv); // function to start network.
 
-void serverIsNotAvailable(GameVariable* gv);
 
-void connectToServer(GameVariable* gv); // function to connect to the server.
+void sendData(std::unique_ptr<GameVariable>& gv, Chat& chat); // function to send data to the server.
+void receiveData(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // function to receive data from the server.
 
-void startNetwork(GameVariable* gv); // function to start network.
 
-bool checkConnection(GameVariable* gv); // function to check the connection between the client and the server.
+void updateClients(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
+void updateBullets(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
+void gameUpdate(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
 
-void sendMessage(GameVariable* gv, Chat& chat); // function to send message to the server.
 
-void sendMoveRequest(GameVariable* gv); // function to send a move request to the server.
+void minimapViewDraw(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
+void gameViewDraw(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
+void gameDraw(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // multiplayer game draw function.
 
-void sendMousePos(GameVariable* gv); // function to send the mouse position to the server.
 
-void m_enterMenu(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // menu entry function.
+void m_eventHandler(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // event handler for multiplayer.
+void multiplayerGame(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // multiplayer game launch function.
 
-void m_eventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // event handling function for multiplayer.
-
-void sendData(GameVariable* gv, Chat& chat); // function to send data to the server.
-
-void receiveData(GameVariable* gv, PlayersList& playersList, Chat& chat); // function to receive data from the server.
-
-void gameUpdate(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // multiplayer game update function.
-
-void minimapViewDraw(GameVariable* gv, Minimap& minimap);
-
-void gameViewDraw(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat);
-
-void gameDraw(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // multiplayer game draw function.
-
-void multiplayerGame(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // multiplayer game launch function.
+#endif

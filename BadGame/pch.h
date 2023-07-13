@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PCH_H
+#define PCH_H
+
 #include <iostream> // header that defines the standard input/output stream objects.
 #include <SFML/Graphics.hpp> // SFML library for working with graphics.
 #include <SFML/Network.hpp> // SFML library for networking.
@@ -15,4 +17,16 @@
 #include <cassert>
 #include <cmath>
 #include <string>
-#include "Variables.h"
+#include <utility>
+#include <condition_variable>
+#include "profile.hpp"
+
+#ifdef _DEBUG
+#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
+#define DEBUG_MSG(str) do { std::cout << str << "\n"; } while(false)
+#else
+#define DEBUG_SET_FUNC_NAME
+#define DEBUG_MSG(str) do { } while (false)
+#endif
+
+#endif

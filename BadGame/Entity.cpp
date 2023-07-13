@@ -1,14 +1,13 @@
 #include "pch.h"
-#include "Entity.h" // header file for entities.
+#include "ObjectPool.hpp"
+#include "Entity.h"
 
-int Entity::numOfClients = 0;
-int Entity::numOfEnemies = 0;
-
-Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // entity constructor.
+Entity::Entity(std::unique_ptr<GameVariable>& gv)
 {
 	grayColor.r = 160;
 	grayColor.g = 160;
 	grayColor.b = 160;
+
 	distance = 0.f;
 	DTMultiplier = 1000.f;
 	maxSpeed = 0.f;
@@ -30,29 +29,18 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 	isShoot = false;
 	isMove = false;
 	isReload = false;
+	isCollision = false;
 
-	moveTargetPos = sf::Vector2f(0.f, 0.f);
 	currentVelocity = sf::Vector2f(0.f, 0.f);
+	moveTargetPos = sf::Vector2f(0.f, 0.f);
 	stepPos = sf::Vector2f(0.f, 0.f);
+	startPos = sf::Vector2f(0.f, 0.f);
 	aimPos = sf::Vector2f(0.f, 0.f);
 	aimDir = sf::Vector2f(0.f, 0.f);
 	aimDirNorm = sf::Vector2f(0.f, 0.f);
 
-	this->name = name;
 	creatorName = L"";
-	entityType = "";
-	ping = 0;
-
-	texture.loadFromImage(image);
-	sprite.setTexture(texture);
-	w = static_cast<float>(texture.getSize().x);
-	h = static_cast<float>(texture.getSize().y);
-	sprite.setOrigin(w / 2.f, h / 2.f);
-	sprite.setPosition(startPos);
-
-	rectHitbox.setSize(sf::Vector2f(w, h));
-	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
-	rectHitbox.setPosition(sprite.getPosition());
+	name = L"";
 
 	HPBarInner.setFillColor(sf::Color::Green);
 	HPBarInner.setOutlineThickness(2.f);
@@ -62,99 +50,16 @@ Entity::Entity(sf::Image& image, sf::Vector2f startPos, std::wstring name) // en
 	HPBarOuter.setOutlineThickness(2.f);
 	HPBarOuter.setOutlineColor(sf::Color::Black);
 
-	consolasFont.loadFromFile("consolas.ttf");
-
-	hpText.setFont(consolasFont);
+	hpText.setFont(gv->consolasFont);
 	hpText.setCharacterSize(20);
 	hpText.setOutlineThickness(2.f);
 	hpText.setString("");
 
-	nameText.setFont(consolasFont);
+	nameText.setFont(gv->consolasFont);
 	nameText.setString("");
 	nameText.setFillColor(sf::Color::Cyan);
 	nameText.setCharacterSize(25);
 	nameText.setOutlineThickness(2.f);
-
-	icon.setRadius(static_cast<float>(image.getSize().x));
-	icon.setOutlineThickness(15.f);
-	icon.setOutlineColor(sf::Color::Black);
-	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
-}
-
-Entity::Entity(sf::Vector2f startPos, std::wstring name) // entity constructor.
-{
-	grayColor.r = 160;
-	grayColor.g = 160;
-	grayColor.b = 160;
-	distance = 0.f;
-	DTMultiplier = 1000.f;
-	maxSpeed = 0.f;
-	menuTime = 0.f;
-	spawnTime = 0.f;
-	reloadTime = 0.f;
-	shootTime = 0.f;
-	shootDelay = 1.f;
-	shootOffset = 0.f;
-	HP = 100;
-	maxHP = 100;
-	goldCoins = 0;
-	currentAmmo = 30;
-	maxAmmo = 500;
-	missingAmmo = 0;
-	magazineAmmo = 30;
-
-	isAlive = true;
-	isShoot = false;
-	isMove = false;
-	isReload = false;
-
-	moveTargetPos = sf::Vector2f(0.f, 0.f);
-	currentVelocity = sf::Vector2f(0.f, 0.f);
-	stepPos = sf::Vector2f(0.f, 0.f);
-	aimPos = sf::Vector2f(0.f, 0.f);
-	aimDir = sf::Vector2f(0.f, 0.f);
-	aimDirNorm = sf::Vector2f(0.f, 0.f);
-
-	this->name = name;
-	creatorName = L"";
-	entityType = "";
-	ping = 0;
-
-	rectHitbox.setSize(sf::Vector2f(w, h));
-	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
-	rectHitbox.setPosition(startPos);
-
-	HPBarInner.setFillColor(sf::Color::Green);
-	HPBarInner.setOutlineThickness(2.f);
-	HPBarInner.setOutlineColor(sf::Color::Black);
-
-	HPBarOuter.setFillColor(grayColor);
-	HPBarOuter.setOutlineThickness(2.f);
-	HPBarOuter.setOutlineColor(sf::Color::Black);
-
-	consolasFont.loadFromFile("consolas.ttf");
-
-	hpText.setFont(consolasFont);
-	hpText.setCharacterSize(20);
-	hpText.setOutlineThickness(2.f);
-	hpText.setString("");
-
-	nameText.setFont(consolasFont);
-	nameText.setString("");
-	nameText.setFillColor(sf::Color::Cyan);
-	nameText.setCharacterSize(25);
-	nameText.setOutlineThickness(2.f);
-
-	icon.setRadius(static_cast<float>(image.getSize().x));
-	icon.setOutlineThickness(15.f);
-	icon.setOutlineColor(sf::Color::Black);
-	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
-}
-
-Entity::~Entity()
-{
-	if (entityType == "Enemy") { numOfEnemies--; }
-	else if (entityType == "Client") { numOfClients--; }
 }
 
 void Entity::calcDirection() // function to calculate direction.
@@ -164,23 +69,23 @@ void Entity::calcDirection() // function to calculate direction.
 	currentVelocity = aimDirNorm * maxSpeed; // vector speed = direction * linear speed.
 }
 
-void Entity::moveToDirection() // function to move the sprite in direction.
-{
-	sprite.move(currentVelocity);
-}
+void Entity::moveToDirection() { sprite.move(currentVelocity); } // function to move the sprite in direction.
 
-void Entity::moveToTarget(sf::Vector2f targetPos, float& dt, bool& isSinglePlayer) // a function to move the sprite to the target.
+void Entity::moveToTarget(std::unique_ptr<GameVariable>& gv, sf::Vector2f moveTargetPos) // a function to move the sprite to the target.
 {
+	this->moveTargetPos = std::move(moveTargetPos);
+
 	// distance from the current position of the sprite to the target position.
-	distance = sqrt(((targetPos.x - sprite.getPosition().x) * (targetPos.x - sprite.getPosition().x)) + ((targetPos.y - sprite.getPosition().y) * (targetPos.y - sprite.getPosition().y)));
+	distance = sqrt(((this->moveTargetPos.x - sprite.getPosition().x) * (this->moveTargetPos.x - sprite.getPosition().x)) + ((this->moveTargetPos.y - sprite.getPosition().y) * (this->moveTargetPos.y - sprite.getPosition().y)));
 
 	// crutch, so that the player does not twitch when reaching the goal.
 	if (distance > 7)
 	{
 		// stepPos - increment to the current position.
-		stepPos.x = round((currentVelocity.x * (dt * DTMultiplier) * (targetPos.x - sprite.getPosition().x)) / distance);
-		stepPos.y = round((currentVelocity.y * (dt * DTMultiplier) * (targetPos.y - sprite.getPosition().y)) / distance);
-		if (isSinglePlayer) { sprite.move(stepPos); }
+		stepPos.x = round((currentVelocity.x * (gv->getDT() * DTMultiplier) * (this->moveTargetPos.x - sprite.getPosition().x)) / distance);
+		stepPos.y = round((currentVelocity.y * (gv->getDT() * DTMultiplier) * (this->moveTargetPos.y - sprite.getPosition().y)) / distance);
+
+		if (gv->getIsSingleplayer()) { sprite.move(stepPos); }
 	}
 	else { isMove = false; } // else don`t move.
 }
@@ -193,114 +98,236 @@ void Entity::updateHPBar() // function to update HP Bar.
 	HPBarInner.setSize(sf::Vector2f(static_cast<float>(HP), HPBarOuter.getSize().y));
 	HPBarInner.setPosition(HPBarOuter.getPosition().x, HPBarOuter.getPosition().y);
 
-	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 1.5f)
-	{
-		HPBarInner.setFillColor(sf::Color::Yellow);
-	}
-	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 3.f)
-	{
-		HPBarInner.setFillColor(sf::Color::Red);
-	}
-	if (static_cast<float>(HP) > static_cast<float>(maxHP) / 1.5f)
-	{
-		HPBarInner.setFillColor(sf::Color::Green);
-	}
+	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 1.5f) { HPBarInner.setFillColor(sf::Color::Yellow); }
+	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 3.f) { HPBarInner.setFillColor(sf::Color::Red); }
+	if (static_cast<float>(HP) > static_cast<float>(maxHP) / 1.5f) { HPBarInner.setFillColor(sf::Color::Green); }
 }
 
-void Entity::updateLaser(sf::Vector2f mousePos, sf::RectangleShape& aimLaser)
+void Entity::updateLaser(std::unique_ptr<GameVariable>& gv)
 {
-	float dist = sqrt(((mousePos.x - sprite.getPosition().x) * (mousePos.x - sprite.getPosition().x)) + ((mousePos.y - sprite.getPosition().y) * (mousePos.y - sprite.getPosition().y)));
-	aimLaser.setSize(sf::Vector2f(2.25f, -dist));
+	float dist = sqrt(((gv->getMousePos().x - sprite.getPosition().x) * (gv->getMousePos().x - sprite.getPosition().x)) + ((gv->getMousePos().y - sprite.getPosition().y) * (gv->getMousePos().y - sprite.getPosition().y)));
+	gv->aimLaser.setSize(sf::Vector2f(2.25f, -dist));
+	gv->aimLaser.setPosition(sprite.getPosition());
 }
 
-int& Entity::getNumOfEnemies() { return numOfEnemies; }
-int& Entity::getNumOfClients() { return numOfClients; }
-float& Entity::getMenuTime() { return menuTime; }
-float& Entity::getShootTime() { return shootTime; }
-float& Entity::getSpawnTime() { return spawnTime; }
-float& Entity::getReloadTime() { return reloadTime; }
-float& Entity::getShootDelay() { return shootDelay; }
-float& Entity::getShootOffset() { return shootOffset; }
-int& Entity::getHP() { return HP; }
-int& Entity::getMaxHP() { return maxHP; }
-int& Entity::getGoldCoins() { return goldCoins; }
-int& Entity::getCurrentAmmo() { return currentAmmo; }
-int& Entity::getMaxAmmo() { return maxAmmo; }
-int& Entity::getMissingAmmo() { return missingAmmo; }
-int& Entity::getMagazineAmmo() { return magazineAmmo; }
-bool& Entity::getIsAlive() { return isAlive; }
-bool& Entity::getIsMove() { return isMove; }
-bool& Entity::getIsShoot() { return isShoot; }
-bool& Entity::getIsReload() { return isReload; }
-sf::Clock& Entity::getReloadClock() { return reloadClock; }
-sf::Clock& Entity::getShootClock() { return shootClock; }
-sf::Clock& Entity::getPingClock() { return pingClock; }
-sf::Text& Entity::getHPText() { return hpText; }
-sf::Text& Entity::getNameText() { return nameText; }
-sf::Text& Entity::getReloadText() { return reloadText; }
-sf::CircleShape& Entity::getIcon() { return icon; }
-sf::RectangleShape& Entity::getRectHitbox() { return rectHitbox; }
-sf::RectangleShape& Entity::getHPBarInner() { return HPBarInner; }
-sf::RectangleShape& Entity::getHPBarOuter() { return HPBarOuter; }
-sf::RectangleShape& Entity::getReloadRectInner() { return reloadRectInner; }
-sf::RectangleShape& Entity::getReloadRectOuter() { return reloadRectOuter; }
-sf::Vector2f& Entity::getMoveTargetPos() { return moveTargetPos; }
-sf::Vector2f& Entity::getCurrentVelocity() { return currentVelocity; }
-sf::Vector2f& Entity::getStepPos() { return stepPos; }
-sf::Vector2f& Entity::getAimPos() { return aimPos; }
-sf::Vector2f& Entity::getAimDir() { return aimDir; }
-sf::Vector2f& Entity::getAimDirNorm() { return aimDirNorm; }
-sf::Sprite& Entity::getSprite() { return sprite; }
-std::wstring& Entity::getName() { return name; }
-std::wstring& Entity::getCreatorName() { return creatorName; }
-std::string& Entity::getEntityType() { return entityType; }
-sf::Int32 Entity::getPing() { return ping; }
+float Entity::getMenuTime()
+{
+	float menuTime = this->menuTime;
+	return menuTime;
+}
 
-void Entity::setNickPosition()
+float Entity::getShootTime()
 {
-	nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 80.f);
+	float shootTime = this->shootTime;
+	return shootTime;
 }
-void Entity::setClientPosition(sf::Vector2f tempStepPos)
+
+float Entity::getSpawnTime()
 {
-	sprite.move(tempStepPos);
-	icon.move(tempStepPos);
+	float spawnTime = this->spawnTime;
+	return spawnTime;
 }
-void Entity::setPing(sf::Int32 tempPing) { ping = tempPing; }
-void Entity::setMenuTime(float menuTime) { this->menuTime = menuTime; }
-void Entity::setSpawnTime(float spawnTime) { this->spawnTime = spawnTime; }
-void Entity::setReloadTime(float reloadTime) { this->reloadTime = reloadTime; }
-void Entity::setShootTime(float shootTime) { this->shootTime = shootTime; }
-void Entity::setShootDelay(float shootDelay) { this->shootDelay = shootDelay; }
-void Entity::setShootOffset(float shootOffset) { this->shootOffset = shootOffset; }
-void Entity::setNumOfClients(int tempNumOfClients) { numOfClients = tempNumOfClients; }
-void Entity::setNumOfEnemies(int tempNumOfEnemies) { numOfEnemies = tempNumOfEnemies; }
-void Entity::setHP(int HP) { this->HP = HP; }
-void Entity::setMaxHP(int maxHP) { this->maxHP = maxHP; }
-void Entity::setGoldCoins(int goldCoins) { this->goldCoins = goldCoins; }
-void Entity::setCurrentAmmo(int currentAmmo) { this->currentAmmo = currentAmmo; }
-void Entity::setMaxAmmo(int maxAmmo) { this->maxAmmo = maxAmmo; }
-void Entity::setMissingAmmo(int missingAmmo) { this->missingAmmo = missingAmmo; }
-void Entity::setMagazineAmmo(int magazineAmmo) { this->magazineAmmo = magazineAmmo; }
-void Entity::setIsAlive(bool isAlive) { this->isAlive = isAlive; }
-void Entity::setIsMove(bool isMove) { this->isMove = isMove; }
-void Entity::setIsShoot(bool isShoot) { this->isShoot = isShoot; }
-void Entity::setIsReload(bool isReload) { this->isReload = isReload; }
-void Entity::setReloadClock(sf::Clock reloadClock) { this->reloadClock = reloadClock; }
-void Entity::setHpText(sf::Text hpText) { this->hpText = hpText; }
-void Entity::setNameText(sf::Text nameText) { this->nameText = nameText; }
-void Entity::setReloadText(sf::Text reloadText) { this->reloadText = reloadText; }
-void Entity::setRectHitbox(sf::RectangleShape rectHitbox) { this->rectHitbox = rectHitbox; }
-void Entity::setHPBarInner(sf::RectangleShape HPBarInner) { this->HPBarInner = HPBarInner; }
-void Entity::setHPBarOuter(sf::RectangleShape HPBarOuter) { this->HPBarOuter = HPBarOuter; }
-void Entity::setReloadRectInner(sf::RectangleShape reloadRectInner) { this->reloadRectInner = reloadRectInner; }
-void Entity::setReloadRectOuter(sf::RectangleShape reloadRectOuter) { this->reloadRectOuter = reloadRectOuter; }
-void Entity::setMoveTargetPos(sf::Vector2f moveTargetPos) { this->moveTargetPos = moveTargetPos; }
-void Entity::setCurrentVelocity(sf::Vector2f currentVelocity) { this->currentVelocity = currentVelocity; }
-void Entity::setStepPos(sf::Vector2f stepPos) { this->stepPos = stepPos; }
-void Entity::setAimPos(sf::Vector2f aimPos) { this->aimPos = aimPos; }
-void Entity::setAimDir(sf::Vector2f aimDir) { this->aimDir = aimDir; }
-void Entity::setAimDirNorm(sf::Vector2f aimDirNorm) { this->aimDirNorm = aimDirNorm; }
-void Entity::setSprite(sf::Sprite sprite) { this->sprite = sprite; }
-void Entity::setName(std::wstring name) { this->name = name; }
-void Entity::setCreatorName(std::wstring creatorName) { this->creatorName = creatorName; }
-void Entity::setEntityType(std::string entityType) { this->entityType = entityType; }
+
+float Entity::getReloadTime()
+{
+	float reloadTime = this->reloadTime;
+	return reloadTime;
+}
+
+float Entity::getShootDelay()
+{
+	float shootDelay = this->shootDelay;
+	return shootDelay;
+}
+
+float Entity::getShootOffset()
+{
+	float shootOffset = this->shootOffset;
+	return shootOffset;
+}
+
+int Entity::getHP()
+{
+	int HP = this->HP;
+	return HP;
+}
+
+int Entity::getMaxHP()
+{
+	int maxHP = this->maxHP;
+	return maxHP;
+}
+
+int Entity::getGoldCoins()
+{
+	int goldCoins = this->goldCoins;
+	return goldCoins;
+}
+
+int Entity::getCurrentAmmo()
+{
+	int currentAmmo = this->currentAmmo;
+	return currentAmmo;
+}
+
+int Entity::getMaxAmmo()
+{
+	int maxAmmo = this->maxAmmo;
+	return maxAmmo;
+}
+
+int Entity::getMissingAmmo()
+{
+	int missingAmmo = this->missingAmmo;
+	return missingAmmo;
+}
+
+int Entity::getMagazineAmmo()
+{
+	int magazineAmmo = this->magazineAmmo;
+	return magazineAmmo;
+}
+
+bool Entity::getIsAlive()
+{
+	bool isAlive = this->isAlive;
+	return isAlive;
+}
+
+bool Entity::getIsMove()
+{
+	bool isMove = this->isMove;
+	return isMove;
+}
+
+bool Entity::getIsShoot()
+{
+	bool isShoot = this->isShoot;
+	return isShoot;
+}
+
+bool Entity::getIsReload()
+{
+	bool isReload = this->isReload;
+	return isReload;
+}
+
+bool Entity::getIsCollision()
+{
+	bool isCollision = this->isCollision;
+	return isCollision;
+}
+
+sf::RectangleShape& Entity::getRectHitbox() { return this->rectHitbox; }
+
+sf::Vector2f Entity::getSpritePos()
+{
+	sf::Vector2f spritePos = this->sprite.getPosition();
+	return spritePos;
+}
+
+sf::Vector2f Entity::getMoveTargetPos()
+{
+	sf::Vector2f moveTargetPos = this->moveTargetPos;
+	return moveTargetPos;
+}
+
+sf::Vector2f Entity::getCurrentVelocity()
+{
+	sf::Vector2f currentVelocity = this->currentVelocity;
+	return currentVelocity;
+}
+
+sf::Vector2f Entity::getStepPos()
+{
+	sf::Vector2f stepPos = this->stepPos;
+	return stepPos;
+}
+
+sf::Vector2f Entity::getTargetPos()
+{
+	sf::Vector2f targetPos = this->targetPos;
+	return targetPos;
+}
+
+sf::Vector2f Entity::getAimPos()
+{
+	sf::Vector2f aimPos = this->aimPos;
+	return aimPos;
+}
+
+sf::Vector2f Entity::getAimDir()
+{
+	sf::Vector2f aimDir = this->aimDir;
+	return aimDir;
+}
+
+sf::Vector2f Entity::getAimDirNorm()
+{
+	sf::Vector2f aimDirNorm = this->aimDirNorm;
+	return aimDirNorm;
+}
+
+std::wstring Entity::getName()
+{
+	std::wstring name = this->name;
+	return name;
+}
+
+std::wstring Entity::getCreatorName()
+{
+	std::wstring creatorName = this->creatorName;
+	return creatorName;
+}
+
+void Entity::setMenuTime(float menuTime) { this->menuTime = std::move(menuTime); }
+void Entity::setSpawnTime(float spawnTime) { this->spawnTime = std::move(spawnTime); }
+void Entity::setReloadTime(float reloadTime) { this->reloadTime = std::move(reloadTime); }
+void Entity::setShootTime(float shootTime) { this->shootTime = std::move(shootTime); }
+void Entity::setShootDelay(float shootDelay) { this->shootDelay = std::move(shootDelay); }
+void Entity::setShootOffset(float shootOffset) { this->shootOffset = std::move(shootOffset); }
+void Entity::setHP(int HP) { this->HP = std::move(HP); }
+void Entity::setMaxHP(int maxHP) { this->maxHP = std::move(maxHP); }
+void Entity::setGoldCoins(int goldCoins) { this->goldCoins = std::move(goldCoins); }
+void Entity::setCurrentAmmo(int currentAmmo) { this->currentAmmo = std::move(currentAmmo); }
+void Entity::setMaxAmmo(int maxAmmo) { this->maxAmmo = std::move(maxAmmo); }
+void Entity::setMissingAmmo(int missingAmmo) { this->missingAmmo = std::move(missingAmmo); }
+void Entity::setMagazineAmmo(int magazineAmmo) { this->magazineAmmo = std::move(magazineAmmo); }
+void Entity::setIsAlive(bool isAlive) { this->isAlive = std::move(isAlive); }
+void Entity::setIsMove(bool isMove) { this->isMove = std::move(isMove); }
+void Entity::setIsShoot(bool isShoot) { this->isShoot = std::move(isShoot); }
+void Entity::setIsReload(bool isReload) { this->isReload = std::move(isReload); }
+void Entity::setIsCollision(bool isCollision) { this->isCollision = std::move(isCollision); }
+void Entity::setReloadClock(sf::Clock reloadClock) { this->reloadClock = std::move(reloadClock); }
+void Entity::setHpText(sf::Text hpText) { this->hpText = std::move(hpText); }
+void Entity::setNameText(sf::Text nameText) { this->nameText = std::move(nameText); }
+void Entity::setReloadText(sf::Text reloadText) { this->reloadText = std::move(reloadText); }
+void Entity::setRectHitbox(sf::RectangleShape rectHitbox) { this->rectHitbox = std::move(rectHitbox); }
+void Entity::setHPBarInner(sf::RectangleShape HPBarInner) { this->HPBarInner = std::move(HPBarInner); }
+void Entity::setHPBarOuter(sf::RectangleShape HPBarOuter) { this->HPBarOuter = std::move(HPBarOuter); }
+void Entity::setReloadRectInner(sf::RectangleShape reloadRectInner) { this->reloadRectInner = std::move(reloadRectInner); }
+void Entity::setReloadRectOuter(sf::RectangleShape reloadRectOuter) { this->reloadRectOuter = std::move(reloadRectOuter); }
+void Entity::setSpritePos(sf::Vector2f spritePos) { this->sprite.setPosition(std::move(spritePos)); }
+void Entity::setMoveTargetPos(sf::Vector2f moveTargetPos) { this->moveTargetPos = std::move(moveTargetPos); }
+void Entity::setCurrentVelocity(sf::Vector2f currentVelocity) { this->currentVelocity = std::move(currentVelocity); }
+void Entity::setStepPos(sf::Vector2f stepPos) { this->stepPos = std::move(stepPos); }
+void Entity::setTargetPos(sf::Vector2f targetPos) { this->targetPos = std::move(targetPos); }
+void Entity::setAimPos(sf::Vector2f aimPos) { this->aimPos = std::move(aimPos); }
+void Entity::setAimDir(sf::Vector2f aimDir) { this->aimDir = std::move(aimDir); }
+void Entity::setAimDirNorm(sf::Vector2f aimDirNorm) { this->aimDirNorm = std::move(aimDirNorm); }
+void Entity::setName(std::wstring name) { this->name = std::move(name); }
+void Entity::setCreatorName(std::wstring creatorName) { this->creatorName = std::move(creatorName); }
+void Entity::setIconFillColor(sf::Color color) { this->icon.setFillColor(std::move(color)); }
+void Entity::setIconPosition(sf::Vector2f pos) { this->icon.setPosition(std::move(pos)); }
+void Entity::restartReloadClock() { this->reloadClock.restart(); }
+void Entity::restartShootClock() { this->shootClock.restart(); }
+void Entity::drawIcon(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->icon); }
+void Entity::drawHPText(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->hpText); }
+void Entity::drawNameText(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->nameText); }
+void Entity::drawReloadText(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->reloadText); }
+void Entity::drawSprite(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->sprite); }
+void Entity::drawRectHitbox(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->rectHitbox); }
+void Entity::drawHPBarInner(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->HPBarInner); }
+void Entity::drawHPBarOuter(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->HPBarOuter); }
+void Entity::drawReloadRectInner(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->reloadRectInner); }
+void Entity::drawReloadRectOuter(std::unique_ptr<GameVariable>& gv) { gv->window.draw(this->reloadRectOuter); }

@@ -1,128 +1,91 @@
 ﻿#include "pch.h"
 #include "Source.h" // main header file.
 
-#ifdef _DEBUG
-#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
-#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while(false)
-#else
-#define DEBUG_SET_FUNC_NAME
-#define DEBUG_MSG(str) do { } while (false)
-#endif
+//void logsFunc(std::unique_ptr<GameVariable>& gv)
+//{
+//	while (gv->window.isOpen())
+//	{
+//		DEBUG_MSG("function name: " << gv->getFuncName());
+//		sf::sleep(sf::milliseconds(1));
+//	}
+//}
 
-void logsFunc(GameVariable* gv)
+sf::Time fpsPreviousTime, fpsCurrentTime;
+sf::Clock fpsClock;
+
+float fps = 0.f;
+
+void updateFPS(sf::Time& fpsPreviousTime, sf::Time& fpsCurrentTime, sf::Clock& fpsClock, float& fps) // FPS update function.
 {
-	while (gv->window.isOpen())
-	{
-		DEBUG_MSG("function name: " << gv->getFuncName());
-	}
+	fpsCurrentTime = fpsClock.getElapsedTime(); // assign the variable gv->fpsPreviousTime variable to elapsed time.
+	fps = floor(1.0f / (fpsCurrentTime.asSeconds() - fpsPreviousTime.asSeconds())); // calculate fps.
+	fpsPreviousTime = fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void updateFPS(GameVariable* gv) // FPS update function.
+void initObjects(std::unique_ptr<GameVariable>& gv)
 {
-	gv->fpsCurrentTime = gv->fpsClock.getElapsedTime(); // assign the variable gv->fpsPreviousTime variable to elapsed time.
-	gv->setFPS(floor(1.0f / (gv->fpsCurrentTime.asSeconds() - gv->fpsPreviousTime.asSeconds()))); // calculate fps.
-	gv->fpsPreviousTime = gv->fpsCurrentTime; // assign the variable gv->fpsPreviousTime to the current time.
+	boxPool.init(gv, boxVec, 24);
+	bulletPool.init(gv, bulletVec, 1000);
+	enemyPool.init(gv, enemyVec, 1000);
+	wallPool.init(gv, wallVec, 4);
+	itemPool.init(gv, itemVec, 2000);
+	clientPool.init(gv, clientVec, 500);
+	playerPtr = std::make_unique<Player>(gv);
+
+	for (int i = 0; i < 4; i++) { wallPool.getFromPool(wallVec); }
+	wallVec[0]->init(gv, sf::Vector2f(0.f, 0.f), L"LeftWall");
+	wallVec[1]->init(gv, sf::Vector2f(5000.f, 0.f), L"RightWall");
+	wallVec[2]->init(gv, sf::Vector2f(0.f, 0.f), L"TopWall");
+	wallVec[3]->init(gv, sf::Vector2f(0.f, 4936.f), L"BottomWall");
 }
 
-void s_eventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // event handling function for singleplayer.
+void singleplayerGame(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // singleplayer launch function.
 {
-	switch (gv->event.type) // check by event type.
-	{
-	case sf::Event::Closed:
-		gv->window.close();
-		break;
-	case sf::Event::MouseButtonPressed:
-		switch (gv->event.mouseButton.button) // check by mouse button.
-		{
-		case sf::Mouse::Left:
-			if (getPlayerPtr() != nullptr)
-			{
-				getPlayerPtr()->setMoveTargetPos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // write the coordinates of the mouse cursor to the moveTargetPos variable.
-				getPlayerPtr()->setIsMove(true);
-				gv->playerDestination.setPosition(getPlayerPtr()->getMoveTargetPos()); // set the label position to the mouse click location.
-				gv->playerDestination.setOutlineColor(sf::Color::Yellow);
-			}
-			break;
-		case sf::Mouse::Right:
-			if (getPlayerPtr() != nullptr) { getPlayerPtr()->setIsShoot(true); }
-			break;
-		}
-		break;
-	case sf::Event::KeyReleased:
-		switch (gv->event.key.code) // check by key code.
-		{
-		case sf::Keyboard::Z:
-			if (gv->getShowLogs() == false) { gv->setShowLogs(true); } // if the logs were not shown - show.
-			else { gv->setShowLogs(false); } // if the logs were shown - don't show them.
-			break;
-		case sf::Keyboard::X:
-			if (gv->getShowHitbox() == false) { gv->setShowHitbox(true); } // if hitboxes weren't shown - show them.
-			else { gv->setShowHitbox(false); } // if hitboxes were shown, don't show them.
-			break;
-		case sf::Keyboard::C:
-			if (gv->getShowAimLaser() == false) { gv->setShowAimLaser(true); } // if the aiming laser was not shown - show.
-			else { gv->setShowAimLaser(false); } // if the aiming laser was shown - don't show it.
-			break;
-		case sf::Keyboard::M:
-			gv->setShowMinimap(!(gv->getShowMinimap()));
-			break;
-		case sf::Keyboard::R:
-			if (getPlayerPtr() != nullptr && getPlayerPtr()->getCurrentAmmo() < 30 && getPlayerPtr()->getMaxAmmo() >= 1 && getPlayerPtr()->getIsReload() == false)
-			{
-				getPlayerPtr()->setIsReload(true);
-				getPlayerPtr()->getReloadClock().restart();
-				getPlayerPtr()->setReloadTime(0.f);
-				getPlayerPtr()->setMenuTime(0.f);
-			}
-			break;
-		case sf::Keyboard::Escape:
-			if (s_enterMenu(gv, minimap, playersList, chat)) { return; }
-			break;
-		}
-		break;
-	}
-}
+	resetVariables(gv, chat, playersList);
+	setGameResult(gv);
+	fpsClock.restart();
+	playerPtr->init(gv, gv->getPlayerStartPos(), gv->getNickname());
 
-void singleplayerGame(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // singleplayer launch function.
-{
-	resetVariables(gv, chat);
-	while (gv->window.isOpen())
+	while (gv->getIsSingleplayer())
 	{
 		DEBUG_SET_FUNC_NAME;
-		while (gv->window.pollEvent(gv->event))
-		{
-			s_eventHandler(gv, minimap, playersList, chat); // call the event handling function.
-			if (gv->getIsSingleplayer() == false) { return; }
-		}
-		updateGame(gv); // calling the entity update function.
+		updateGame(gv, minimap, playersList, chat, fps); // calling the entity update function.
 		drawGame(gv, minimap); // calling the entity drawing function.
-		updateFPS(gv); // call the FPS update function.
+		updateFPS(fpsPreviousTime, fpsCurrentTime, fpsClock, fps); // call the FPS update function.
 	}
 }
 
 int main() // the main function of the program.
 {
-#ifdef _DEBUG
-	//std::thread logsThread([&]() { logsFunc(gv); });
-	//logsThread.detach();
-#endif
 	consoleSettings(); // call the function for setting settings for the console.
 	Minimap minimap(sf::Vector2f(1920.f, 1080.f), sf::Vector2f(0.f, 0.f), sf::Vector2f(5000.f, 5000.f), sf::Vector2f(0.8f, 0.f), sf::Vector2f(0.2f, 0.355f));
 	Chat chat;
 	PlayersList playersList;
-	GameVariable* gv = new GameVariable(); // initialized "gv" object to hold global variables.
-	setVariables(gv, chat); // setting values of global variables.
+	auto gv = std::make_unique<GameVariable>();
+	setVariables(gv); // setting values of global variables.
+	initObjects(gv);
+
+	//#ifdef _DEBUG
+		//std::thread logsThread(logsFunc, std::ref(gv));
+		//logsThread.detach();
+	//#endif
+
+	std::thread recvThread(receiveData, std::ref(gv), std::ref(minimap), std::ref(playersList), std::ref(chat));
+	std::thread sendThread(sendData, std::ref(gv), std::ref(chat));
+	std::thread connectionThread(startNetwork, std::ref(gv));
+	recvThread.detach();
+	sendThread.detach();
+	connectionThread.detach();
 
 	menuEventHandler(gv, minimap, playersList, chat); // calling the menu event handling function.
+
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
 		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
-		if (gv->getIsSingleplayer() == true && gv->getIsMultiplayer() == false) { singleplayerGame(gv, minimap, playersList, chat); }
-		if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == true && gv->getConnectsToServer() == false) { multiplayerGame(gv, minimap, playersList, chat); }
-		if (gv->getIsSingleplayer() == false && gv->getIsMultiplayer() == false) { menuEventHandler(gv, minimap, playersList, chat); }
+		if (gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { singleplayerGame(gv, minimap, playersList, chat); }
+		if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && !gv->getConnectsToServer()) { multiplayerGame(gv, minimap, playersList, chat); }
+		if (!gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { menuEventHandler(gv, minimap, playersList, chat); }
 	}
-	delete gv; // clear memory.
-	DEBUG_MSG("Memory cleared!"); // send message in console.
 	return 1; // function termination.
 }

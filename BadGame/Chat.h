@@ -1,6 +1,8 @@
-#pragma once // used to provide additional control at compile time.
-#include "RichText.hpp" // improved sf::Text.
-#include "Clients.h"
+#ifndef CHAT_H
+#define CHAT_H
+
+#include "RichText.hpp"
+#include "Variables.h"
 
 class Chat // declare a class for creating a chat.
 {
@@ -22,8 +24,20 @@ public:
 		bool leftTheServer = false;
 	};
 
-	void createChat();
 	Chat(); // chat constructor.
+
+	void init();
+	void update(std::unique_ptr<GameVariable>& gv);
+	void draw(std::unique_ptr<GameVariable>& gv);
+
+	void updateUserTextBox(std::unique_ptr<GameVariable>& gv);
+	void updateScrollbarDir();
+	void chatPosUpdate(sf::Vector2f currentClientPos);
+	void addString(); // function to add a string to a vector.
+	void addEndLine(); // function to add the end of the line.
+	void scrollUp(); // function to scroll up the chat.
+	void scrollDown(); // function to scroll down the chat.
+	bool trimString(std::wstring& str); // string trim function.
 
 	sf::RectangleShape& getOuterScrollBar(); // function to get outer scrollbar.
 	sf::RectangleShape& getInnerScrollBar(); // function to get inner scrollbar.
@@ -48,7 +62,7 @@ public:
 	float& getScrollbarDivisor();
 	bool& getShowChat();
 	bool& getChatContainsMouse();
-	bool& getChatEnterText();
+	bool& getTextInputMode();
 	bool& getRecvMsg();
 	bool& getSendMsg();
 	bool& getLeftFromServer();
@@ -75,18 +89,12 @@ public:
 	void setJoinedMsg(std::wstring tempJoinedMsg);
 	void setShowChat(bool tempShowChat);
 	void setChatContainsMouse(bool tempChatContainsMouse);
-	void setChatEnterText(bool tempChatEnterText);
+	void setTextInputMode(bool tempTextInputMode);
 	void setRecvMsg(bool tempRecvMsg);
 	void setSendMsg(bool tempSendMsg);
 	void setLeftFromServer(bool tempLeftFromServer);
 	void setJoinToServer(bool tempJoinToServer);
 
-	void chatPosUpdate(sf::Vector2f clientPos);
-	void addString(); // function to add a string to a vector.
-	void addEndLine(); // function to add the end of the line.
-	void scrollUp(); // function to scroll up the chat.
-	void scrollDown(); // function to scroll down the chat.
-	bool trimString(std::wstring& str); // string trim function.
 private:
 	sf::RectangleShape outerScrollBar, innerScrollBar, chatTextBox, userTextBox;
 	sf::Color greyColor;
@@ -112,7 +120,7 @@ private:
 	float scrollbarYPos;
 
 	bool chatContainsMouse;
-	bool chatEnterText;
+	bool textInputMode;
 	bool recvMsg;
 	bool sendMsg;
 	bool leftFromServer;
@@ -120,6 +128,4 @@ private:
 	bool showChat;
 };
 
-void chatUpdate(Chat& chat, std::wstring nickname, sf::Vector2f mousePos);
-void updateUserTextBox(Chat& chat, sf::Vector2f mousePos);
-void updateScrollbarDir(Chat& chat);
+#endif

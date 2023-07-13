@@ -1,41 +1,43 @@
-#pragma once // used to provide additional control at compile time.
-#include "Entity.h" // header file for entities.
-#include "Bullet.h" // header file for bullets.
-#include "Player.h" // header file for player.
-#include "Box.h" // header file for boxes.
-#include "Enemy.h" // header file for enemies.
-#include "Wall.h" // header file for walls.
-#include "Item.h" // header file for items.
+#ifndef GAMEUPDATE_H
+#define GAMEUPDATE_H
+
+#include "Collision.h"
+#include "ObjectPool.hpp"
 #include "Network.h"
-#include "Minimap.h" // header file for minimap.
+#include "Minimap.h"
 #include "Chat.h"
 #include "PlayersList.h"
-#include "Text.h" // header file for working with text.
+#include "Text.h"
+#include "Variables.h"
 
-Entity* getPlayerPtr();
+bool s_enterMenu(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // enter menu for singleplayer.
 
-void setPlayerPtr(Entity* ptr);
+void s_eventHandler(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // event handling function for singleplayer.
 
-bool s_enterMenu(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat); // enter menu for singleplayer.
+void respawnEnemies(std::unique_ptr<GameVariable>& gv);
 
-void collisionHandler(Entity* entity, Entity* entity2); // collision handler function for singleplayer. 
+void respawnBoxes(std::unique_ptr<GameVariable>& gv);
 
-void applyButtonPressed(GameVariable* gv, Minimap& minimap);
+void respawnHPBonuses(std::unique_ptr<GameVariable>& gv);
 
-void graphicsSettingsMenuUpdate(GameVariable* gv, Minimap& minimap); // graphic settings menu update function.
+void restartGame(std::unique_ptr<GameVariable>& gv); // game restart function.
 
-void settingsMenuUpdate(GameVariable* gv); // settings menu update function.
+void setGameResult(std::unique_ptr<GameVariable>& gv);
 
-void mainMenuUpdate(GameVariable* gv); // main menu update function.
+void updatePlayer(std::unique_ptr<GameVariable>& gv, float& fps);
 
-void multiplayerMenuUpdate(GameVariable* gv); // multiplayer menu update function.
+void updateGame(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat, float& fps); // game update function. 
 
-void restartGame(GameVariable* gv); // game restart function.
 
-void updateGame(GameVariable* gv); // entity update function.
 
-void drawMinimap(GameVariable* gv);
+void drawGameResult(std::unique_ptr<GameVariable>& gv);
 
-void drawEntities(GameVariable* gv, Minimap& minimap);
+void drawPlayer(std::unique_ptr<GameVariable>& gv);
 
-void drawGame(GameVariable* gv, Minimap& minimap); // entity drawing function.
+void drawMinimap(std::unique_ptr<GameVariable>& gv, Minimap& minimap);
+
+void drawEntities(std::unique_ptr<GameVariable>& gv, Minimap& minimap);
+
+void drawGame(std::unique_ptr<GameVariable>& gv, Minimap& minimap);
+
+#endif

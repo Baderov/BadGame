@@ -1,11 +1,16 @@
-#pragma once // used to provide additional control at compile time.
-#include "Entity.h" // header file for entities.
+#ifndef ENEMY_H
+#define ENEMY_H
 
-class Enemy : public Entity // create a enemy class and inherit it from Entity.
+#include "Entity.h"
+
+class Enemy : public Entity
 {
 public:
-	Enemy(sf::Image& image, sf::Vector2f startPos, std::wstring name); // enemy constructor.
-	void update(sf::RenderWindow& window, sf::RectangleShape& aimLaser, sf::Vector2f mousePos, char gameLanguage, float dt, bool isSinglePlayer) override;
-	void move(sf::RectangleShape& aimLaser, float dt, bool isSinglePlayer) override;
-	void rotate(sf::RectangleShape& aimLaser, sf::Vector2f targetPos) override;
+	explicit Enemy(std::unique_ptr<GameVariable>& gv);
+	void init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, std::wstring name);
+	void update(std::unique_ptr<GameVariable>& gv) override;
+	void move(std::unique_ptr<GameVariable>& gv) override;
+	void rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos) override;
 };
+
+#endif

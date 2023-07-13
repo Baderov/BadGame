@@ -1,31 +1,24 @@
 #include "pch.h"
 #include "Menu.h" // header file for working with the menu.
 
-#ifdef _DEBUG
-#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
-#define DEBUG_MSG(str) do { std::wcout << str << std::endl; } while(false)
-#else
-#define DEBUG_SET_FUNC_NAME
-#define DEBUG_MSG(str) do { } while (false)
-#endif
-
-void errorChecking(GameVariable* gv, int& countOfDotsInIP) // error checking function.
+void errorChecking(std::unique_ptr<GameVariable>& gv, int& countOfDotsInIP) // error checking function.
 {
 	auto errorLabel = gv->gui.get<tgui::Label>("errorLabel");
 	countOfDotsInIP = 0;
 
-	for (int i = 0; i < gv->getServerIP().size(); i++)
+	for (int i = 0; i < gv->getServerIP().size(); ++i)
 	{
 		if (gv->getServerIP()[i] == '.') { countOfDotsInIP++; }
 	}
 
-	if ((gv->getNickname().size() >= 3 && gv->multiplayerError == MultiplayerErrors::NickMustContainMoreChars) ||
-		(countOfDotsInIP == 3 && gv->multiplayerError == MultiplayerErrors::WrongIP) || (gv->getTempPort().size() >= 1 && gv->multiplayerError == MultiplayerErrors::WrongPort))
+	if ((gv->getNickname().size() >= 3 && multiplayerError == MultiplayerErrors::NickMustContainMoreChars) ||
+		(countOfDotsInIP == 3 && multiplayerError == MultiplayerErrors::WrongIP) ||
+		(gv->getTempPort().size() >= 1 && multiplayerError == MultiplayerErrors::WrongPort))
 	{
-		gv->multiplayerError = MultiplayerErrors::NoErrors;
+		multiplayerError = MultiplayerErrors::NoErrors;
 	}
 
-	switch (gv->multiplayerError)
+	switch (multiplayerError)
 	{
 	case MultiplayerErrors::NickMustContainMoreChars:
 		if (gv->getGameLanguage() == 'e') { errorLabel->setText(L"Nickname must contain more than 2 characters!"); }
@@ -53,7 +46,7 @@ void errorChecking(GameVariable* gv, int& countOfDotsInIP) // error checking fun
 	}
 }
 
-void updateFields(GameVariable* gv) // function for update fields in multiplayer menu.
+void updateFields(std::unique_ptr<GameVariable>& gv) // function for update fields in multiplayer menu.
 {
 	gv->setNickname(L"Baderov");
 	gv->setServerIP(sf::IpAddress::getLocalAddress().toString());
@@ -61,12 +54,12 @@ void updateFields(GameVariable* gv) // function for update fields in multiplayer
 	gv->setServerPort(2000);
 }
 
-void multiplayerMenu(GameVariable* gv, PlayersList& playersList, Chat& chat) // multiplayer menu function.
+void multiplayerMenu(std::unique_ptr<GameVariable>& gv, PlayersList& playersList, Chat& chat) // multiplayer menu function.
 {
 	updateFields(gv);
 	multiplayerMenuUpdate(gv);
 	gv->setMenuNum(0);
-	gv->multiplayerError = MultiplayerErrors::NoErrors;
+	multiplayerError = MultiplayerErrors::NoErrors;
 	int countOfDotsInIP = 0;
 
 	auto nicknameEditBox = gv->gui.get<tgui::EditBox>("nicknameEditBox");
@@ -83,13 +76,13 @@ void multiplayerMenu(GameVariable* gv, PlayersList& playersList, Chat& chat) // 
 
 		gv->setMousePos(gv->window.mapPixelToCoords(sf::Mouse::getPosition(gv->window))); // get mouse coordinates.
 
-		if (gv->getIsMultiplayer() == true && gv->getConnectsToServer() == false)
+		if (gv->getIsMultiplayer() && !gv->getConnectsToServer())
 		{
 			gv->setMenuNum(9);
 			return;
 		}
 
-		if (gv->getConnectsToServer() == true)
+		if (gv->getConnectsToServer())
 		{
 			connectButton->setEnabled(false);
 			backButton->setEnabled(false);
@@ -110,35 +103,27 @@ void multiplayerMenu(GameVariable* gv, PlayersList& playersList, Chat& chat) // 
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && connectButton->isEnabled() == true)
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && connectButton->isEnabled())
 			{
 				gv->setMenuNum(5);
 				return;
 			}
 			if (gv->event.type == sf::Event::Closed) { gv->window.close(); return; }
 
-			if (connectButton->isEnabled() == true && gv->getConnectsToServer() == false && gv->getConnectButtonPressed() == true)
+			if (connectButton->isEnabled() && !gv->getConnectsToServer() && gv->getConnectButtonPressed())
 			{
 				gv->setConnectButtonPressed(false);
-				gv->multiplayerError = MultiplayerErrors::NoErrors;
-				if (gv->getNickname().size() < 3) { gv->multiplayerError = MultiplayerErrors::NickMustContainMoreChars; break; }
-				if (countOfDotsInIP != 3) { gv->multiplayerError = MultiplayerErrors::WrongIP; break; }
-				if (gv->getTempPort().size() < 1) { gv->multiplayerError = MultiplayerErrors::WrongPort; break; }
+				multiplayerError = MultiplayerErrors::NoErrors;
+				if (gv->getNickname().size() < 3) { multiplayerError = MultiplayerErrors::NickMustContainMoreChars; break; }
+				if (countOfDotsInIP != 3) { multiplayerError = MultiplayerErrors::WrongIP; break; }
+				if (gv->getTempPort().size() < 1) { multiplayerError = MultiplayerErrors::WrongPort; break; }
+
+				clientPool.returnEverythingToPool(clientVec);
+				bulletPool.returnEverythingToPool(bulletVec);
+				gv->serverClock.restart();
 				gv->setIsMultiplayer(true);
-				resetVariables(gv, chat);
-				Entity::setNumOfClients(0);
-				chat.getChatText().clear();
-				chat.getStrVector().clear();
-				chat.createChat();
-				playersList.updatePLScrollbar();
-				gv->restartServerClock();
-				setCurrentClient(nullptr);
-				std::thread recvThread(receiveData, std::ref(gv), std::ref(playersList), std::ref(chat));
-				std::thread sendThread(sendData, std::ref(gv), std::ref(chat));
-				recvThread.detach();
-				sendThread.detach();
-				std::thread connectionThread(startNetwork, std::ref(gv));
-				connectionThread.detach();
+				resetVariables(gv, chat, playersList);
+				gv->setConnectsToServer(true);
 			}
 		}
 		gv->window.clear(sf::Color::Black);
@@ -147,7 +132,7 @@ void multiplayerMenu(GameVariable* gv, PlayersList& playersList, Chat& chat) // 
 	}
 }
 
-void graphicsSettingsMenu(GameVariable* gv, Minimap& minimap) // graphics settings menu function.
+void graphicsSettingsMenu(std::unique_ptr<GameVariable>& gv, Minimap& minimap) // graphics settings menu function.
 {
 	graphicsSettingsMenuUpdate(gv, minimap);
 	gv->setMenuNum(0);
@@ -173,7 +158,7 @@ void graphicsSettingsMenu(GameVariable* gv, Minimap& minimap) // graphics settin
 	}
 }
 
-void settingsMenu(GameVariable* gv) // settings menu function.
+void settingsMenu(std::unique_ptr<GameVariable>& gv) // settings menu function.
 {
 	settingsMenuUpdate(gv);
 	gv->setMenuNum(0);
@@ -198,7 +183,7 @@ void settingsMenu(GameVariable* gv) // settings menu function.
 	}
 }
 
-void mainMenu(GameVariable* gv) // main menu function.
+void mainMenu(std::unique_ptr<GameVariable>& gv) // main menu function.
 {
 	mainMenuUpdate(gv);
 	gv->setMenuNum(0);
@@ -210,7 +195,7 @@ void mainMenu(GameVariable* gv) // main menu function.
 		while (gv->window.pollEvent(gv->event))
 		{
 			gv->gui.handleEvent(gv->event);
-			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && (gv->getIsSingleplayer() == true || gv->getIsMultiplayer() == true))
+			if (gv->event.type == sf::Event::KeyReleased && gv->event.key.code == sf::Keyboard::Escape && (gv->getIsSingleplayer() || gv->getIsMultiplayer()))
 			{
 				gv->setMenuNum(9);
 				return;
@@ -223,13 +208,14 @@ void mainMenu(GameVariable* gv) // main menu function.
 	}
 }
 
-void menuEventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // function to handle menu events.
+void menuEventHandler(std::unique_ptr<GameVariable>& gv, Minimap& minimap, PlayersList& playersList, Chat& chat) // function to handle menu events.
 {
-	gv->setWindowView(gv->getMenuView());
+	gv->setMenuView();
 	mainMenu(gv);
 	while (gv->window.isOpen())
 	{
 		DEBUG_SET_FUNC_NAME;
+
 		while (gv->window.pollEvent(gv->event)) { if (gv->event.type == sf::Event::Closed) { gv->window.close(); } }
 		gv->gui.removeAllWidgets();
 		switch (gv->getMenuNum())
@@ -263,8 +249,8 @@ void menuEventHandler(GameVariable* gv, Minimap& minimap, PlayersList& playersLi
 			break;
 		case 7:
 			gv->setMenuNum(0);
-			if (gv->getIsSingleplayer() == true) { gv->setIsSingleplayer(false); }
-			if (gv->getIsMultiplayer() == true) { gv->setIsMultiplayer(false); }
+			if (gv->getIsSingleplayer()) { gv->setIsSingleplayer(false); }
+			if (gv->getIsMultiplayer()) { gv->setIsMultiplayer(false); }
 			return;
 		case 8:
 			gv->setMenuNum(0);

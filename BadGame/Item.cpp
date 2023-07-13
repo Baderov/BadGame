@@ -1,20 +1,28 @@
 #include "pch.h"
-#include "Item.h" // header file for items.
+#include "ObjectPool.hpp"
+#include "Item.h" 
 
-Item::Item(sf::Image& image, sf::Vector2f startPos, std::wstring name) : Entity(image, startPos, name) // item constructor.
+Item::Item(std::unique_ptr<GameVariable>& gv) : Entity(gv) {}
+
+void Item::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, std::wstring name)
 {
-	entityType = "Item";
+	isAlive = true;
+
+	this->startPos = std::move(startPos);
+	this->name = std::move(name);
+
+	if (this->name == L"GoldCoin") { texture.loadFromImage(gv->goldCoinImage); }
+	else if (this->name == L"HPBonus") { texture.loadFromImage(gv->hpBonusImage); }
+
+	sprite.setTexture(texture, true);
+	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
+	sprite.setPosition(this->startPos);
+
+	rectHitbox.setSize(static_cast<sf::Vector2f>(texture.getSize()));
+	rectHitbox.setOrigin(rectHitbox.getSize().x / 2.f, rectHitbox.getSize().y / 2.f);
+	rectHitbox.setPosition(this->startPos);
 }
 
-void Item::update(sf::RenderWindow& window, sf::RectangleShape& aimLaser, sf::Vector2f mousePos, char gameLanguage, float dt, bool isSinglePlayer)
-{
-
-}
-void Item::move(sf::RectangleShape& aimLaser, float dt, bool isSinglePlayer)
-{
-
-}
-void Item::rotate(sf::RectangleShape& aimLaser, sf::Vector2f targetPos)
-{
-
-}
+void Item::update(std::unique_ptr<GameVariable>& gv) {}
+void Item::move(std::unique_ptr<GameVariable>& gv) {}
+void Item::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos) {}
