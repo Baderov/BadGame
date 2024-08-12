@@ -362,6 +362,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-BadGame/x64/
-BadGame/TGUI/
+BadGame/Fonts/
+BadGame/Images/
 BadGame/SFML/
+BadGame/TGUI/
+BadGame/x64/
+BadGame/*vcxproj*
