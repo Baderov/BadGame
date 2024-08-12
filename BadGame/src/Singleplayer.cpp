@@ -41,25 +41,25 @@ void respawnHPBonuses(std::unique_ptr<GameVariable>& gv)
 
 void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<SingleplayerManager>& sm)
 {
-	sm->setMenuTimer(0.f);
-
 	bulletsPool.returnEverythingToPool(bulletsVec);
 
 	if (!playerPtr->getIsAlive()) { playerPtr->init(gv, sm->getPlayerStartPos()); }
 	else
 	{
-		playerPtr->setIsMove(false);
-		playerPtr->setIsReload(false);
-		playerPtr->setIsShoot(false);
-		playerPtr->setHP(100);
-		playerPtr->setReloadTime(0.f);
-		playerPtr->setMagazineAmmo(30);
 		playerPtr->setCurrentAmmo(playerPtr->getMagazineAmmo());
+		playerPtr->setHP(100);
+		playerPtr->setMagazineAmmo(30);
 		playerPtr->setMaxAmmo(500);
 		playerPtr->setMissingAmmo(0);
 		playerPtr->setSpritePos(sm->getPlayerStartPos());
 		playerPtr->setMoveTargetPos(sm->getPlayerStartPos());
 		playerPtr->setStepPos(sf::Vector2f(0.f, 0.f));
+		playerPtr->setMenuTime(0.f);
+		playerPtr->setReloadTime(0.f);
+		playerPtr->setIsMove(false);
+		playerPtr->setIsReload(false);
+		playerPtr->setIsShoot(false);
+		playerPtr->restartMenuClock();
 	}
 
 	respawnBoxes(gv, sm);
@@ -89,12 +89,10 @@ void drawGameResult(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 	gw->window.draw(sm->goldCoinsText);
 }
 
-void singleplayerGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw,  Minimap& minimap)
+void singleplayerGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap)
 {
 	gw->resetVariables();
 	gv->resetVariables();
-
-	playerPtr->init(gv, sm->getPlayerStartPos());
 
 	while (gv->getIsSingleplayer())
 	{

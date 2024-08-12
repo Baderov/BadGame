@@ -1,26 +1,24 @@
 #include "pch.h"
 #include "GameUpdate.h"
 
-const int BACKSPACE_CODE = 8;
-const int TABULATION_CODE = 9;
-const int QUESTION_MARK_CODE = 63;
-const int DOUBLE_QUOTES_CODE = 34;
-const int SINGLE_QUOTES_CODE = 39;
-const int BACKSLASH_CODE = 92;
-const int ESCAPE_CODE = 27;
 const int ENTER_CODE = 13;
-const int CHAT_MAX_CHAR_NUM = 202;
 
 void enterMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap) // enter menu for singleplayer.
 {
-	sm->restartMenuClock();
+	playerPtr->restartMenuClock();
+	for (size_t i = 0; i < enemiesVec.size(); i++) { enemiesVec[i]->restartMenuClock(); }
+
 	gv->setGameState(GameState::GameMenu);
+
 	menuEventHandler(gv, gw, sm, nm, cw, minimap, MenuType::GameMenu);
 
 	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer())
 	{
-		sm->setMenuTimer(sm->getMenuClockElapsedTime());
-		sm->setMenuTime(sm->getMenuTimer() + sm->getMenuTime());
+		playerPtr->setMenuTime(playerPtr->getMenuTime() + playerPtr->getMenuClockElapsedTime());
+		for (size_t i = 0; i < enemiesVec.size(); i++)
+		{
+			enemiesVec[i]->setMenuTime(enemiesVec[i]->getMenuTime() + enemiesVec[i]->getMenuClockElapsedTime());
+		}
 	}
 
 	gw->setGameView();
@@ -80,6 +78,7 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 						playerPtr->setIsReload(true);
 						playerPtr->restartReloadClock();
 						playerPtr->setReloadTime(0.f);
+						playerPtr->setMenuTime(0.f);
 						break;
 					}
 					break;

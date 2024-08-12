@@ -24,10 +24,11 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 
 	currentVelocity = sf::Vector2f(0.6f, 0.6f);
 	maxSpeed = 5.f;
-	HP = 100;
-	maxHP = HP;
 	shootDelay = 2.f;
 	shootTime = 0.f;
+	menuTime = 0.f;
+	HP = 100;
+	maxHP = HP;
 
 	shootOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // random number generation from 0.0 to 1.0.
 	moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
@@ -45,6 +46,8 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 
 	shootClock.restart();
+	menuClock.restart();
+
 }
 
 void Enemy::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -152,6 +155,18 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplaye
 {
 	aimPos = playerPtr->getSpritePos();
 
+	shootTime = (shootClock.getElapsedTime().asSeconds() + shootOffset) - menuTime;
+	if (shootTime >= shootDelay)
+	{
+		isShoot = true;
+		isMove = true;
+		isCollision = false;
+		moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
+		moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
+		shootClock.restart();
+		menuTime = 0.f;
+	}
+
 	if (isShoot)
 	{
 		float distance = sqrt(((aimPos.x - sprite.getPosition().x) * (aimPos.x - sprite.getPosition().x)) + ((aimPos.y - sprite.getPosition().y) * (aimPos.y - sprite.getPosition().y)));
@@ -162,17 +177,5 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplaye
 		}
 
 		isShoot = false;
-	}
-
-	shootTime = (shootClock.getElapsedTime().asSeconds() + shootOffset) - sm->getMenuTime();
-	if (shootTime >= shootDelay)
-	{
-		isShoot = true;
-		isMove = true;
-		isCollision = false;
-		moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
-		moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
-		sm->setMenuTime(0.f);
-		shootClock.restart();
 	}
 }

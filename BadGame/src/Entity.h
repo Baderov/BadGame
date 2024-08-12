@@ -19,10 +19,10 @@ enum class WallType
 class Entity // common class for all entities.
 {
 protected:
-	float DTMultiplier, maxSpeed, distance, spawnTime, reloadTime, shootTime, shootDelay, shootOffset;
+	float DTMultiplier, maxSpeed, distance, spawnTime, reloadTime, shootTime, shootDelay, shootOffset, menuTime;
 	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo;
 	bool isAlive, isMove, isShoot, isReload, isCollision, isGhost;
-	sf::Clock reloadClock, shootClock;
+	sf::Clock reloadClock, shootClock, menuClock;
 	sf::Text hpText, nameText, reloadText;
 	sf::Color grayColor;
 	sf::CircleShape icon;
@@ -57,6 +57,8 @@ public:
 	float getReloadTime();
 	float getShootDelay();
 	float getShootOffset();
+	float getMenuTime();
+	float getMenuClockElapsedTime();
 	int getHP();
 	int getMaxHP();
 	int getGoldCoins();
@@ -94,6 +96,7 @@ public:
 	void setReloadTime(float reloadTime);
 	void setShootDelay(float shootDelay);
 	void setShootOffset(float shootOffset);
+	void setMenuTime(float menuTime);
 	void setHP(int HP);
 	void setMaxHP(int maxHP);
 	void setGoldCoins(int goldCoins);
@@ -126,6 +129,7 @@ public:
 
 	void restartReloadClock();
 	void restartShootClock();
+	void restartMenuClock();
 
 	void drawIcon(std::unique_ptr<GameWindow>& gw);
 	void drawHPText(std::unique_ptr<GameWindow>& gw);

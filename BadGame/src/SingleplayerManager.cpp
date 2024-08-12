@@ -37,14 +37,12 @@ SingleplayerManager::SingleplayerManager(sf::Font& consolasFont)
 
 	playerStartPos = sf::Vector2f(2500.f, 2500.f);
 	gameResultGoldCoins = 0;
-	menuTimer = 0.f;
-	menuTime = 0.f;
+
 	gameInfoText.setString("");
 	playerInfoText.setString("");
 	playerAmmoText.setString("");
 	gameResultText.setString("");
 	goldCoinsText.setString("");
-	menuClock.restart();
 
 	gameResultText.setCharacterSize(110);
 	gameResultText.setFillColor(sf::Color::Green);
@@ -76,13 +74,11 @@ void SingleplayerManager::resetVariables()
 {
 	playerStartPos = sf::Vector2f(2500.f, 2500.f);
 	gameResultGoldCoins = 0;
-	menuTimer = 0.f;
 	gameInfoText.setString("");
 	playerInfoText.setString("");
 	playerAmmoText.setString("");
 	gameResultText.setString("");
 	goldCoinsText.setString("");
-	menuClock.restart();
 }
 
 // GETTERS.
@@ -98,26 +94,7 @@ int SingleplayerManager::getGameResultGoldCoins()
 	return gameResultGoldCoins;
 }
 
-float SingleplayerManager::getMenuTimer()
-{
-	float menuTimer = this->menuTimer;
-	return menuTimer;
-}
-
-float SingleplayerManager::getMenuTime()
-{
-	float menuTime = this->menuTime;
-	return menuTime;
-}
-float SingleplayerManager::getMenuClockElapsedTime()
-{
-	return menuClock.getElapsedTime().asSeconds();
-}
-
 
 // SETTERS.
 void SingleplayerManager::setPlayerStartPos(sf::Vector2f playerStartPos) { this->playerStartPos = std::move(playerStartPos); }
 void SingleplayerManager::setGameResultGoldCoins(int gameResultGoldCoins) { this->gameResultGoldCoins = std::move(gameResultGoldCoins); }
-void SingleplayerManager::setMenuTimer(float menuTime) { this->menuTimer = std::move(menuTime); }
-void SingleplayerManager::setMenuTime(float menuTime) { this->menuTime = std::move(menuTime); }
-void SingleplayerManager::restartMenuClock() { menuClock.restart(); }

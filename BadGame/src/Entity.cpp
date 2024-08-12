@@ -15,6 +15,7 @@ Entity::Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	shootTime = 0.f;
 	shootDelay = 1.f;
 	shootOffset = 0.f;
+	menuTime = 0.f;
 	HP = 100;
 	maxHP = 100;
 	goldCoins = 0;
@@ -23,7 +24,7 @@ Entity::Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	missingAmmo = 0;
 	magazineAmmo = 30;
 
-	isAlive = true;
+	isAlive = false;
 	isShoot = false;
 	isMove = false;
 	isReload = false;
@@ -59,6 +60,10 @@ Entity::Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	nameText.setFillColor(sf::Color::Cyan);
 	nameText.setCharacterSize(25);
 	nameText.setOutlineThickness(2.f);
+
+	menuClock.restart();
+	shootClock.restart();
+	reloadClock.restart();
 }
 
 void Entity::calcDirection()
@@ -145,6 +150,16 @@ float Entity::getShootOffset()
 {
 	float shootOffset = this->shootOffset;
 	return shootOffset;
+}
+
+float Entity::getMenuTime()
+{
+	float menuTime = this->menuTime;
+	return menuTime;
+}
+float Entity::getMenuClockElapsedTime()
+{
+	return this->menuClock.getElapsedTime().asSeconds();
 }
 
 int Entity::getHP()
@@ -323,6 +338,8 @@ void Entity::setReloadTime(float reloadTime) { this->reloadTime = std::move(relo
 void Entity::setShootTime(float shootTime) { this->shootTime = std::move(shootTime); }
 void Entity::setShootDelay(float shootDelay) { this->shootDelay = std::move(shootDelay); }
 void Entity::setShootOffset(float shootOffset) { this->shootOffset = std::move(shootOffset); }
+void Entity::setMenuTime(float menuTime) { this->menuTime = std::move(menuTime); }
+void Entity::restartMenuClock() { this->menuClock.restart(); }
 void Entity::setHP(int HP) { this->HP = std::move(HP); }
 void Entity::setMaxHP(int maxHP) { this->maxHP = std::move(maxHP); }
 void Entity::setGoldCoins(int goldCoins) { this->goldCoins = std::move(goldCoins); }

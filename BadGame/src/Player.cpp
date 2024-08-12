@@ -225,7 +225,7 @@ void Player::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 
 	if (isReload)
 	{
-		reloadTime = reloadClock.getElapsedTime().asSeconds() - sm->getMenuTime();
+		reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
 		if (reloadTime < 0.f) { reloadTime = 0.f; }
 		updateReloadRect(gv);
 	}

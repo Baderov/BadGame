@@ -5,10 +5,7 @@ class SingleplayerManager
 {
 private:
 	sf::Vector2f playerStartPos;
-	sf::Clock menuClock;
 	int gameResultGoldCoins;
-	float menuTimer;
-	float menuTime;
 public:
 	sf::Vector2f boxStartPositions[24];
 	sf::Text gameInfoText;
@@ -23,17 +20,10 @@ public:
 	// GETTERS.
 	sf::Vector2f getPlayerStartPos();
 	int getGameResultGoldCoins();
-	float getMenuTimer();
-	float getMenuTime();
-	float getMenuClockElapsedTime();
 
 	// SETTERS.
 	void setPlayerStartPos(sf::Vector2f playerStartPos);
 	void setGameResultGoldCoins(int gameResultGoldCoins);
-	void setMenuTimer(float menuTimer);
-	void setMenuTime(float menuTime);
-	void restartMenuClock();
-
 };
 
 #endif
