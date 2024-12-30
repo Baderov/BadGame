@@ -1,6 +1,8 @@
 #ifndef GAME_VARIABLE_H
 #define GAME_VARIABLE_H
 
+#include "GameWindow.h"
+
 enum class GameLanguage
 {
 	English, Russian
@@ -37,7 +39,6 @@ public:
 	sf::Text connectionErrorText;
 	sf::Text OKButtonText;
 	sf::Font consolasFont;
-	sf::CircleShape playerDestination;
 	sf::RectangleShape connectionErrorRS;
 	sf::RectangleShape OKButtonRS;
 	sf::RectangleShape aimLaser;
@@ -56,6 +57,8 @@ public:
 
 	GameVariable();
 	void resetVariables();
+
+	void updateLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw);
 
 	// GETTERS.
 	GameLanguage getGameLanguage();

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Singleplayer.h"
 
-void respawnEnemies(std::unique_ptr<GameVariable>& gv)
+void respawnEnemies(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	enemiesPool.returnEverythingToPool(enemiesVec);
 	int numOfEnemies = 15 + rand() % 15;
@@ -9,7 +9,8 @@ void respawnEnemies(std::unique_ptr<GameVariable>& gv)
 	{
 		if (enemiesPool.getFromPool(enemiesVec))
 		{
-			enemiesVec.back()->init(gv, sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)));
+			sf::Vector2f enemyStartPos = sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000));
+			enemiesVec.back()->init(gv, gw, sm, nm, enemyStartPos);
 		}
 	}
 }
@@ -39,11 +40,11 @@ void respawnHPBonuses(std::unique_ptr<GameVariable>& gv)
 	}
 }
 
-void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<SingleplayerManager>& sm)
+void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	bulletsPool.returnEverythingToPool(bulletsVec);
 
-	if (!playerPtr->getIsAlive()) { playerPtr->init(gv, sm->getPlayerStartPos()); }
+	if (!playerPtr->getIsAlive()) { playerPtr->init(gv, gw, sm, nm, sm->getPlayerStartPos()); }
 	else
 	{
 		playerPtr->setCurrentAmmo(playerPtr->getMagazineAmmo());
@@ -52,6 +53,7 @@ void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplayer
 		playerPtr->setMaxAmmo(500);
 		playerPtr->setMissingAmmo(0);
 		playerPtr->setSpritePos(sm->getPlayerStartPos());
+		playerPtr->setColliderPos(sm->getPlayerStartPos());
 		playerPtr->setMoveTargetPos(sm->getPlayerStartPos());
 		playerPtr->setStepPos(sf::Vector2f(0.f, 0.f));
 		playerPtr->setMenuTime(0.f);
@@ -64,7 +66,7 @@ void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplayer
 
 	respawnBoxes(gv, sm);
 	respawnHPBonuses(gv);
-	respawnEnemies(gv);
+	respawnEnemies(gv, gw, sm, nm);
 }
 
 void drawGameResult(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm)

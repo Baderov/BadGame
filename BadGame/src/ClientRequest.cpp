@@ -1,6 +1,15 @@
 #include "pch.h"
 #include "ClientRequest.h"
 
+void respawnRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& name, sf::Vector2f&& startPos)
+{
+	sf::Packet packet;
+	packet.clear();
+	std::wstring prefix = L"respawn";
+	packet << prefix << name << startPos.x << startPos.y;
+	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
+}
+
 void connectedToServerRequest(std::unique_ptr<NetworkManager>& nm)
 {
 	sf::Packet packet;
@@ -64,35 +73,31 @@ void ghostRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, 
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
-void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
+void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	mousePosRequest(gv, nm);
-
-	if (!nm->getClientMoved() || nm->getMoveReceived()) { return; }
 
 	std::lock_guard<std::mutex> lock(clients_mtx);
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
 		if (clientsVec[i]->getName() != nm->getNickname()) { continue; }
-		if (!clientsVec[i]->getIsMove()) { break; }
+		if (!clientsVec[i]->getClientMoved()) { return; }
 
 		clientsVec[i]->setIsCollision(false);
-		clientsVec[i]->calcTarget(clientsVec[i]->getMoveTargetPos(), gv->getDT());
-		clientsVec[i]->moveCollisionRect();
-		clientsVec[i]->collision(gv, gw, sm, nm);
-		clientsVec[i]->returnCollisionRect();		
+		clientsVec[i]->moveCollider();
+		clientsVec[i]->checkCollision(gv, gw, sm, nm);
+		clientsVec[i]->returnCollider();
 
 		if (!clientsVec[i]->getIsCollision() || clientsVec[i]->getIsGhost())
 		{
-			nm->setClientMoved(false);
-
+			clientsVec[i]->setClientMoved(false);
 			moveRequest(nm, clientsVec[i]->getStepPos());
 		}
 
 		if (!clientsVec[i]->getIsCollision() && clientsVec[i]->getIsGhost())
 		{
-			bool tempIsGhost = false;
-			ghostRequest(nm, clientsVec[i]->getName(), std::move(tempIsGhost));
+			bool isGhost = false;
+			ghostRequest(nm, clientsVec[i]->getName(), std::move(isGhost));
 		}
 
 		break;

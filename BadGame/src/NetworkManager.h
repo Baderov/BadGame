@@ -8,7 +8,6 @@ private:
 	sf::UdpSocket sock;
 	sf::Clock serverClock;
 	std::wstring nickname;
-	std::wstring movedClientNick;
 	std::string serverIP;
 	std::string tempPort;
 	unsigned short serverPort;
@@ -18,15 +17,12 @@ private:
 	bool isConnected;
 	bool isMinimapView;
 	bool connectButtonPressed;
-	bool moveReceived;
-	bool clientMoved;
 	bool allowToSendMsg;
 public:
 	NetworkManager();
 	void resetVariables();
 
 	std::wstring getNickname();
-	std::wstring getMovedClientNick();
 	std::string getServerIP();
 	std::string getTempPort();
 	unsigned short getServerPort();
@@ -37,12 +33,9 @@ public:
 	bool getIsConnected();
 	bool getIsMinimapView();
 	bool getConnectButtonPressed();
-	bool getMoveReceived();
-	bool getClientMoved();
 	bool getAllowToSendMsg();
 
 	void setNickname(std::wstring nickname);
-	void setMovedClientNick(std::wstring movedClientNick);
 	void setServerIP(std::string serverIP);
 	void setTempPort(std::string tempPort);
 	void setServerPort(unsigned short serverPort);
@@ -52,8 +45,6 @@ public:
 	void setIsConnected(bool isConnected);
 	void setIsMinimapView(bool isMinimapView);
 	void setConnectButtonPressed(bool connectButtonPressed);
-	void setMoveReceived(bool moveReceived);
-	void setClientMoved(bool clientMoved);
 	void setAllowToSendMsg(bool allowToSendMsg);
 	void restartServerClock();
 	void sockSend(sf::Packet& packet, sf::IpAddress&& serverIP, unsigned short&& serverPort);

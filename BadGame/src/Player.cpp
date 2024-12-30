@@ -3,19 +3,10 @@
 
 Player::Player(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm) {}
 
-void Player::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
+void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos)
 {
-	isAlive = true;
-	isMove = false;
-	isReload = false;
-
 	this->startPos = std::move(startPos);
 	this->name = L"";
-
-	currentVelocity = sf::Vector2f(0.85f, 0.85f);
-	moveTargetPos = this->startPos;
-	maxSpeed = 5.f;
-	reloadTime = 0.f;
 
 	HP = 100;
 	goldCoins = 0;
@@ -25,15 +16,27 @@ void Player::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	maxAmmo = 500;
 	missingAmmo = 0;
 
+	reloadTime = 0.f;
+	speed = 750.f;
+	stepPos = sf::Vector2f(0.f, 0.f);
+	moveTargetPos = this->startPos;
+
+	isAlive = true;
+	isMove = false;
+	isReload = false;
+	isGhost = false;
+	bulletHit = false;
+
 	texture.loadFromImage(gv->playerImage);
 	sprite.setTexture(texture, true);
 	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
 	sprite.setPosition(this->startPos);
+	sprite.setColor(sf::Color::White);
 
-	collisionRect.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
-	collisionRect.setOrigin(collisionRect.getSize().x / 2.f, collisionRect.getSize().y / 2.f);
-	collisionRect.setFillColor(sf::Color::Green);
-	collisionRect.setPosition(this->startPos);
+	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Green);
 
 	reloadRectOuter.setFillColor(grayColor);
 	reloadRectOuter.setOutlineThickness(2.f);
@@ -57,6 +60,9 @@ void Player::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	icon.setOutlineThickness(15.f);
 	icon.setOutlineColor(sf::Color::Black);
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+
+	checkCollision(gv, gw, sm, nm);
+	if (isCollision) { isGhost = true; setGhostSprite(); }
 }
 
 void Player::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -64,20 +70,22 @@ void Player::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 	if (isAlive)
 	{
 		gv->setMousePos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
+		rotate(gv, gv->getMousePos());
 
 		move(gv, gw, sm, nm);
-		shoot(gv, gw, sm);
-		rotate(gv, gv->getMousePos());
-		updateLaser(gv);
+
+		shoot(gv, gw, sm, nm);
+
 		gw->setGameViewCenter(sprite.getPosition());
 
 		nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 90.f);
 		icon.setPosition(sprite.getPosition());
 		updateHPBar();
+		if (bulletHit) { animateBulletHit(); }
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
 
-		if (HP <= 0) // if the player's health is zero or less, then he is dead.
+		if (HP <= 0)
 		{
 			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
 			isAlive = false;
@@ -89,15 +97,14 @@ void Player::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 void Player::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	isCollision = false;
-	if (isMove)
-	{
-		calcTarget(moveTargetPos, gv->getDT());
-		moveCollisionRect();
-		collision(gv, gw, sm, nm);
 
-		if (isCollision) { returnCollisionRect(); }
-		else { sprite.move(stepPos); }
-	}
+	calcStepPos(gv, nm);
+	moveCollider();
+	checkCollision(gv, gw, sm, nm);
+
+	if (isCollision && !isGhost) { returnCollider(); }
+	if (!isCollision || isGhost) { sprite.move(stepPos); }
+	if (!isCollision && isGhost) { isGhost = false; setRegularSprite(); }
 }
 
 void Player::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -105,9 +112,8 @@ void Player::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	if (nm->getIsMinimapView()) { drawIcon(gw); }
 	else
 	{
-		if (gv->getShowAimLaser() && gv->getFocusEvent()) { gw->window.draw(gv->aimLaser); }
-		if (isMove) { gw->window.draw(gv->playerDestination); }
-		if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
+		if (gv->getShowAimLaser()) { gw->window.draw(gv->aimLaser); }
+		if (gv->getShowCollisionRect()) { drawCollider(gw); }
 		else
 		{
 			drawSprite(gw);
@@ -125,7 +131,7 @@ void Player::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	}
 }
 
-void Player::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Player::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	for (size_t i = 0; i < wallsVec.size(); ++i)
 	{
@@ -184,7 +190,7 @@ void Player::updateReloadRect(std::unique_ptr<GameVariable>& gv)
 	reloadText.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y - 50.f);
 }
 
-void Player::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm)
+void Player::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	if (currentAmmo < 30 && isReload && reloadTime >= 2.f)
 	{
@@ -218,7 +224,7 @@ void Player::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 		sf::Vector2f aimPos = gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window));
 		std::wstring creatorName = name;
 
-		bulletsVec.back()->init(gv, startPos, aimPos, creatorName);
+		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName);
 		currentAmmo--;
 		isShoot = false;
 	}

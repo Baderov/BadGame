@@ -3,12 +3,15 @@
 
 Client::Client(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm) {}
 
-void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos, std::wstring name)
+void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos)
 {
 	isAlive = true;
 	isMove = false;
 	isReload = false;
 	isGhost = false;
+	isCollision = false;
+	bulletHit = false;
+	clientMoved = false;
 
 	this->startPos = std::move(startPos);
 	this->name = std::move(name);
@@ -17,6 +20,8 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	moveTargetPos = this->startPos;
 	maxSpeed = 5.f;
 	reloadTime = 0.f;
+	speed = 1000.f;
+	stepPos = sf::Vector2f(0.f, 0.f);
 
 	HP = 100;
 	goldCoins = 0;
@@ -35,11 +40,12 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	sprite.setTexture(texture, true);
 	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
 	sprite.setPosition(this->startPos);
+	sprite.setColor(sf::Color::White);
 
-	collisionRect.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
-	collisionRect.setOrigin(collisionRect.getSize().x / 2.f, collisionRect.getSize().y / 2.f);
-	collisionRect.setPosition(this->startPos);
-	collisionRect.setFillColor(sf::Color::Magenta);
+	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Magenta);
 
 	nameText.setFont(gv->consolasFont);
 	nameText.setFillColor(sf::Color::Green);
@@ -53,16 +59,28 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	icon.setOutlineThickness(15.f);
 	icon.setOutlineColor(sf::Color::Black);
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+	icon.setPosition(this->startPos);
+}
 
 
-	for (size_t i = 0; i < clientsVec.size(); ++i)
+void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+{
+	if (isAlive)
 	{
-		collisionHandler(gv, nm, this, clientsVec[i].get());
-		if (isCollision)
+		if (HP <= 0)
 		{
-			bool tempIsGhost = true;
-			ghostRequest(nm, getName(), std::move(tempIsGhost));
+			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
+			isAlive = false;
+			this->startPos = sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000));
+			respawnRequest(nm, getName(), getStartPos());
+			return;
 		}
+
+		if (bulletHit) { animateBulletHit(); }
+
+		calcStepPos(gv, nm);
+
+		if (isMove) { setClientMoved(true); }
 	}
 }
 
@@ -70,31 +88,8 @@ void Client::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 {
 	sprite.move(stepPos);
 	icon.move(stepPos);
-	collisionRect.move(stepPos);
-	nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 80.f);
-}
-
-void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
-{
-	if (isAlive)
-	{
-		if (HP <= 0) // if the player's health is zero or less, then he is dead.
-		{
-			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
-			isAlive = false;
-		}
-		if (nm->getMoveReceived() && name == nm->getMovedClientNick())
-		{
-			move(gv, gw, sm, nm);
-
-			if (nm->getNickname() == name) { gw->setGameViewCenter(sprite.getPosition()); }
-
-			nm->setMovedClientNick(L"");
-			nm->setMoveReceived(false);
-			nm->setClientMoved(true);
-
-		}		
-	}
+	collider.move(stepPos);
+	setNameTextPos();
 }
 
 void Client::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -102,9 +97,8 @@ void Client::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	if (nm->getIsMinimapView()) { drawIcon(gw); }
 	else
 	{
-		if (name == nm->getNickname() && isMove && !nm->getServerIsNotAvailable()) { gw->window.draw(gv->playerDestination); }
-		if (gv->getShowAimLaser() && gv->getFocusEvent() && name == nm->getNickname()) { gw->window.draw(gv->aimLaser); }
-		if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
+		if (gv->getShowAimLaser() && gv->getFocusEvent()) { gw->window.draw(gv->aimLaser); }
+		if (gv->getShowCollisionRect()) { drawCollider(gw); }
 		else
 		{
 			drawNameText(gw);
@@ -113,7 +107,7 @@ void Client::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	}
 }
 
-void Client::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Client::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
@@ -140,7 +134,15 @@ void Client::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos)
 
 
 
+
+
 // GETTERS
+bool Client::getClientMoved()
+{
+	bool clientMoved = this->clientMoved;
+	return clientMoved;
+}
+
 size_t Client::getPlayersListID()
 {
 	size_t playersListID = this->playersListID;
@@ -161,6 +163,11 @@ sf::Int32 Client::getPingClockElapsedTime()
 
 
 // SETTERS
+void Client::setClientMoved(bool clientMoved)
+{
+	this->clientMoved = std::move(clientMoved);
+}
+
 void Client::setPlayersListID(size_t playersListID)
 {
 	this->playersListID = std::move(playersListID);

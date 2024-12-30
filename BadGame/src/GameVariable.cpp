@@ -45,12 +45,6 @@ GameVariable::GameVariable()
 	goldCoinImage.loadFromFile("Images/goldCoin.png");
 	hpBonusImage.loadFromFile("Images/hpBonus.png");
 
-	playerDestination.setRadius(20.f);
-	playerDestination.setOrigin(playerDestination.getRadius(), playerDestination.getRadius());
-	playerDestination.setFillColor(sf::Color::Transparent);
-	playerDestination.setOutlineThickness(5.f);
-	playerDestination.setOutlineColor(backgroundColor);
-
 	aimLaser.setSize(sf::Vector2f(2.25f, 100.f));
 	aimLaser.setFillColor(sf::Color::Red);
 
@@ -82,7 +76,12 @@ void GameVariable::resetVariables()
 }
 
 
-
+void GameVariable::updateLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw)
+{
+	float dist = sqrt(((gv->getMousePos().x - gw->getGameViewCenter().x) * (gv->getMousePos().x - gw->getGameViewCenter().x)) + ((gv->getMousePos().y - gw->getGameViewCenter().y) * (gv->getMousePos().y - gw->getGameViewCenter().y)));
+	gv->aimLaser.setSize(sf::Vector2f(2.25f, -dist));
+	gv->aimLaser.setPosition(gw->getGameViewCenter().x, gw->getGameViewCenter().y);
+}
 
 // GETTERS.
 GameLanguage GameVariable::getGameLanguage()
@@ -208,7 +207,6 @@ bool GameVariable::getFocusEvent()
 	bool focusEvent = this->focusEvent;
 	return focusEvent;
 }
-
 
 
 // SETTERS.

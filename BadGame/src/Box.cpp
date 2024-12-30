@@ -21,10 +21,10 @@ void Box::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
 	sprite.setPosition(this->startPos);
 
-	collisionRect.setSize(sf::Vector2f(texture.getSize()));
-	collisionRect.setOrigin(collisionRect.getSize().x / 2.f, collisionRect.getSize().y / 2.f);
-	collisionRect.setPosition(this->startPos);
-	collisionRect.setFillColor(sf::Color::Blue);
+	collider.setSize(sf::Vector2f(texture.getSize()));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Blue);
 
 	icon.setRadius(static_cast<float>(gv->boxImage.getSize().x));
 	icon.setOutlineThickness(15.f);
@@ -48,11 +48,11 @@ void Box::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 
 void Box::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
+	if (gv->getShowCollisionRect()) { drawCollider(gw); }
 	else { drawSprite(gw); }
 }
 
-void Box::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
+void Box::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
 
 void Box::returnToPool(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {

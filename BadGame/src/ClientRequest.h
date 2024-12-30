@@ -7,6 +7,8 @@
 #include "Client.h"
 #include "Bullet.h"
 
+void respawnRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& name, sf::Vector2f&& startPos);
+
 void connectedToServerRequest(std::unique_ptr<NetworkManager>& nm);
 
 void regNickRequest(std::unique_ptr<NetworkManager>& nm);
@@ -21,7 +23,7 @@ void mousePosRequest(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkM
 
 void ghostRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, bool&& isGhost);
 
-void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw);
+void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 
 void sendBulletRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 

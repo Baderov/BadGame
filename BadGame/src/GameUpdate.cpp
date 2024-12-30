@@ -42,14 +42,15 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				switch (event.mouseButton.button)
 				{
 				case sf::Mouse::Left:
-					playerPtr->setMoveTargetPos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
-					playerPtr->setIsMove(true);
-					playerPtr->setIsCollision(false);
-					gv->playerDestination.setPosition(playerPtr->getMoveTargetPos()); // set the label position to the mouse click location.
-					gv->playerDestination.setOutlineColor(sf::Color::Yellow);
+					//playerPtr->setMoveTargetPos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
+					//playerPtr->setIsMove(true);
+					//playerPtr->setIsCollision(false);
+					//gv->playerDestination.setPosition(playerPtr->getMoveTargetPos()); // set the label position to the mouse click location.
+					//gv->playerDestination.setOutlineColor(sf::Color::Yellow);
+					if (!playerPtr->getIsReload() && playerPtr->getIsAlive()) { playerPtr->setIsShoot(true); }
 					break;
 				case sf::Mouse::Right:
-					if (!playerPtr->getIsReload() && playerPtr->getIsAlive()) { playerPtr->setIsShoot(true); }
+
 					break;
 				}
 				break;
@@ -116,26 +117,16 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				switch (event.mouseButton.button)
 				{
 				case sf::Mouse::Left:
-				{
-					setMoveTarget(gv, gw, nm, cw);
 
 					cw->updateEditBox();
 
-					if (networkAction == NetworkAction::ServerIsNotAvailable)
-					{
-						nm->setServerIsNotAvailable(false);
-						gv->setIsMultiplayer(false);
-						gv->setGameState(GameState::GameOver);
-						networkAction = NetworkAction::Nothing;
-					}
-				}
-				break;
+					if (!cw->editBoxIsReadOnly()) { return; }
 
-				case sf::Mouse::Right:
 					std::lock_guard<std::mutex> lock(clients_mtx);
 					for (size_t i = 0; i < clientsVec.size(); ++i)
 					{
-						if (clientsVec[i]->getName() != nm->getNickname() || clientsVec[i]->getIsShoot() || nm->getServerIsNotAvailable() || clientsVec[i]->getIsGhost()) { continue; }
+						if (nm->getServerIsNotAvailable()) { break; }
+						if (clientsVec[i]->getName() != nm->getNickname() || clientsVec[i]->getIsShoot() || clientsVec[i]->getIsGhost()) { continue; }
 
 						clientsVec[i]->setIsShoot(true);
 						shootRequest(nm, clientsVec[i]->getName(), gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)), clientsVec[i]->getSpritePos());
@@ -217,7 +208,7 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 
 void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap)
 {
-	gv->setDT();
+	gv->setDT(); // 0.013s for 75 fps lock.
 	gv->setMousePos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
 	eventHandler(gv, gw, sm, nm, cw, minimap);
 
@@ -225,7 +216,7 @@ void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 	{
 		if (gv->getGameState() == GameState::StartGame || gv->getGameState() == GameState::RestartGame || (enemiesVec.empty() && playerPtr->getIsAlive()))
 		{
-			restartGame(gv, sm);
+			restartGame(gv, gw, sm, nm);
 			gv->setGameState(GameState::ContinueGame);
 			return;
 		}
@@ -246,12 +237,13 @@ void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 	}
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && nm->getIsConnected())
 	{
-		updateClients(gv, gw, sm, nm, minimap);
+		updateClients(gv, gw, sm, nm, cw, minimap);
 		updateBullets(gv, gw, sm, nm);
 		updateServerIsNotAvailable(gv, gw, nm, cw);
 	}
 	else if (!gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { return; }
 
+	gv->updateLaser(gv, gw);
 	updateGameInfo(gv, gw, sm);
 	minimap.update(gv, gw);
 }
@@ -355,8 +347,8 @@ void drawMinimapView(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWind
 
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer())
 	{
-		drawClients(gv, gw, sm, nm);
 		drawWalls(gv, gw, sm, nm);
+		drawClients(gv, gw, sm, nm);
 	}
 
 	nm->setIsMinimapView(false);
@@ -379,9 +371,9 @@ void drawGameView(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer())
 	{
-		drawClients(gv, gw, sm, nm);
-		drawBullets(gv, gw, sm, nm);
 		drawWalls(gv, gw, sm, nm);
+		drawBullets(gv, gw, sm, nm);
+		drawClients(gv, gw, sm, nm);
 		drawServerIsNotAvailable(gv, gw, nm);
 	}
 

@@ -60,7 +60,7 @@ void menuApplyButtonPressed(std::unique_ptr<GameVariable>& gv, std::unique_ptr<G
 	minimap.create();
 
 	cw->updateGUI(gw);
-	cw->updatePlayersList(gv->getGameLanguage());
+	if (gv->getIsMultiplayer()) { cw->updatePlayersList(gv->getGameLanguage()); }
 
 	graphicsSettingsMenuUpdate(gv, gw, nm, cw, minimap);
 }

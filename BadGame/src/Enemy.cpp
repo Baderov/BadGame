@@ -5,22 +5,11 @@ Enemy::Enemy(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw,
 
 unsigned int Enemy::enemyID = 0;
 
-void Enemy::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
+void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos)
 {
 	enemyID++;
 
-	isAlive = true;
-	isMove = true;
-	isCollision = false;
-
 	this->startPos = std::move(startPos);
-
-	name = L"Enemy" + std::to_wstring(enemyID);
-
-	texture.loadFromImage(gv->enemyImage);
-	sprite.setTexture(texture, true);
-	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
-	sprite.setPosition(this->startPos);
 
 	currentVelocity = sf::Vector2f(0.6f, 0.6f);
 	maxSpeed = 5.f;
@@ -30,14 +19,28 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	HP = 100;
 	maxHP = HP;
 
+	isAlive = true;
+	isMove = true;
+	isCollision = false;
+	isGhost = false;
+	bulletHit = false;
+
+	name = L"Enemy" + std::to_wstring(enemyID);
+
 	shootOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // random number generation from 0.0 to 1.0.
 	moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
 	moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 
-	collisionRect.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
-	collisionRect.setOrigin(collisionRect.getSize().x / 2.f, collisionRect.getSize().y / 2.f);
-	collisionRect.setPosition(this->startPos);
-	collisionRect.setFillColor(sf::Color::Red);
+	texture.loadFromImage(gv->playerImage);
+	sprite.setTexture(texture, true);
+	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
+	sprite.setPosition(this->startPos);
+	sprite.setColor(sf::Color::White);
+
+	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Red);
 
 	icon.setFillColor(sf::Color::Red);
 	icon.setRadius(static_cast<float>(gv->enemyImage.getSize().x));
@@ -48,21 +51,24 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	shootClock.restart();
 	menuClock.restart();
 
+	checkCollision(gv, gw, sm, nm);
+	if (isCollision) { isGhost = true; setGhostSprite(); }
 }
 
 void Enemy::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	if (isAlive)
 	{
+		shoot(gv, gw, sm, nm);
 		move(gv, gw, sm, nm);
-		shoot(gv, sm);
 		rotate(gv, aimPos);
 		updateHPBar();
+		if (bulletHit) { animateBulletHit(); }
 
 		hpText.setString(std::to_string(HP));
 		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
 		icon.setPosition(sprite.getPosition());
-		if (HP <= 0) { isAlive = false; } // if the enemy's health is zero or less, then isAlive is false.
+		if (HP <= 0) { isAlive = false; }
 	}
 	else
 	{
@@ -75,11 +81,15 @@ void Enemy::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 {
 	if (isMove)
 	{
+		isCollision = false;
+
 		calcTarget(moveTargetPos, gv->getDT());
-		moveCollisionRect();
-		collision(gv, gw, sm, nm);
-		if (isCollision) { returnCollisionRect(); }
-		else { sprite.move(stepPos); }
+		moveCollider();
+		checkCollision(gv, gw, sm, nm);
+
+		if (isCollision && !isGhost) { returnCollider(); }
+		if (!isCollision || isGhost) { sprite.move(stepPos); }
+		if (!isCollision && isGhost) { isGhost = false; setRegularSprite(); }
 	}
 }
 
@@ -88,7 +98,7 @@ void Enemy::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	if (nm->getIsMinimapView()) { drawIcon(gw); }
 	else
 	{
-		if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
+		if (gv->getShowCollisionRect()) { drawCollider(gw); }
 		else
 		{
 			drawSprite(gw);
@@ -99,7 +109,7 @@ void Enemy::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	}
 }
 
-void Enemy::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Enemy::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	for (size_t i = 0; i < wallsVec.size(); ++i)
 	{
@@ -151,7 +161,7 @@ void Enemy::dropItem(std::unique_ptr<GameVariable>& gv)
 	}
 }
 
-void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<SingleplayerManager>& sm)
+void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	aimPos = playerPtr->getSpritePos();
 
@@ -160,7 +170,6 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplaye
 	{
 		isShoot = true;
 		isMove = true;
-		isCollision = false;
 		moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
 		moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 		shootClock.restart();
@@ -173,7 +182,7 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Singleplaye
 
 		if (distance < 750.f && bulletsPool.getFromPool(bulletsVec))
 		{
-			bulletsVec.back()->init(gv, sprite.getPosition(), aimPos, name);
+			bulletsVec.back()->init(gv, gw, sm, nm, sprite.getPosition(), aimPos, name);
 		}
 
 		isShoot = false;

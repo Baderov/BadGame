@@ -5,57 +5,60 @@ Bullet::Bullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 
 unsigned int Bullet::bulletID = 0;
 
-void Bullet::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, sf::Vector2f aimPos, std::wstring creatorName)
+void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos, sf::Vector2f aimPos, std::wstring creatorName)
 {
 	bulletID++;
 
 	isAlive = true;
-	allowToShoot = true;
 	isMove = true;
+	allowToShoot = true;
 
 	name = L"Bullet" + std::to_wstring(bulletID);
 	this->aimPos = std::move(aimPos);
 	this->creatorName = std::move(creatorName);
 	this->startPos = std::move(startPos);
 
-	maxSpeed = 60.f;
+	maxSpeed = 1000.f;
+	currentVelocity = sf::Vector2f(0.f, 0.f);
 	HP = 10;
-
-	currentVelocity = sf::Vector2f(0.3f, 0.3f);
 
 	texture.loadFromImage(gv->bulletImage);
 	sprite.setTexture(texture, true);
 	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
 	sprite.setPosition(this->startPos);
 
-	collisionRect.setSize(sf::Vector2f(texture.getSize()));
-	collisionRect.setOrigin(collisionRect.getSize().x / 2.f, collisionRect.getSize().y / 2.f);
-	collisionRect.setPosition(this->startPos);
-	collisionRect.setFillColor(sf::Color::Black);
+	collider.setSize(sf::Vector2f(texture.getSize()));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Black);
 
-	calcDirection();
+	calcDirection(gv->getDT());
 }
 
 void Bullet::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	if (isAlive) { move(gv, gw, sm, nm); }
-	else { returnToPool(gv, gw, sm, nm); }
+	move(gv, gw, sm, nm);
+
+	if (!isAlive) { returnToPool(gv, gw, sm, nm); }
 }
 
 void Bullet::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	moveToDirection();
-	collisionRect.setPosition(sprite.getPosition());
-	collision(gv, gw, sm, nm);
+	for (size_t i = 0; i < 10; i++)
+	{
+		moveToDirection();
+		checkCollision(gv, gw, sm, nm);
+		if (!isAlive) { return; }
+	}
 }
 
 void Bullet::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
-	else { drawSprite(gw); }	
+	if (gv->getShowCollisionRect()) { drawCollider(gw); }
+	else { drawSprite(gw); }
 }
 
-void Bullet::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Bullet::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	if (gv->getIsSingleplayer())
 	{
@@ -104,6 +107,13 @@ void Bullet::returnToPool(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Gam
 }
 
 void Bullet::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos) {}
+
+void Bullet::calcDirection(float&& deltaTime)
+{
+	aimDir = aimPos - sprite.getPosition(); // distance from the mouse to the current position of the sprite.
+	aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
+	currentVelocity = aimDirNorm * maxSpeed * deltaTime; // vector speed = direction * linear speed * delta time.
+}
 
 bool Bullet::getAllowToShoot()
 {

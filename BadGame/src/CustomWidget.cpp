@@ -176,6 +176,7 @@ bool CustomWidget::editBoxIsReadOnly()
 	std::lock_guard<std::mutex> lock(mtx);
 	auto editBox = gameGUI.get<tgui::EditBox>("editBox");
 	return editBox->isReadOnly();
+	
 }
 
 bool CustomWidget::editBoxIsVisible()

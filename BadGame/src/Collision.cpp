@@ -4,7 +4,7 @@
 
 bool collisionHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, Entity* entity1, Entity* entity2)
 {
-	if (entity1 == entity2 || entity1 == nullptr || entity2 == nullptr || (!(collision::areColliding(entity1->getCollisionRect(), entity2->getCollisionRect())))) { return false; }
+	if (entity1 == entity2 || entity1 == nullptr || entity2 == nullptr || (!(collision::areColliding(entity1->getCollider(), entity2->getCollider())))) { return false; }
 
 	if (gv->getIsSingleplayer())
 	{
@@ -12,24 +12,32 @@ bool collisionHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Network
 		{
 			entity1->setIsAlive(false);
 			entity2->setHP(entity2->getHP() - entity1->getHP()); // everyone takes damage.
+			entity2->setBulletHit(true);
+			entity2->restartBulletHitClock();
 			//if (!dynamic_cast<Player*>(entity2)) { entity2->setIsAlive(false); } // no one can kill the player, everything else dies with 1 bullet.
 		}
 
-		if (dynamic_cast<Enemy*>(entity1) && entity1->getIsMove() && !entity1->getIsCollision())
+		if (dynamic_cast<Enemy*>(entity1))
 		{
 			if (dynamic_cast<Player*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2))
 			{
 				entity1->setIsCollision(true);
-				entity1->setIsMove(false);
+				if (!entity1->getIsGhost() && entity1->getIsMove())
+				{
+					entity1->setIsMove(false);
+				}
 			}
 		}
 
-		if (dynamic_cast<Player*>(entity1) && entity1->getIsMove() && !entity1->getIsCollision())
+		if (dynamic_cast<Player*>(entity1))
 		{
 			if (dynamic_cast<Enemy*>(entity2) || dynamic_cast<Box*>(entity2) || dynamic_cast<Wall*>(entity2))
 			{
 				entity1->setIsCollision(true);
-				entity1->setIsMove(false);
+				if (!entity1->getIsGhost() && entity1->getIsMove())
+				{
+					entity1->setIsMove(false);
+				}
 			}
 
 			if (dynamic_cast<Item*>(entity2) && entity2->getItemType() == ItemType::GoldCoin)
@@ -49,10 +57,12 @@ bool collisionHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Network
 
 	else if (gv->getIsMultiplayer())
 	{
-		if (dynamic_cast<Bullet*>(entity1) && (entity1->getCreatorName() != entity2->getName()) && (dynamic_cast<Box*>(entity2) || dynamic_cast<Player*>(entity2) || dynamic_cast<Wall*>(entity2) || dynamic_cast<Client*>(entity2)))
+		if (dynamic_cast<Bullet*>(entity1) && (entity1->getCreatorName() != entity2->getName()) && (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2) || dynamic_cast<Client*>(entity2)))
 		{
 			entity1->setIsAlive(false);
-			//entity2->setHP(entity2->getHP() - entity1->getHP()); // everyone takes damage.
+			entity2->setHP(entity2->getHP() - entity1->getHP()); // everyone takes damage.
+			entity2->setBulletHit(true);
+			entity2->restartBulletHitClock();
 			//if (!dynamic_cast<Player*>(entity2)) { entity2->setIsAlive(false); } // no one can kill the player, everything else dies with 1 bullet.
 		}
 

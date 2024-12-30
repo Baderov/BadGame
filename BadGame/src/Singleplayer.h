@@ -9,13 +9,13 @@
 #include "Minimap.h"
 #include "Source.h"
 
-void respawnEnemies(std::unique_ptr<GameVariable>& gv);
+void respawnEnemies(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 
 void respawnBoxes(std::unique_ptr<GameVariable>& gv, std::unique_ptr<SingleplayerManager>& sm);
 
 void respawnHPBonuses(std::unique_ptr<GameVariable>& gv);
 
-void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<SingleplayerManager>& sm);
+void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 
 void drawGameResult(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm);
 

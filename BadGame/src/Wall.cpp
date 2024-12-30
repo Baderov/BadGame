@@ -19,14 +19,14 @@ void Wall::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, WallTy
 	texture.loadFromImage(gv->wallImage);
 	sprite.setTexture(texture, true);
 	sprite.setOrigin(0.f, 0.f);
-	if (wallType == WallType::LeftWall || wallType == WallType::RightWall) { sprite.setRotation(90); }
 	sprite.setPosition(this->startPos);
 
-	collisionRect.setSize(sf::Vector2f(texture.getSize()));
-	collisionRect.setOrigin(0.f, 0.f);
-	if (wallType == WallType::LeftWall || wallType == WallType::RightWall) { collisionRect.setRotation(90); }
-	collisionRect.setPosition(this->startPos);
-	collisionRect.setFillColor(sf::Color::Blue);
+	collider.setSize(sf::Vector2f(texture.getSize()));
+	collider.setOrigin(0.f, 0.f);
+	collider.setPosition(this->startPos);
+	collider.setFillColor(sf::Color::Blue);
+
+	if (wallType == WallType::LeftWall || wallType == WallType::RightWall) { sprite.setRotation(90); collider.setRotation(90); }
 }
 
 void Wall::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
@@ -35,11 +35,11 @@ void Wall::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 
 void Wall::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	if (gv->getShowCollisionRect()) { drawCollisionRect(gw); }
+	if (gv->getShowCollisionRect()) { drawCollider(gw); }
 	else { drawSprite(gw); }
 }
 
-void Wall::collision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
+void Wall::checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
 
 void Wall::returnToPool(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
 

@@ -6,7 +6,6 @@ NetworkManager::NetworkManager()
 	sock.setBlocking(false);
 	serverClock.restart();
 	nickname = L"";
-	movedClientNick = L"";
 	serverIP = "";
 	tempPort = "";
 	serverPort = 0;
@@ -16,19 +15,14 @@ NetworkManager::NetworkManager()
 	isConnected = false;
 	isMinimapView = false;
 	connectButtonPressed = false;
-	moveReceived = false;
-	clientMoved = false;
 	allowToSendMsg = true;
 }
 
 void NetworkManager::resetVariables()
 {
 	serverClock.restart();
-	movedClientNick = L"";
 	serverIsNotAvailable = false;
 	isMinimapView = false;
-	moveReceived = false;
-	clientMoved = false;
 	allowToSendMsg = true;
 }
 
@@ -39,13 +33,6 @@ std::wstring NetworkManager::getNickname()
 	std::lock_guard<std::mutex> lock(mtx);
 	std::wstring nickname = this->nickname;
 	return nickname;
-}
-
-std::wstring NetworkManager::getMovedClientNick()
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	std::wstring movedClientNick = this->movedClientNick;
-	return movedClientNick;
 }
 
 std::string NetworkManager::getServerIP()
@@ -118,20 +105,6 @@ bool NetworkManager::getServerIsNotAvailable()
 	return serverIsNotAvailable;
 }
 
-bool NetworkManager::getMoveReceived()
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	bool moveReceived = this->moveReceived;
-	return moveReceived;
-}
-
-bool NetworkManager::getClientMoved()
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	bool clientMoved = this->clientMoved;
-	return clientMoved;
-}
-
 bool NetworkManager::getAllowToSendMsg()
 {
 	std::lock_guard<std::mutex> lock(mtx);
@@ -140,18 +113,11 @@ bool NetworkManager::getAllowToSendMsg()
 }
 
 
-
 // SETTERS.
 void NetworkManager::setNickname(std::wstring nickname)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	this->nickname = std::move(nickname);
-}
-
-void NetworkManager::setMovedClientNick(std::wstring movedClientNick)
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	this->movedClientNick = std::move(movedClientNick);
 }
 
 void NetworkManager::setServerIP(std::string serverIP)
@@ -206,18 +172,6 @@ void NetworkManager::setServerIsNotAvailable(bool serverIsNotAvailable)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	this->serverIsNotAvailable = std::move(serverIsNotAvailable);
-}
-
-void NetworkManager::setMoveReceived(bool moveReceived)
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	this->moveReceived = std::move(moveReceived);
-}
-
-void NetworkManager::setClientMoved(bool clientMoved)
-{
-	std::lock_guard<std::mutex> lock(mtx);
-	this->clientMoved = std::move(clientMoved);
 }
 
 void NetworkManager::setAllowToSendMsg(bool allowToSendMsg)
