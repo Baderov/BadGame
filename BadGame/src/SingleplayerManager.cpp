@@ -40,7 +40,6 @@ SingleplayerManager::SingleplayerManager(sf::Font& consolasFont)
 
 	gameInfoText.setString("");
 	playerInfoText.setString("");
-	playerAmmoText.setString("");
 	gameResultText.setString("");
 	goldCoinsText.setString("");
 
@@ -63,11 +62,6 @@ SingleplayerManager::SingleplayerManager(sf::Font& consolasFont)
 	playerInfoText.setCharacterSize(60);
 	playerInfoText.setFillColor(sf::Color::Cyan);
 	playerInfoText.setOutlineThickness(2.f);
-
-	playerAmmoText.setFont(consolasFont);
-	playerAmmoText.setCharacterSize(50);
-	playerAmmoText.setFillColor(sf::Color::Green);
-	playerAmmoText.setOutlineThickness(2.f);
 }
 
 void SingleplayerManager::resetVariables()
@@ -76,7 +70,6 @@ void SingleplayerManager::resetVariables()
 	gameResultGoldCoins = 0;
 	gameInfoText.setString("");
 	playerInfoText.setString("");
-	playerAmmoText.setString("");
 	gameResultText.setString("");
 	goldCoinsText.setString("");
 }

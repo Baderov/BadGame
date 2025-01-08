@@ -24,7 +24,7 @@ protected:
 	bool isAlive, isMove, isShoot, isReload, isCollision, isGhost, bulletHit;
 	sf::Clock reloadClock, shootClock, menuClock, bulletHitClock;
 	sf::Int32 bulletHitTime;
-	sf::Text hpText, nameText, reloadText;
+	sf::Text HPText, nameText, reloadText;
 	sf::Color grayColor;
 	sf::CircleShape icon;
 	sf::Texture texture;
@@ -46,7 +46,11 @@ public:
 	void calcTarget(sf::Vector2f moveTargetPos, float&& deltaTime);
 	void calcStepPos(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm);
 	void moveToDirection();
-	void updateHPBar();
+
+	void updateHP();
+	void calculateAmmo();
+	void updateReload(std::unique_ptr<GameVariable>& gv);
+	void updateReloadRect(std::unique_ptr<GameVariable>& gv);
 
 	void moveCollider();
 	void returnCollider();
@@ -95,7 +99,7 @@ public:
 
 	void moveSprite(sf::Vector2f& stepPos);
 	void setGhostSprite();
-	void setRegularSprite();
+	void setRegularSprite(std::wstring&& currentNickname);
 	void setShootTime(float shootTime);
 	void setSpawnTime(float spawnTime);
 	void setReloadTime(float reloadTime);
@@ -117,7 +121,7 @@ public:
 	void setIsGhost(bool isGhost);
 	void setBulletHit(bool bulletHit);
 	void setReloadClock(sf::Clock reloadClock);
-	void setHpText(sf::Text hpText);
+	void setHpText(sf::Text HPText);
 	void setNameText(sf::Text nameText);
 	void setReloadText(sf::Text reloadText);
 	void setNameTextPos();
@@ -135,21 +139,18 @@ public:
 	void setCreatorName(std::wstring creatorName);
 	void setIconFillColor(sf::Color color);
 	void setIconPos(sf::Vector2f pos);
+	void setNameTextFillColor(sf::Color color);
 
 	void restartReloadClock();
 	void restartShootClock();
 	void restartMenuClock();
 
 	void drawIcon(std::unique_ptr<GameWindow>& gw);
-	void drawHPText(std::unique_ptr<GameWindow>& gw);
 	void drawNameText(std::unique_ptr<GameWindow>& gw);
-	void drawReloadText(std::unique_ptr<GameWindow>& gw);
 	void drawSprite(std::unique_ptr<GameWindow>& gw);
 	void drawCollider(std::unique_ptr<GameWindow>& gw);
-	void drawHPBarInner(std::unique_ptr<GameWindow>& gw);
-	void drawHPBarOuter(std::unique_ptr<GameWindow>& gw);
-	void drawReloadRectInner(std::unique_ptr<GameWindow>& gw);
-	void drawReloadRectOuter(std::unique_ptr<GameWindow>& gw);
+	void drawHP(std::unique_ptr<GameWindow>& gw);
+	void drawReload(std::unique_ptr<GameWindow>& gw);
 };
 
 #endif

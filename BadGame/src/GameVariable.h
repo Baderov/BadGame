@@ -38,6 +38,7 @@ private:
 public:
 	sf::Text connectionErrorText;
 	sf::Text OKButtonText;
+	sf::Text ammoText;
 	sf::Font consolasFont;
 	sf::RectangleShape connectionErrorRS;
 	sf::RectangleShape OKButtonRS;
@@ -59,6 +60,7 @@ public:
 	void resetVariables();
 
 	void updateLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw);
+	void drawLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw);
 
 	// GETTERS.
 	GameLanguage getGameLanguage();

@@ -20,6 +20,7 @@
 #include <utility>
 #include <condition_variable>
 #include "profile.hpp"
+#include "RichText.hpp"
 
 #ifdef _DEBUG
 #define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);

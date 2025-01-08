@@ -50,6 +50,13 @@ GameVariable::GameVariable()
 
 	connectionErrorText.setString("");
 	OKButtonText.setString("");
+
+	ammoText.setString("");
+	ammoText.setFont(consolasFont);
+	ammoText.setCharacterSize(50);
+	ammoText.setFillColor(sf::Color::Green);
+	ammoText.setOutlineThickness(2.f);
+
 	fpsClock.restart();
 	gameClock.restart();
 }
@@ -71,6 +78,7 @@ void GameVariable::resetVariables()
 	aimLaser.setSize(sf::Vector2f(2.25f, 100.f));
 	connectionErrorText.setString("");
 	OKButtonText.setString("");
+	ammoText.setString("");
 	fpsClock.restart();
 	gameClock.restart();
 }
@@ -78,9 +86,18 @@ void GameVariable::resetVariables()
 
 void GameVariable::updateLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw)
 {
+	float dX = gv->getMousePos().x - gw->getGameViewCenter().x;
+	float dY = gv->getMousePos().y - gw->getGameViewCenter().y;
+	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	float dist = sqrt(((gv->getMousePos().x - gw->getGameViewCenter().x) * (gv->getMousePos().x - gw->getGameViewCenter().x)) + ((gv->getMousePos().y - gw->getGameViewCenter().y) * (gv->getMousePos().y - gw->getGameViewCenter().y)));
 	gv->aimLaser.setSize(sf::Vector2f(2.25f, -dist));
 	gv->aimLaser.setPosition(gw->getGameViewCenter().x, gw->getGameViewCenter().y);
+	gv->aimLaser.setRotation(rotation + 90.f);
+}
+
+void GameVariable::drawLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw)
+{
+	if (gv->getShowAimLaser() && gv->getFocusEvent()) { gw->window.draw(gv->aimLaser); }
 }
 
 // GETTERS.

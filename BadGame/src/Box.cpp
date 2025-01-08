@@ -36,12 +36,12 @@ void Box::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 {
 	if (isAlive)
 	{
-		if (HP <= 0) { isAlive = false; }
-	}
-	else
-	{
-		dropItem(gv);
-		returnToPool(gv, gw, sm, nm);
+		if (HP <= 0) 
+		{
+			isAlive = false; 
+			dropItem(gv);
+			returnToPool(gv, gw, sm, nm);
+		}
 	}
 }
 void Box::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}

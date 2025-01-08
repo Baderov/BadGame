@@ -53,10 +53,10 @@ Entity::Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	HPBarOuter.setOutlineThickness(2.f);
 	HPBarOuter.setOutlineColor(sf::Color::Black);
 
-	hpText.setFont(gv->consolasFont);
-	hpText.setCharacterSize(20);
-	hpText.setOutlineThickness(2.f);
-	hpText.setString("");
+	HPText.setFont(gv->consolasFont);
+	HPText.setCharacterSize(25);
+	HPText.setOutlineThickness(2.f);
+	HPText.setString("");
 
 	nameText.setFont(gv->consolasFont);
 	nameText.setString("");
@@ -130,17 +130,83 @@ void Entity::moveToDirection()
 	collider.move(currentVelocity);
 }
 
-void Entity::updateHPBar()
+void Entity::updateHP()
 {
-	HPBarOuter.setSize(sf::Vector2f(static_cast<float>(maxHP), 20.f));
-	HPBarOuter.setPosition(sprite.getPosition().x - 50.f, sprite.getPosition().y - 60.f);
+	HPBarOuter.setSize(sf::Vector2f(static_cast<float>(maxHP * 1.5), 30.f));
+	HPBarOuter.setPosition(sprite.getPosition().x - 70.f, sprite.getPosition().y - 80.f);
 
-	HPBarInner.setSize(sf::Vector2f(static_cast<float>(HP), HPBarOuter.getSize().y));
+	HPBarInner.setSize(sf::Vector2f(static_cast<float>(HP * 1.5), HPBarOuter.getSize().y));
 	HPBarInner.setPosition(HPBarOuter.getPosition().x, HPBarOuter.getPosition().y);
 
-	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 1.5f) { HPBarInner.setFillColor(sf::Color::Yellow); }
-	if (static_cast<float>(HP) <= static_cast<float>(maxHP) / 3.f) { HPBarInner.setFillColor(sf::Color::Red); }
-	if (static_cast<float>(HP) > static_cast<float>(maxHP) / 1.5f) { HPBarInner.setFillColor(sf::Color::Green); }
+	if (static_cast<float>(HP * 1.5) <= static_cast<float>(maxHP * 1.5) / 1.5f) { HPBarInner.setFillColor(sf::Color::Yellow); }
+	if (static_cast<float>(HP * 1.5) <= static_cast<float>(maxHP * 1.5) / 3.f) { HPBarInner.setFillColor(sf::Color::Red); }
+	if (static_cast<float>(HP * 1.5) > static_cast<float>(maxHP * 1.5) / 1.5f) { HPBarInner.setFillColor(sf::Color::Green); }
+
+	HPText.setString(std::to_string(HP));
+	HPText.setPosition(HPBarOuter.getPosition().x + 3.f, HPBarOuter.getPosition().y - 3.f);
+}
+
+void Entity::calculateAmmo()
+{
+	if (currentAmmo < 30 && isReload && reloadTime >= 2.f)
+	{
+		missingAmmo = magazineAmmo - currentAmmo;
+		if (maxAmmo < magazineAmmo)
+		{
+			if (maxAmmo + currentAmmo <= 30)
+			{
+				currentAmmo = currentAmmo + maxAmmo;
+				maxAmmo = 0;
+			}
+			else
+			{
+				int tempAmmo = magazineAmmo - currentAmmo;
+				currentAmmo = currentAmmo + tempAmmo;
+				maxAmmo = maxAmmo - tempAmmo;
+			}
+		}
+		else
+		{
+			currentAmmo = currentAmmo + missingAmmo;
+			maxAmmo = maxAmmo - missingAmmo;
+		}
+
+		isReload = false;
+	}
+}
+
+void Entity::updateReload(std::unique_ptr<GameVariable>& gv)
+{
+	if (isReload)
+	{
+		reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
+		if (reloadTime < 0.f) { reloadTime = 0.f; }
+		updateReloadRect(gv);
+	}
+}
+
+void Entity::updateReloadRect(std::unique_ptr<GameVariable>& gv)
+{
+	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
+	reloadRectOuter.setOrigin(reloadRectOuter.getSize() / 2.f);
+	float tempReloadTime = 0.f;
+	if (reloadTime > 0.f) { tempReloadTime = (reloadTime * 1000.f) / 10.f; }
+	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
+	if (tempReloadTime < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y)); }
+	else { reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y)); }
+	reloadRectOuter.setPosition(sprite.getPosition().x, sprite.getPosition().y + 400.f);
+	reloadRectInner.setPosition(reloadRectOuter.getPosition().x - (reloadRectOuter.getSize().x / 2.f), reloadRectOuter.getPosition().y - (reloadRectOuter.getSize().y / 2.f));
+	if (gv->getGameLanguage() == GameLanguage::English)
+	{
+		reloadText.setString("RELOAD");
+		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));
+	}
+	else if (gv->getGameLanguage() == GameLanguage::Russian)
+	{
+		reloadText.setString(L"œ≈–≈«¿–ﬂƒ ¿");
+		reloadText.setOrigin(round(reloadText.getLocalBounds().left + (reloadText.getLocalBounds().width / 2.f)), round(reloadText.getLocalBounds().top + (reloadText.getLocalBounds().height / 2.f)));
+	}
+	reloadText.setPosition(reloadRectOuter.getPosition().x, reloadRectOuter.getPosition().y - 50.f);
 }
 
 void Entity::moveCollider()
@@ -155,16 +221,18 @@ void Entity::returnCollider()
 
 void Entity::animateBulletHit()
 {
-	bulletHitTime = bulletHitClock.getElapsedTime().asMilliseconds();
-
-	if (bulletHitTime < 255)
+	if (getBulletHit())
 	{
-		sprite.setColor(sf::Color(255, bulletHitTime, bulletHitTime));
-	}
-	else
-	{
-		bulletHit = false;
-		sprite.setColor(sf::Color::White);
+		bulletHitTime = bulletHitClock.getElapsedTime().asMilliseconds();
+		if (bulletHitTime < 255)
+		{
+			sprite.setColor(sf::Color(255, bulletHitTime, bulletHitTime));
+		}
+		else
+		{
+			bulletHit = false;
+			sprite.setColor(sf::Color::White);
+		}
 	}
 }
 
@@ -387,10 +455,11 @@ void Entity::setGhostSprite()
 	nameText.setFillColor(sf::Color(255, 255, 255, 128));
 	nameText.setOutlineColor(sf::Color(255, 255, 255, 128));
 }
-void Entity::setRegularSprite()
+void Entity::setRegularSprite(std::wstring&& currentNickname)
 {
 	sprite.setColor(sf::Color(255, 255, 255, 255));
-	nameText.setFillColor(sf::Color::Green);
+	if (name == currentNickname) { nameText.setFillColor(sf::Color::Cyan); }
+	else { nameText.setFillColor(sf::Color::Red); }
 	nameText.setOutlineColor(sf::Color::Black);
 }
 void Entity::setSpawnTime(float spawnTime) { this->spawnTime = std::move(spawnTime); }
@@ -415,10 +484,10 @@ void Entity::setIsCollision(bool isCollision) { this->isCollision = std::move(is
 void Entity::setIsGhost(bool isGhost) { this->isGhost = std::move(isGhost); }
 void Entity::setBulletHit(bool bulletHit) { this->bulletHit = std::move(bulletHit); }
 void Entity::setReloadClock(sf::Clock reloadClock) { this->reloadClock = std::move(reloadClock); }
-void Entity::setHpText(sf::Text hpText) { this->hpText = std::move(hpText); }
+void Entity::setHpText(sf::Text HPText) { this->HPText = std::move(HPText); }
 void Entity::setNameText(sf::Text nameText) { this->nameText = std::move(nameText); }
 void Entity::setReloadText(sf::Text reloadText) { this->reloadText = std::move(reloadText); }
-void Entity::setNameTextPos() { this->nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 80.f); }
+void Entity::setNameTextPos() { this->nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 110.f); }
 void Entity::setSpritePos(sf::Vector2f spritePos) { this->sprite.setPosition(std::move(spritePos)); }
 void Entity::setStartPos(sf::Vector2f startPos) { this->startPos = std::move(startPos); }
 void Entity::setColliderPos(sf::Vector2f colliderPos) { this->collider.setPosition(std::move(colliderPos)); }
@@ -433,15 +502,20 @@ void Entity::setName(std::wstring name) { this->name = std::move(name); }
 void Entity::setCreatorName(std::wstring creatorName) { this->creatorName = std::move(creatorName); }
 void Entity::setIconFillColor(sf::Color color) { this->icon.setFillColor(std::move(color)); }
 void Entity::setIconPos(sf::Vector2f pos) { this->icon.setPosition(std::move(pos)); }
+void Entity::setNameTextFillColor(sf::Color color) { this->nameText.setFillColor(std::move(color)); }
 void Entity::restartReloadClock() { this->reloadClock.restart(); }
 void Entity::restartShootClock() { this->shootClock.restart(); }
 void Entity::drawIcon(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->icon); }
-void Entity::drawHPText(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->hpText); }
 void Entity::drawNameText(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->nameText); }
-void Entity::drawReloadText(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->reloadText); }
 void Entity::drawSprite(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->sprite); }
 void Entity::drawCollider(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->collider); }
-void Entity::drawHPBarInner(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->HPBarInner); }
-void Entity::drawHPBarOuter(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->HPBarOuter); }
-void Entity::drawReloadRectInner(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->reloadRectInner); }
-void Entity::drawReloadRectOuter(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->reloadRectOuter); }
+void Entity::drawHP(std::unique_ptr<GameWindow>& gw) { gw->window.draw(this->HPBarOuter); gw->window.draw(this->HPBarInner); gw->window.draw(this->HPText); }
+void Entity::drawReload(std::unique_ptr<GameWindow>& gw)
+{
+	if (isReload)
+	{
+		gw->window.draw(this->reloadRectOuter);
+		gw->window.draw(this->reloadRectInner);
+		gw->window.draw(this->reloadText);
+	}
+}

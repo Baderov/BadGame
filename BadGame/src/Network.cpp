@@ -4,6 +4,7 @@
 //ip - "192.168.1.34";
 //port - 2000;
 
+
 void checkConnection(std::unique_ptr<NetworkManager>& nm)
 {
 	sf::Packet packet;
@@ -38,8 +39,6 @@ void startNetwork(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 
 		regNickRequest(nm);
 		connectionClock.restart();
-
-		std::cout << "startNetwork" << std::endl;
 
 		while (true)
 		{
@@ -110,7 +109,7 @@ void sendData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 	{
 		if (!gv->getIsMultiplayer() || gv->getGameState() == GameState::GameMenu || !gv->getFocusEvent() || !nm->getIsConnected()) { sf::sleep(sf::milliseconds(1)); continue; }
 
-		sendClientRequests(gv, gw, sm, nm);
+		sendClientRequests(gv, gw, sm, nm, cw);
 		sendBulletRequests(gv, gw, sm, nm);
 
 		sf::sleep(sf::milliseconds(1));
@@ -141,23 +140,22 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 		if (prefix == L"ping")
 		{
-			std::wstring tempNick = L"";
+			std::wstring clientNick = L"";
 
-			if (!(packet >> tempNick)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			nm->restartServerClock();
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != tempNick) { continue; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
 				clientsVec[i]->setPing(clientsVec[i]->getPingClockElapsedTime() - clientsVec[i]->pingDelay);
 				if (clientsVec[i]->getPing() < 0) { clientsVec[i]->setPing(0); }
 				packet.clear();
-				packet << prefix << nm->getNickname();
+				packet << prefix << nm->getCurrentNickname();
 				nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
-
 				cw->changeItemInPlayersList(clientsVec[i]->getPlayersListID(), clientsVec[i]->getName(), std::to_wstring(clientsVec[i]->getPing()));
 
 				break;
@@ -166,71 +164,75 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 		else if (prefix == L"msg")
 		{
-			std::wstring msg = L"";
-			std::wstring senderNick = L"";
+			std::wstring clientMsg = L"";
+			std::wstring clientNick = L"";
 
-			if (!(packet >> senderNick && packet >> msg)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientMsg)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != senderNick) { continue; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
 				nm->setAllowToSendMsg(true);
 
 				break;
 			}
 
-			addMessageToChat(gw, nm, cw, std::move(senderNick), std::move(msg));
+			addMessageToChat(gw, nm, cw, std::move(clientNick), std::move(clientMsg));
 		}
 
 		else if (prefix == L"mousePos")
 		{
-			std::wstring tempNick = L"";
-			sf::Vector2f tempMousePos(0.f, 0.f);
-			if (!(packet >> tempNick && packet >> tempMousePos.x && packet >> tempMousePos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			std::wstring clientNick = L"";
+			sf::Vector2f clientMousePos(0.f, 0.f);
+			if (!(packet >> clientNick && packet >> clientMousePos.x && packet >> clientMousePos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != tempNick) { continue; }
+				if (!cw->editBoxIsReadOnly()) { break; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
-				clientsVec[i]->rotate(gv, std::move(tempMousePos));
+				clientsVec[i]->rotate(gv, std::move(clientMousePos));
+
 				break;
 			}
 		}
 
 		else if (prefix == L"shoot")
 		{
-			std::wstring tempCreatorNick = L"";
-			sf::Vector2f tempAimPos(0.f, 0.f);
-			sf::Vector2f tempBulletPos(0.f, 0.f);
+			std::wstring bulletCreatorNick = L"";
+			sf::Vector2f bulletAimPos(0.f, 0.f);
+			sf::Vector2f bulletPos(0.f, 0.f);
 
-			if (!(packet >> tempCreatorNick && packet >> tempAimPos.x && packet >> tempAimPos.y && packet >> tempBulletPos.x && packet >> tempBulletPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
-
-			std::lock_guard<std::mutex> lock(bullets_mtx);
-			if (!bulletsPool.getFromPool(bulletsVec)) { break; }
-
-			bulletsVec.back()->init(gv, gw, sm, nm, std::move(tempBulletPos), std::move(tempAimPos), std::move(tempCreatorNick));
-			bulletsVec.back()->setAllowToShoot(true);
-		}
-
-		else if (prefix == L"move")
-		{
-			std::wstring movedClientNick = L"";
-			sf::Vector2f stepPos = sf::Vector2f(0.f, 0.f);
-
-			if (!(packet >> movedClientNick && packet >> stepPos.x && packet >> stepPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> bulletCreatorNick && packet >> bulletAimPos.x && packet >> bulletAimPos.y && packet >> bulletPos.x && packet >> bulletPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != movedClientNick) { continue; }
+				if (clientsVec[i]->getName() != bulletCreatorNick) { continue; }
 
-				clientsVec[i]->setStepPos(std::move(stepPos));
-				clientsVec[i]->move(gv, gw, sm, nm);
+				clientsVec[i]->createBullet(gv, gw, sm, nm, std::move(bulletPos), std::move(bulletAimPos), std::move(bulletCreatorNick));
 
-				if (movedClientNick == nm->getNickname()) { gw->setGameViewCenter(clientsVec[i]->getSpritePos()); }
+				break;
+			}
+		}
+
+		else if (prefix == L"move")
+		{
+			std::wstring clientNick = L"";
+			sf::Vector2f clientStepPos(0.f, 0.f);
+
+			if (!(packet >> clientNick && packet >> clientStepPos.x && packet >> clientStepPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+
+			std::lock_guard<std::mutex> lock(clients_mtx);
+			for (size_t i = 0; i < clientsVec.size(); ++i)
+			{
+				if (clientsVec[i]->getName() != clientNick) { continue; }
+
+				clientsVec[i]->setStepPos(std::move(clientStepPos));
+				clientsVec[i]->setMoveReceived(true);
 
 				break;
 			}
@@ -238,19 +240,19 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 		else if (prefix == L"ghost")
 		{
-			std::wstring ghostNick = L"";
+			std::wstring clientNick = L"";
 			bool isGhost = false;
 
-			if (!(packet >> ghostNick && packet >> isGhost)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> isGhost)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != ghostNick) { continue; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
-				clientsVec[i]->setIsGhost(isGhost);
+				clientsVec[i]->setIsGhost(std::move(isGhost));
 				if (clientsVec[i]->getIsGhost()) { clientsVec[i]->setGhostSprite(); }
-				else if (!clientsVec[i]->getIsGhost()) { clientsVec[i]->setRegularSprite(); }
+				else if (!clientsVec[i]->getIsGhost()) { clientsVec[i]->setRegularSprite(nm->getCurrentNickname()); }
 
 				break;
 			}
@@ -258,47 +260,58 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 		else if (prefix == L"connected")
 		{
-			std::wstring joinedNick = L"";
-			sf::Vector2f tempPos(0.f, 0.f);
+			std::wstring clientNick = L"";
+			sf::Vector2f clientPos(0.f, 0.f);
 
-			if (!(packet >> joinedNick && packet >> tempPos.x && packet >> tempPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientPos.x && packet >> clientPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			clientsPool.getFromPool(clientsVec);
-			clientsVec.back()->init(gv, nm, joinedNick, tempPos);
+			clientsVec.back()->init(gv, nm, clientNick, clientPos);
 			clientsVec.back()->checkCollision(gv, gw, sm, nm);
+
 			if (clientsVec.back()->getIsCollision())
 			{
 				bool tempIsGhost = true;
 				ghostRequest(nm, clientsVec.back()->getName(), std::move(tempIsGhost));
 			}
 
-			if (clientsVec.back()->getName() == nm->getNickname())
+			if (clientsVec.back()->getName() == nm->getCurrentNickname())
 			{
-				clientsVec.back()->setIconFillColor(sf::Color::Green);
 				clientsVec.back()->getCollider().setFillColor(sf::Color::Green);
-				gw->setGameViewCenter(clientsVec.back()->getSpritePos());
+				clientsVec.back()->setIconFillColor(sf::Color::Green);
+				clientsVec.back()->setNameTextFillColor(sf::Color::Cyan);
 			}
 			else
 			{
 				clientsVec.back()->setIconFillColor(sf::Color::Magenta);
+				clientsVec.back()->setNameTextFillColor(sf::Color::Red);
 			}
 
-			clientsVec.back()->setPlayersListID(cw->addClientToPlayersList(joinedNick));
+			clientsVec.back()->setPlayersListID(cw->addClientToPlayersList(clientNick));
 
-			addConnectedClientToChat(gw, nm, cw, std::move(joinedNick));
+			for (size_t i = 0; i < clientsVec.size(); ++i)
+			{
+				if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
+
+				std::swap(clientsVec[i], clientsVec.back());
+
+				break;
+			}
+
+			addConnectedClientToChat(gw, nm, cw, std::move(clientNick));
 		}
 
 		else if (prefix == L"disconnected")
 		{
-			std::wstring leftNick = L"";
+			std::wstring clientNick = L"";
 
-			if (!(packet >> leftNick)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != leftNick) { continue; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
 				cw->removeClientFromPlayersList(clientsVec[i]->getPlayersListID());
 				clientsPool.returnToPool(clientsVec, clientsVec[i]);
@@ -306,22 +319,22 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 				break;
 			}
 
-			addDisconnectedClientToChat(gw, nm, cw, std::move(leftNick));
+			addDisconnectedClientToChat(gw, nm, cw, std::move(clientNick));
 		}
 
 		else if (prefix == L"respawn")
 		{
-			std::wstring respawnedNick = L"";
-			sf::Vector2f startPos(0.f, 0.f);
+			std::wstring clientNick = L"";
+			sf::Vector2f clientStartPos(0.f, 0.f);
 
-			if (!(packet >> respawnedNick && packet >> startPos.x && packet >> startPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientStartPos.x && packet >> clientStartPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (clientsVec[i]->getName() != respawnedNick) { continue; }
+				if (clientsVec[i]->getName() != clientNick) { continue; }
 
-				clientsVec[i]->init(gv, nm, respawnedNick, startPos);
+				clientsVec[i]->init(gv, nm, clientNick, clientStartPos);
 				clientsVec[i]->checkCollision(gv, gw, sm, nm);
 				if (clientsVec[i]->getIsCollision())
 				{
@@ -329,7 +342,17 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 					ghostRequest(nm, clientsVec[i]->getName(), std::move(tempIsGhost));
 				}
 
-				if (clientsVec[i]->getName() == nm->getNickname()) { gw->setGameViewCenter(clientsVec[i]->getSpritePos()); }
+				if (clientsVec[i]->getName() == nm->getCurrentNickname())
+				{
+					clientsVec[i]->getCollider().setFillColor(sf::Color::Green);
+					clientsVec[i]->setIconFillColor(sf::Color::Green);
+					clientsVec[i]->setNameTextFillColor(sf::Color::Cyan);
+				}
+				else
+				{
+					clientsVec[i]->setIconFillColor(sf::Color::Magenta);
+					clientsVec[i]->setNameTextFillColor(sf::Color::Red);
+				}
 
 				break;
 			}
@@ -389,8 +412,6 @@ void multiplayerGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWind
 {
 	multiplayerGameUpdate(gv, gw, nm, cw);
 	connectedToServerRequest(nm);
-
-	DEBUG_MSG(L"Your nickname is " + nm->getNickname());
 
 	while (gv->getIsMultiplayer())
 	{

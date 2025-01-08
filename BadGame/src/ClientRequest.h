@@ -23,7 +23,7 @@ void mousePosRequest(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkM
 
 void ghostRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, bool&& isGhost);
 
-void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
+void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw);
 
 void sendBulletRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 

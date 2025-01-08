@@ -5,7 +5,7 @@ NetworkManager::NetworkManager()
 {
 	sock.setBlocking(false);
 	serverClock.restart();
-	nickname = L"";
+	currentNickname = L"";
 	serverIP = "";
 	tempPort = "";
 	serverPort = 0;
@@ -28,10 +28,10 @@ void NetworkManager::resetVariables()
 
 // GETTERS.
 
-std::wstring NetworkManager::getNickname()
+std::wstring NetworkManager::getCurrentNickname()
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	std::wstring nickname = this->nickname;
+	std::wstring nickname = this->currentNickname;
 	return nickname;
 }
 
@@ -114,10 +114,10 @@ bool NetworkManager::getAllowToSendMsg()
 
 
 // SETTERS.
-void NetworkManager::setNickname(std::wstring nickname)
+void NetworkManager::setCurrentNickname(std::wstring nickname)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	this->nickname = std::move(nickname);
+	this->currentNickname = std::move(nickname);
 }
 
 void NetworkManager::setServerIP(std::string serverIP)

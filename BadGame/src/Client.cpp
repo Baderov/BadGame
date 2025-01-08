@@ -12,16 +12,10 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	isCollision = false;
 	bulletHit = false;
 	clientMoved = false;
+	moveReceived = false;
 
 	this->startPos = std::move(startPos);
 	this->name = std::move(name);
-
-	currentVelocity = sf::Vector2f(1.3f, 1.3f);
-	moveTargetPos = this->startPos;
-	maxSpeed = 5.f;
-	reloadTime = 0.f;
-	speed = 1000.f;
-	stepPos = sf::Vector2f(0.f, 0.f);
 
 	HP = 100;
 	goldCoins = 0;
@@ -31,6 +25,13 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	maxAmmo = 500;
 	missingAmmo = 0;
 	playersListID = 0;
+
+	currentVelocity = sf::Vector2f(1.3f, 1.3f);
+	moveTargetPos = this->startPos;
+	maxSpeed = 5.f;
+	reloadTime = 0.f;
+	speed = 1000.f;
+	stepPos = sf::Vector2f(0.f, 0.f);
 
 	ping = 0;
 	pingClock.restart();
@@ -47,13 +48,26 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	collider.setPosition(this->startPos);
 	collider.setFillColor(sf::Color::Magenta);
 
+	reloadRectOuter.setFillColor(grayColor);
+	reloadRectOuter.setOutlineThickness(2.f);
+	reloadRectOuter.setOutlineColor(sf::Color::Black);
+
+	reloadRectInner.setFillColor(sf::Color::Black);
+	reloadRectInner.setOutlineThickness(2.f);
+	reloadRectInner.setOutlineColor(sf::Color::Black);
+
+	reloadText.setFont(gv->consolasFont);
+	reloadText.setCharacterSize(50);
+	reloadText.setFillColor(sf::Color::Black);
+	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);
+
 	nameText.setFont(gv->consolasFont);
-	nameText.setFillColor(sf::Color::Green);
+	nameText.setFillColor(sf::Color::Cyan);
 	nameText.setCharacterSize(40);
 	nameText.setOutlineThickness(2.f);
 	nameText.setString(this->name);
 	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
-	nameText.setPosition(sf::Vector2f(sprite.getPosition().x, sprite.getPosition().y - 80.f));
+	nameText.setPosition(sf::Vector2f(sprite.getPosition().x, sprite.getPosition().y - 110.f));
 
 	icon.setRadius(static_cast<float>(gv->playerImage.getSize().x));
 	icon.setOutlineThickness(15.f);
@@ -67,7 +81,7 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 {
 	if (isAlive)
 	{
-		if (HP <= 0)
+		if (getHP() <= 0)
 		{
 			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
 			isAlive = false;
@@ -76,11 +90,31 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 			return;
 		}
 
-		if (bulletHit) { animateBulletHit(); }
+		if (getMoveReceived())
+		{
+			move(gv, gw, sm, nm);
+			setMoveReceived(false);
+		}
+
+		if (getName() == nm->getCurrentNickname())
+		{
+			gw->setGameViewCenter(getSpritePos());
+			if (gv->getGameLanguage() == GameLanguage::English)
+			{
+				gv->ammoText.setString(L"Ammo: " + std::to_wstring(getCurrentAmmo()) + L"/" + std::to_wstring(getMaxAmmo()));
+			}
+			else if (gv->getGameLanguage() == GameLanguage::Russian)
+			{
+				gv->ammoText.setString(L"Патроны: " + std::to_wstring(getCurrentAmmo()) + L"/" + std::to_wstring(getMaxAmmo()));
+			}
+		}
 
 		calcStepPos(gv, nm);
-
-		if (isMove) { setClientMoved(true); }
+		if (getIsMove()) { setClientMoved(true); }
+		calculateAmmo();
+		updateReload(gv);
+		animateBulletHit();
+		updateHP();
 	}
 }
 
@@ -97,13 +131,12 @@ void Client::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	if (nm->getIsMinimapView()) { drawIcon(gw); }
 	else
 	{
-		if (gv->getShowAimLaser() && gv->getFocusEvent()) { gw->window.draw(gv->aimLaser); }
 		if (gv->getShowCollisionRect()) { drawCollider(gw); }
-		else
-		{
-			drawNameText(gw);
-			drawSprite(gw);
-		}
+		else { drawSprite(gw); }
+
+		drawHP(gw);
+		drawNameText(gw);
+		drawReload(gw);
 	}
 }
 
@@ -129,10 +162,18 @@ void Client::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos)
 	float dY = this->targetPos.y - sprite.getPosition().y;
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	sprite.setRotation(rotation);
-	gv->aimLaser.setRotation(rotation + 90.f);
 }
 
+void Client::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f&& startPos, sf::Vector2f&& aimPos, std::wstring&& creatorName)
+{
+	if (!isReload && bulletsPool.getFromPool(bulletsVec))
+	{
+		currentAmmo--;
 
+		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName);
+		bulletsVec.back()->setAllowToShoot(true);
+	}
+}
 
 
 
@@ -142,6 +183,13 @@ bool Client::getClientMoved()
 	bool clientMoved = this->clientMoved;
 	return clientMoved;
 }
+
+bool Client::getMoveReceived()
+{
+	bool moveReceived = this->moveReceived;
+	return moveReceived;
+}
+
 
 size_t Client::getPlayersListID()
 {
@@ -166,6 +214,11 @@ sf::Int32 Client::getPingClockElapsedTime()
 void Client::setClientMoved(bool clientMoved)
 {
 	this->clientMoved = std::move(clientMoved);
+}
+
+void Client::setMoveReceived(bool moveReceived)
+{
+	this->moveReceived = std::move(moveReceived);
 }
 
 void Client::setPlayersListID(size_t playersListID)

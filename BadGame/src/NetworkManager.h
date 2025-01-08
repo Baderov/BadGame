@@ -7,7 +7,7 @@ private:
 	std::mutex mtx;
 	sf::UdpSocket sock;
 	sf::Clock serverClock;
-	std::wstring nickname;
+	std::wstring currentNickname;
 	std::string serverIP;
 	std::string tempPort;
 	unsigned short serverPort;
@@ -22,7 +22,7 @@ public:
 	NetworkManager();
 	void resetVariables();
 
-	std::wstring getNickname();
+	std::wstring getCurrentNickname();
 	std::string getServerIP();
 	std::string getTempPort();
 	unsigned short getServerPort();
@@ -35,7 +35,7 @@ public:
 	bool getConnectButtonPressed();
 	bool getAllowToSendMsg();
 
-	void setNickname(std::wstring nickname);
+	void setCurrentNickname(std::wstring nickname);
 	void setServerIP(std::string serverIP);
 	void setTempPort(std::string tempPort);
 	void setServerPort(unsigned short serverPort);

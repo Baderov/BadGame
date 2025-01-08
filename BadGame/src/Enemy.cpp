@@ -62,18 +62,16 @@ void Enemy::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 		shoot(gv, gw, sm, nm);
 		move(gv, gw, sm, nm);
 		rotate(gv, aimPos);
-		updateHPBar();
-		if (bulletHit) { animateBulletHit(); }
 
-		hpText.setString(std::to_string(HP));
-		hpText.setPosition(HPBarOuter.getPosition().x + 5.f, HPBarOuter.getPosition().y - 3.f);
-		icon.setPosition(sprite.getPosition());
-		if (HP <= 0) { isAlive = false; }
-	}
-	else
-	{
-		dropItem(gv);
-		returnToPool(gv, gw, sm, nm);
+		if (bulletHit) { animateBulletHit(); }
+		updateHP();
+
+		if (HP <= 0)
+		{
+			isAlive = false;
+			dropItem(gv);
+			returnToPool(gv, gw, sm, nm);
+		}
 	}
 }
 
@@ -89,7 +87,9 @@ void Enemy::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 		if (isCollision && !isGhost) { returnCollider(); }
 		if (!isCollision || isGhost) { sprite.move(stepPos); }
-		if (!isCollision && isGhost) { isGhost = false; setRegularSprite(); }
+		if (!isCollision && isGhost) { isGhost = false; setRegularSprite(nm->getCurrentNickname()); }
+
+		icon.setPosition(sprite.getPosition());
 	}
 }
 
@@ -99,13 +99,9 @@ void Enemy::draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	else
 	{
 		if (gv->getShowCollisionRect()) { drawCollider(gw); }
-		else
-		{
-			drawSprite(gw);
-			drawHPBarOuter(gw);
-			drawHPBarInner(gw);
-			drawHPText(gw);
-		}
+		else { drawSprite(gw); }
+
+		drawHP(gw);
 	}
 }
 

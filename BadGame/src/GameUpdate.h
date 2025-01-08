@@ -14,7 +14,7 @@ void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 
 void updateFPS(std::unique_ptr<GameVariable>& gv);
 
-void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm);
+void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
 
 void drawGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm);
 

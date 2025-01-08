@@ -10,7 +10,6 @@ public:
 	sf::Vector2f boxStartPositions[24];
 	sf::Text gameInfoText;
 	sf::Text playerInfoText;
-	sf::Text playerAmmoText;
 	sf::Text gameResultText;
 	sf::Text goldCoinsText;
 

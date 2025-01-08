@@ -28,6 +28,8 @@ void initObjects(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 	playerPtr = std::make_unique<Player>(gv, gw, sm, nm);
 
+	menuBackground.init(gv, gw);
+
 	std::cout << "\n";
 }
 

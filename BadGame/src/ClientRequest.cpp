@@ -15,7 +15,7 @@ void connectedToServerRequest(std::unique_ptr<NetworkManager>& nm)
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"connected";
-	packet << prefix << nm->getNickname();
+	packet << prefix << nm->getCurrentNickname();
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -24,7 +24,7 @@ void regNickRequest(std::unique_ptr<NetworkManager>& nm)
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"regNick";
-	packet << prefix << nm->getNickname();
+	packet << prefix << nm->getCurrentNickname();
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -33,7 +33,7 @@ void messageRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& msg)
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"msg";
-	packet << prefix << nm->getNickname() << msg;
+	packet << prefix << nm->getCurrentNickname() << msg;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -42,7 +42,7 @@ void moveRequest(std::unique_ptr<NetworkManager>& nm, sf::Vector2f&& currentClie
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"move";
-	packet << prefix << nm->getNickname() << currentClientStepPos.x << currentClientStepPos.y;
+	packet << prefix << nm->getCurrentNickname() << currentClientStepPos.x << currentClientStepPos.y;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -60,7 +60,7 @@ void mousePosRequest(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkM
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"mousePos";
-	packet << prefix << nm->getNickname() << gv->getMousePos().x << gv->getMousePos().y;
+	packet << prefix << nm->getCurrentNickname() << gv->getMousePos().x << gv->getMousePos().y;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -73,31 +73,32 @@ void ghostRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, 
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
-void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	mousePosRequest(gv, nm);
 
 	std::lock_guard<std::mutex> lock(clients_mtx);
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
-		if (clientsVec[i]->getName() != nm->getNickname()) { continue; }
-		if (!clientsVec[i]->getClientMoved()) { return; }
+		if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
+		if (!clientsVec[i]->getClientMoved() || clientsVec[i]->getMoveReceived() || !cw->editBoxIsReadOnly()) { return; }
 
 		clientsVec[i]->setIsCollision(false);
 		clientsVec[i]->moveCollider();
 		clientsVec[i]->checkCollision(gv, gw, sm, nm);
 		clientsVec[i]->returnCollider();
 
-		if (!clientsVec[i]->getIsCollision() || clientsVec[i]->getIsGhost())
+		if (!clientsVec[i]->getIsCollision() && clientsVec[i]->getIsGhost() && clientsVec[i]->getIsMove())
+		{
+			clientsVec[i]->setClientMoved(false);
+			bool isGhost = false;
+			ghostRequest(nm, clientsVec[i]->getName(), std::move(isGhost));
+		}
+
+		else if (!clientsVec[i]->getIsCollision() || clientsVec[i]->getIsGhost())
 		{
 			clientsVec[i]->setClientMoved(false);
 			moveRequest(nm, clientsVec[i]->getStepPos());
-		}
-
-		if (!clientsVec[i]->getIsCollision() && clientsVec[i]->getIsGhost())
-		{
-			bool isGhost = false;
-			ghostRequest(nm, clientsVec[i]->getName(), std::move(isGhost));
 		}
 
 		break;

@@ -57,6 +57,8 @@ void menuApplyButtonPressed(std::unique_ptr<GameVariable>& gv, std::unique_ptr<G
 
 	gw->createWindow(gw->getSize(), gw->getIsFullscreen(), gw->getIsVsync(), gw->getFPSLimiter());
 
+	menuBackground.init(gv, gw);
+
 	minimap.create();
 
 	cw->updateGUI(gw);
@@ -79,7 +81,8 @@ void graphicsSettingsMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_p
 	cw->setTempIsVsync(gw->getIsVsync());
 
 	tgui::Button::Ptr applyButton = tgui::Button::create();
-	applyButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	applyButton->getRenderer()->setRoundedBorderRadius(40);
+	applyButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	applyButton->getRenderer()->setTextColor(tgui::Color::Black);
 	applyButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	applyButton->getRenderer()->setTextColorDisabled(tgui::Color::Black);
@@ -94,7 +97,8 @@ void graphicsSettingsMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_p
 	cw->menuGUI.add(applyButton);
 
 	tgui::Button::Ptr backButton = tgui::Button::create();
-	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	backButton->getRenderer()->setRoundedBorderRadius(40);
+	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	backButton->getRenderer()->setTextColor(tgui::Color::Black);
 	backButton->setSize("14%", "7%");
 	backButton->setOrigin(0.5f, 0.5f);
@@ -263,7 +267,8 @@ void settingsMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameW
 	cw->menuGUI.removeAllWidgets();
 
 	tgui::Button::Ptr graphicsSettingsButton = tgui::Button::create();
-	graphicsSettingsButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	graphicsSettingsButton->getRenderer()->setRoundedBorderRadius(40);
+	graphicsSettingsButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	graphicsSettingsButton->getRenderer()->setTextColor(tgui::Color::Black);
 	graphicsSettingsButton->setSize(round(winSizeX / 6.5f), round(winSizeX / 12.75f));
 	graphicsSettingsButton->setOrigin(0.5f, 0.5f);
@@ -275,14 +280,15 @@ void settingsMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameW
 	cw->menuGUI.add(graphicsSettingsButton, "graphicsSettingsButton");
 
 	tgui::Button::Ptr backButton = tgui::Button::create();
-	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	backButton->getRenderer()->setRoundedBorderRadius(40);
+	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	backButton->getRenderer()->setTextColor(tgui::Color::Black);
 	backButton->setSize(round(winSizeX / 9.5f), round(winSizeX / 19.f));
 	backButton->setOrigin(0.5f, 0.5f);
 	if (gv->getGameLanguage() == GameLanguage::English) { backButton->setText(L"BACK"); }
 	else if (gv->getGameLanguage() == GameLanguage::Russian) { backButton->setText(L"ÍÀÇÀÄ"); }
 	backButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-	backButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f));
+	backButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 38.f) + 20.f);
 	backButton->onPress([&gv] {
 		if (gv->getGameState() == GameState::MainMenu) { menuAction = MenuAction::OpenMainMenu; }
 		else if (gv->getGameState() == GameState::GameMenu) { menuAction = MenuAction::OpenGameMenu; }
@@ -315,13 +321,13 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	nicknameEditBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 35.f)));
 	nicknameEditBox->setMaximumCharacters(15);
 	nicknameEditBox->setOrigin(0.5f, 0.5f);
-	nicknameEditBox->setText(nm->getNickname());
+	nicknameEditBox->setText(nm->getCurrentNickname());
 	nicknameEditBox->setPosition("50%", "28%");
 	nicknameEditBox->onTextChange([&nm, nicknameEditBox]()
 		{
 			std::wstring tempNick = nicknameEditBox->getText().toWideString();
 			tempNick.erase(remove(tempNick.begin(), tempNick.end(), ' '), tempNick.end());
-			nm->setNickname(tempNick);
+			nm->setCurrentNickname(tempNick);
 		});
 	cw->menuGUI.add(nicknameEditBox, "nicknameEditBox");
 
@@ -388,8 +394,9 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(errorLabel, "errorLabel");
 
 	tgui::Button::Ptr connectButton = tgui::Button::create();
+	connectButton->getRenderer()->setRoundedBorderRadius(40);
 	connectButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	connectButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	connectButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	connectButton->getRenderer()->setTextColor(tgui::Color::Black);
 	connectButton->setSize("10%", "8%");
 	connectButton->setOrigin(0.5f, 0.5f);
@@ -401,8 +408,9 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(connectButton, "connectButton");
 
 	tgui::Button::Ptr backButton = tgui::Button::create();
+	backButton->getRenderer()->setRoundedBorderRadius(40);
 	backButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
-	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	backButton->getRenderer()->setTextColor(tgui::Color::Black);
 	backButton->setSize("10%", "8%");
 	backButton->setOrigin(0.5f, 0.5f);
@@ -518,26 +526,28 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 	if (!gv->getIsSingleplayer() && !gv->getIsMultiplayer() && menuType == MenuType::MainMenu)
 	{
 		tgui::Button::Ptr singleplayerButton = tgui::Button::create();
-		singleplayerButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+		singleplayerButton->getRenderer()->setRoundedBorderRadius(40);
+		singleplayerButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 		singleplayerButton->getRenderer()->setTextColor(tgui::Color::Black);
 		singleplayerButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 		singleplayerButton->setOrigin(0.5f, 0.5f);
 		if (gv->getGameLanguage() == GameLanguage::English) { singleplayerButton->setText(L"SINGLEPLAYER"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { singleplayerButton->setText(L"ÎÄÈÍÎ×ÍÀß ÈÃÐÀ"); }
 		singleplayerButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-		singleplayerButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f));
+		singleplayerButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f) - 50.f);
 		singleplayerButton->onPress([] { menuAction = MenuAction::StartGame; });
 		cw->menuGUI.add(singleplayerButton, "singleplayerButton");
 
 		tgui::Button::Ptr multiplayerButton = tgui::Button::create();
-		multiplayerButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+		multiplayerButton->getRenderer()->setRoundedBorderRadius(40);
+		multiplayerButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 		multiplayerButton->getRenderer()->setTextColor(tgui::Color::Black);
 		multiplayerButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 		multiplayerButton->setOrigin(0.5f, 0.5f);
 		if (gv->getGameLanguage() == GameLanguage::English) { multiplayerButton->setText(L"MULTIPLAYER"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { multiplayerButton->setText(L"ÑÅÒÅÂÀß ÈÃÐÀ"); }
 		multiplayerButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-		multiplayerButton->setPosition(halfWinSizeX, halfWinSizeY);
+		multiplayerButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
 		multiplayerButton->onPress([] { menuAction = MenuAction::OpenMultiplayerMenu; });
 		cw->menuGUI.add(multiplayerButton, "multiplayerButton");
 	}
@@ -546,92 +556,99 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		if (playerPtr->getIsAlive())
 		{
 			tgui::Button::Ptr continueButton = tgui::Button::create();
-			continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+			continueButton->getRenderer()->setRoundedBorderRadius(40);
+			continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 			continueButton->getRenderer()->setTextColor(tgui::Color::Black);
 			continueButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 			continueButton->setOrigin(0.5f, 0.5f);
 			if (gv->getGameLanguage() == GameLanguage::English) { continueButton->setText(L"CONTINUE"); }
 			else if (gv->getGameLanguage() == GameLanguage::Russian) { continueButton->setText(L"ÏÐÎÄÎËÆÈÒÜ"); }
 			continueButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-			continueButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f));
+			continueButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f) - 50.f);
 			continueButton->onPress([] { menuAction = MenuAction::ContinueGame; });
 			cw->menuGUI.add(continueButton, "continueButton");
 		}
 		else
 		{
 			tgui::Button::Ptr restartButton = tgui::Button::create();
-			restartButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+			restartButton->getRenderer()->setRoundedBorderRadius(40);
+			restartButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 			restartButton->getRenderer()->setTextColor(tgui::Color::Black);
 			restartButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 			restartButton->setOrigin(0.5f, 0.5f);
 			if (gv->getGameLanguage() == GameLanguage::English) { restartButton->setText(L"RESTART"); }
 			else if (gv->getGameLanguage() == GameLanguage::Russian) { restartButton->setText(L"ÏÅÐÅÇÀÏÓÑÊ"); }
 			restartButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-			restartButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f));
+			restartButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f) - 50.f);
 			restartButton->onPress([] { menuAction = MenuAction::RestartGame; });
 			cw->menuGUI.add(restartButton, "restartButton");
 		}
 
 		tgui::Button::Ptr backToMenuButton = tgui::Button::create();
-		backToMenuButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+		backToMenuButton->getRenderer()->setRoundedBorderRadius(40);
+		backToMenuButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 		backToMenuButton->getRenderer()->setTextColor(tgui::Color::Black);
 		backToMenuButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 		backToMenuButton->setOrigin(0.5f, 0.5f);
 		if (gv->getGameLanguage() == GameLanguage::English) { backToMenuButton->setText(L"BACK TO MENU"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY);
+		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
 		backToMenuButton->onPress([&gv] { menuAction = MenuAction::OpenMainMenu; gv->setIsSingleplayer(false); });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && menuType == MenuType::GameMenu)
 	{
 		tgui::Button::Ptr continueButton = tgui::Button::create();
-		continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+		continueButton->getRenderer()->setRoundedBorderRadius(40);
+		continueButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 		continueButton->getRenderer()->setTextColor(tgui::Color::Black);
 		continueButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 		continueButton->setOrigin(0.5f, 0.5f);
 		if (gv->getGameLanguage() == GameLanguage::English) { continueButton->setText(L"CONTINUE"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { continueButton->setText(L"ÏÐÎÄÎËÆÈÒÜ"); }
 		continueButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-		continueButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f));
+		continueButton->setPosition(halfWinSizeX, halfWinSizeY - round(winSizeX / 18.f) - 50.f);
 		continueButton->onPress([] { menuAction = MenuAction::ContinueGame; });
 		cw->menuGUI.add(continueButton, "continueButton");
 
 		tgui::Button::Ptr backToMenuButton = tgui::Button::create();
-		backToMenuButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+		backToMenuButton->getRenderer()->setRoundedBorderRadius(40);
+		backToMenuButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 		backToMenuButton->getRenderer()->setTextColor(tgui::Color::Black);
 		backToMenuButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 		backToMenuButton->setOrigin(0.5f, 0.5f);
 		if (gv->getGameLanguage() == GameLanguage::English) { backToMenuButton->setText(L"BACK TO MENU"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY);
+		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
 		backToMenuButton->onPress([&gv] { menuAction = MenuAction::ExitGame; gv->setIsMultiplayer(false); });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 
 	tgui::Button::Ptr settingsButton = tgui::Button::create();
-	settingsButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	settingsButton->getRenderer()->setRoundedBorderRadius(40);
+	settingsButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	settingsButton->getRenderer()->setTextColor(tgui::Color::Black);
 	settingsButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 	settingsButton->setOrigin(0.5f, 0.5f);
 	if (gv->getGameLanguage() == GameLanguage::English) { settingsButton->setText(L"SETTINGS"); }
 	else if (gv->getGameLanguage() == GameLanguage::Russian) { settingsButton->setText(L"ÍÀÑÒÐÎÉÊÈ"); }
 	settingsButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-	settingsButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f));
+	settingsButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 18.f) - 10.f);
 	settingsButton->onPress([] { menuAction = MenuAction::OpenSettingsMenu; });
 	cw->menuGUI.add(settingsButton, "settingsButton");
 
 	tgui::Button::Ptr exitButton = tgui::Button::create();
-	exitButton->getRenderer()->setBackgroundColorHover(tgui::Color::Yellow);
+	exitButton->getRenderer()->setRoundedBorderRadius(40);
+	exitButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
 	exitButton->getRenderer()->setTextColor(tgui::Color::Black);
 	exitButton->setSize(round(winSizeX / 4.8f), round(winSizeY / 10.5f));
 	exitButton->setOrigin(0.5f, 0.5f);
 	if (gv->getGameLanguage() == GameLanguage::English) { exitButton->setText(L"EXIT"); }
 	else if (gv->getGameLanguage() == GameLanguage::Russian) { exitButton->setText(L"ÂÛÕÎÄ"); }
 	exitButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
-	exitButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f));
+	exitButton->setPosition(halfWinSizeX, halfWinSizeY + round(winSizeX / 8.96f) + 10.f);
 	exitButton->onPress([&gv, &gw] { gv->setIsSingleplayer(false); gv->setIsMultiplayer(false); gw->window.close(); });
 	cw->menuGUI.add(exitButton, "exitButton");
 }

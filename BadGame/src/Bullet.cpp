@@ -38,8 +38,6 @@ void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 void Bullet::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	move(gv, gw, sm, nm);
-
-	if (!isAlive) { returnToPool(gv, gw, sm, nm); }
 }
 
 void Bullet::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -48,7 +46,7 @@ void Bullet::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	{
 		moveToDirection();
 		checkCollision(gv, gw, sm, nm);
-		if (!isAlive) { return; }
+		if (!isAlive) { returnToPool(gv, gw, sm, nm); return; }
 	}
 }
 

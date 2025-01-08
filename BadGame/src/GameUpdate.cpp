@@ -42,15 +42,7 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				switch (event.mouseButton.button)
 				{
 				case sf::Mouse::Left:
-					//playerPtr->setMoveTargetPos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
-					//playerPtr->setIsMove(true);
-					//playerPtr->setIsCollision(false);
-					//gv->playerDestination.setPosition(playerPtr->getMoveTargetPos()); // set the label position to the mouse click location.
-					//gv->playerDestination.setOutlineColor(sf::Color::Yellow);
 					if (!playerPtr->getIsReload() && playerPtr->getIsAlive()) { playerPtr->setIsShoot(true); }
-					break;
-				case sf::Mouse::Right:
-
 					break;
 				}
 				break;
@@ -120,18 +112,21 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 
 					cw->updateEditBox();
 
-					if (!cw->editBoxIsReadOnly()) { return; }
+					if (networkAction == NetworkAction::ServerIsNotAvailable)
+					{
+						gv->setIsMultiplayer(false);
+						gv->setGameState(GameState::MainMenu);
+						networkAction = NetworkAction::Nothing;
+						return;
+					}
 
 					std::lock_guard<std::mutex> lock(clients_mtx);
 					for (size_t i = 0; i < clientsVec.size(); ++i)
 					{
-						if (nm->getServerIsNotAvailable()) { break; }
-						if (clientsVec[i]->getName() != nm->getNickname() || clientsVec[i]->getIsShoot() || clientsVec[i]->getIsGhost()) { continue; }
+						if (!cw->editBoxIsReadOnly() || nm->getServerIsNotAvailable()) { return; }
+						if (clientsVec[i]->getName() != nm->getCurrentNickname() || clientsVec[i]->getIsGhost() || clientsVec[i]->getCurrentAmmo() <= 0) { continue; }
 
-						clientsVec[i]->setIsShoot(true);
 						shootRequest(nm, clientsVec[i]->getName(), gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)), clientsVec[i]->getSpritePos());
-						clientsVec[i]->setCurrentAmmo(clientsVec[i]->getCurrentAmmo() - 1);
-						clientsVec[i]->setIsShoot(false);
 
 						break;
 					}
@@ -155,14 +150,17 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 					break;
 
 				case sf::Keyboard::Z:
+					if (!cw->editBoxIsReadOnly()) { return; }
 					gv->setShowLogs(!gv->getShowLogs());
 					break;
 
 				case sf::Keyboard::X:
+					if (!cw->editBoxIsReadOnly()) { return; }
 					gv->setShowCollisionRect(!gv->getShowCollisionRect());
 					break;
 
 				case sf::Keyboard::C:
+					if (!cw->editBoxIsReadOnly()) { return; }
 					if (cw->editBoxIsReadOnly() && !nm->getServerIsNotAvailable()) { gv->setShowAimLaser(!gv->getShowAimLaser()); }
 					break;
 
@@ -175,7 +173,30 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 					break;
 
 				case sf::Keyboard::M:
+					if (!cw->editBoxIsReadOnly()) { return; }
 					if (cw->editBoxIsReadOnly() && !nm->getServerIsNotAvailable()) { gv->setShowMinimap(!(gv->getShowMinimap())); }
+					break;
+
+				case sf::Keyboard::R:
+					if (!cw->editBoxIsReadOnly()) { return; }
+
+					{
+						std::lock_guard<std::mutex> lock(clients_mtx);
+						for (size_t i = 0; i < clientsVec.size(); ++i)
+						{
+							if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
+
+							if (clientsVec[i]->getCurrentAmmo() < 30 && clientsVec[i]->getMaxAmmo() >= 1 && !clientsVec[i]->getIsReload())
+							{
+								clientsVec[i]->setIsReload(true);
+								clientsVec[i]->restartReloadClock();
+								clientsVec[i]->setReloadTime(0.f);
+								clientsVec[i]->setMenuTime(0.f);
+
+								break;
+							}
+						}
+					}
 					break;
 
 				case sf::Keyboard::Escape:
@@ -188,7 +209,7 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				std::lock_guard<std::mutex> lock(clients_mtx);
 				for (size_t i = 0; i < clientsVec.size(); ++i)
 				{
-					if (clientsVec[i]->getName() != nm->getNickname()) { continue; }
+					if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
 
 					if (event.text.unicode == ENTER_CODE && !cw->editBoxIsReadOnly() && cw->getEditBoxText().trim().toWideString() != L"" && nm->getAllowToSendMsg())
 					{
@@ -244,7 +265,7 @@ void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 	else if (!gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { return; }
 
 	gv->updateLaser(gv, gw);
-	updateGameInfo(gv, gw, sm);
+	updateGameInfo(gv, gw, sm, nm);
 	minimap.update(gv, gw);
 }
 
@@ -255,7 +276,7 @@ void updateFPS(std::unique_ptr<GameVariable>& gv)
 	gv->setFPSPreviousTime(gv->getFPSCurrentTime()); // assign the variable gv->fpsPreviousTime to the current time.
 }
 
-void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm)
+void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer())
 	{
@@ -271,7 +292,7 @@ void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 
 			if (playerPtr != nullptr)
 			{
-				sm->playerAmmoText.setString("Ammo: " + std::to_string(playerPtr->getCurrentAmmo()) + "/" + std::to_string(playerPtr->getMaxAmmo()));
+				gv->ammoText.setString("Ammo: " + std::to_string(playerPtr->getCurrentAmmo()) + "/" + std::to_string(playerPtr->getMaxAmmo()));
 			}
 		}
 		else if (gv->getGameLanguage() == GameLanguage::Russian)
@@ -285,12 +306,12 @@ void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 
 			if (playerPtr != nullptr)
 			{
-				sm->playerAmmoText.setString(L"Патроны: " + std::to_wstring(playerPtr->getCurrentAmmo()) + L"/" + std::to_wstring(playerPtr->getMaxAmmo()));
+				gv->ammoText.setString(L"Патроны: " + std::to_wstring(playerPtr->getCurrentAmmo()) + L"/" + std::to_wstring(playerPtr->getMaxAmmo()));
 			}
 		}
 
 		sm->playerInfoText.setPosition(gw->getGameViewCenter().x + 600.f, gw->getGameViewCenter().y + 150.f);
-		sm->playerAmmoText.setPosition(gw->getGameViewCenter().x + 500.f, gw->getGameViewCenter().y + 300.f);
+		gv->ammoText.setPosition(gw->getGameViewCenter().x + 500.f, gw->getGameViewCenter().y + 300.f);
 		gv->goldCoinHUDSprite.setPosition(gw->getGameViewCenter().x + 500.f, gw->getGameViewCenter().y + 150.f);
 	}
 
@@ -314,6 +335,8 @@ void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 				L"\nКоличество стен: " + std::to_wstring(wallsVec.size()) + L"\nКоличество предметов: " + std::to_wstring(itemsVec.size()) +
 				L"\nФПС: " + std::to_wstring(static_cast<int>(gv->getFPS())));
 		}
+
+		gv->ammoText.setPosition(gw->getGameViewCenter().x + 500.f, gw->getGameViewCenter().y + 300.f);
 	}
 
 	sm->gameInfoText.setPosition(gw->getGameViewCenter().x - 600.f, gw->getGameViewCenter().y - 350.f);
@@ -322,11 +345,11 @@ void updateGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 void drawGameInfo(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm)
 {
 	if (gv->getShowLogs()) { gw->window.draw(sm->gameInfoText); }
+	gw->window.draw(gv->ammoText);
 	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer())
 	{
 		gw->window.draw(gv->goldCoinHUDSprite);
 		gw->window.draw(sm->playerInfoText);
-		gw->window.draw(sm->playerAmmoText);
 	}
 }
 
@@ -378,6 +401,7 @@ void drawGameView(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	}
 
 	minimap.draw(gv, gw);
+	gv->drawLaser(gv, gw);
 }
 
 void drawGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap)

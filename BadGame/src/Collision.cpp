@@ -57,7 +57,7 @@ bool collisionHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Network
 
 	else if (gv->getIsMultiplayer())
 	{
-		if (dynamic_cast<Bullet*>(entity1) && (entity1->getCreatorName() != entity2->getName()) && (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2) || dynamic_cast<Client*>(entity2)))
+		if (dynamic_cast<Bullet*>(entity1) && (entity1->getCreatorName() != entity2->getName()) && (dynamic_cast<Wall*>(entity2) || dynamic_cast<Box*>(entity2) || (dynamic_cast<Client*>(entity2) && !entity2->getIsGhost())))
 		{
 			entity1->setIsAlive(false);
 			entity2->setHP(entity2->getHP() - entity1->getHP()); // everyone takes damage.

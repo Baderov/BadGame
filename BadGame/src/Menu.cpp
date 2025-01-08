@@ -10,7 +10,7 @@ void errorChecking(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 		if (nm->getServerIP()[i] == '.') { nm->setCountOfDotsInIP(nm->getCountOfDotsInIP() + 1); }
 	}
 
-	if ((nm->getNickname().size() >= 3 && multiplayerMenuError == MultiplayerMenuErrors::NickMustContainMoreChars) ||
+	if ((nm->getCurrentNickname().size() >= 3 && multiplayerMenuError == MultiplayerMenuErrors::NickMustContainMoreChars) ||
 		(nm->getCountOfDotsInIP() == 3 && multiplayerMenuError == MultiplayerMenuErrors::WrongIP) ||
 		(nm->getTempPort().size() >= 1 && multiplayerMenuError == MultiplayerMenuErrors::WrongPort))
 	{
@@ -47,7 +47,7 @@ void errorChecking(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 
 void updateFields(std::unique_ptr<NetworkManager>& nm)
 {
-	nm->setNickname(L"Baderov");
+	nm->setCurrentNickname(L"Baderov");
 	nm->setServerIP(sf::IpAddress::getLocalAddress().toString());
 	nm->setTempPort("2000");
 	nm->setServerPort(2000);
@@ -79,6 +79,7 @@ void updateMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap)
 {
 	//std::cout << "START" << std::endl;
+
 	updateFields(nm);
 	updateMenu(gv, gw, sm, nm, cw, minimap);
 
@@ -129,7 +130,7 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 			{
 				nm->setConnectButtonPressed(false);
 				multiplayerMenuError = MultiplayerMenuErrors::NoErrors;
-				if (nm->getNickname().size() < 3) { multiplayerMenuError = MultiplayerMenuErrors::NickMustContainMoreChars; break; }
+				if (nm->getCurrentNickname().size() < 3) { multiplayerMenuError = MultiplayerMenuErrors::NickMustContainMoreChars; break; }
 				if (nm->getCountOfDotsInIP() != 3) { multiplayerMenuError = MultiplayerMenuErrors::WrongIP; break; }
 				if (nm->getTempPort().size() < 1) { multiplayerMenuError = MultiplayerMenuErrors::WrongPort; break; }
 
@@ -141,7 +142,10 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 			}
 		}
 
+		menuBackground.update(gw);
+
 		gw->window.clear(sf::Color::Black);
+		menuBackground.draw(gw);
 		cw->menuGUI.draw();
 		gw->window.display();
 	}

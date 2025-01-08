@@ -142,7 +142,7 @@ void CustomWidget::updateEditBox()
 	std::lock_guard<std::mutex> lock(mtx);
 	auto editBox = gameGUI.get<tgui::EditBox>("editBox");
 
-	if (!editBox->isMouseDown())
+	if (editBox != nullptr && !editBox->isMouseDown())
 	{
 		editBox->setReadOnly(true);
 		editBox->getRenderer()->setBackgroundColor(tgui::Color(0, 51, 102));
@@ -176,7 +176,6 @@ bool CustomWidget::editBoxIsReadOnly()
 	std::lock_guard<std::mutex> lock(mtx);
 	auto editBox = gameGUI.get<tgui::EditBox>("editBox");
 	return editBox->isReadOnly();
-	
 }
 
 bool CustomWidget::editBoxIsVisible()
