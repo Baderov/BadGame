@@ -4,7 +4,6 @@
 //ip - "192.168.1.34";
 //port - 2000;
 
-
 void checkConnection(std::unique_ptr<NetworkManager>& nm)
 {
 	sf::Packet packet;
@@ -30,47 +29,41 @@ void checkConnection(std::unique_ptr<NetworkManager>& nm)
 
 void startNetwork(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm)
 {
+	sf::Clock connectionClock;
+	float connectionTime;
+
+	regNickRequest(nm);
+	connectionClock.restart();
+
 	while (true)
 	{
-		if (!nm->getConnectsToServer()) { sf::sleep(sf::milliseconds(1)); continue; }
+		checkConnection(nm);
 
-		sf::Clock connectionClock;
-		float connectionTime;
-
-		regNickRequest(nm);
-		connectionClock.restart();
-
-		while (true)
+		if (multiplayerMenuError == MultiplayerMenuErrors::NoErrors && !nm->getConnectsToServer())
 		{
-			checkConnection(nm);
-
-			if (multiplayerMenuError == MultiplayerMenuErrors::NoErrors && !nm->getConnectsToServer())
-			{
-				DEBUG_MSG(L"You are connected!");
-				gv->setIsMultiplayer(true);
-				nm->setIsConnected(true);
-				break;
-			}
-			else if (multiplayerMenuError == MultiplayerMenuErrors::NicknameIsAlreadyTaken)
-			{
-				DEBUG_MSG(L"Error: NicknameIsAlreadyTaken!");
-				gv->setIsMultiplayer(false);
-				nm->setConnectsToServer(false);
-				break;
-			}
-
-			connectionTime = connectionClock.getElapsedTime().asSeconds();
-			if (connectionTime >= 3)
-			{
-				multiplayerMenuError = MultiplayerMenuErrors::ServerIsNotAvailable;
-				DEBUG_MSG(L"Error: ServerIsNotAvailable!");
-				gv->setIsMultiplayer(false);
-				nm->setConnectsToServer(false);
-				break;
-			}
-
-			sf::sleep(sf::milliseconds(1));
+			DEBUG_MSG(L"You are connected!");
+			gv->setIsMultiplayer(true);
+			nm->setIsConnected(true);
+			break;
 		}
+		else if (multiplayerMenuError == MultiplayerMenuErrors::NicknameIsAlreadyTaken)
+		{
+			DEBUG_MSG(L"Error: NicknameIsAlreadyTaken!");
+			gv->setIsMultiplayer(false);
+			nm->setConnectsToServer(false);
+			break;
+		}
+
+		connectionTime = connectionClock.getElapsedTime().asSeconds();
+		if (connectionTime >= 3)
+		{
+			multiplayerMenuError = MultiplayerMenuErrors::ServerIsNotAvailable;
+			DEBUG_MSG(L"Error: ServerIsNotAvailable!");
+			gv->setIsMultiplayer(false);
+			nm->setConnectsToServer(false);
+			break;
+		}
+
 		nm->restartServerClock();
 	}
 }
@@ -110,7 +103,6 @@ void sendData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 		if (!gv->getIsMultiplayer() || gv->getGameState() == GameState::GameMenu || !gv->getFocusEvent() || !nm->getIsConnected()) { sf::sleep(sf::milliseconds(1)); continue; }
 
 		sendClientRequests(gv, gw, sm, nm, cw);
-		sendBulletRequests(gv, gw, sm, nm);
 
 		sf::sleep(sf::milliseconds(1));
 	}
@@ -128,7 +120,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		packet.clear();
 		prefix = L"";
 
-		if (gv->getIsMultiplayer() && nm->getServerClockElapsedTime() >= 5.f)
+		if (nm->getServerClockElapsedTime() >= 5.f)
 		{
 			DEBUG_MSG(L"SERVER IS NOT AVAILABLE!");
 			nm->setServerIsNotAvailable(true);
@@ -169,15 +161,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 			if (!(packet >> clientNick && packet >> clientMsg)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
-			std::lock_guard<std::mutex> lock(clients_mtx);
-			for (size_t i = 0; i < clientsVec.size(); ++i)
-			{
-				if (clientsVec[i]->getName() != clientNick) { continue; }
-
-				nm->setAllowToSendMsg(true);
-
-				break;
-			}
+			if (nm->getCurrentNickname() == clientNick) { nm->setMsgReceived(true); }
 
 			addMessageToChat(gw, nm, cw, std::move(clientNick), std::move(clientMsg));
 		}
@@ -186,6 +170,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		{
 			std::wstring clientNick = L"";
 			sf::Vector2f clientMousePos(0.f, 0.f);
+
 			if (!(packet >> clientNick && packet >> clientMousePos.x && packet >> clientMousePos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
@@ -205,15 +190,19 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 			std::wstring bulletCreatorNick = L"";
 			sf::Vector2f bulletAimPos(0.f, 0.f);
 			sf::Vector2f bulletPos(0.f, 0.f);
+			sf::Vector2f currentVelocity(0.f, 0.f);
 
-			if (!(packet >> bulletCreatorNick && packet >> bulletAimPos.x && packet >> bulletAimPos.y && packet >> bulletPos.x && packet >> bulletPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> bulletCreatorNick && packet >> bulletAimPos.x && packet >> bulletAimPos.y && packet >> bulletPos.x && packet >> bulletPos.y
+				&& packet >> currentVelocity.x && packet >> currentVelocity.y)) {
+				DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue;
+			}
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
 				if (clientsVec[i]->getName() != bulletCreatorNick) { continue; }
 
-				clientsVec[i]->createBullet(gv, gw, sm, nm, std::move(bulletPos), std::move(bulletAimPos), std::move(bulletCreatorNick));
+				clientsVec[i]->createBullet(gv, gw, sm, nm, std::move(bulletPos), std::move(bulletAimPos), std::move(bulletCreatorNick), std::move(currentVelocity));
 
 				break;
 			}
@@ -222,17 +211,50 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		else if (prefix == L"move")
 		{
 			std::wstring clientNick = L"";
-			sf::Vector2f clientStepPos(0.f, 0.f);
+			sf::Vector2f clientNewPos(0.f, 0.f);
 
-			if (!(packet >> clientNick && packet >> clientStepPos.x && packet >> clientStepPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientNewPos.x && packet >> clientNewPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
 				if (clientsVec[i]->getName() != clientNick) { continue; }
 
-				clientsVec[i]->setStepPos(std::move(clientStepPos));
+				clientsVec[i]->setNewPos(std::move(clientNewPos));
 				clientsVec[i]->setMoveReceived(true);
+
+				break;
+			}
+		}
+
+		else if (prefix == L"hit")
+		{
+			std::wstring shooterClientNick = L"";
+			std::wstring woundedClientNick = L"";
+			int woundedClientHP = 0;
+			bool woundedClientDead = false;
+
+			if (!(packet >> shooterClientNick && packet >> woundedClientNick && packet >> woundedClientHP && packet >> woundedClientDead)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+
+			std::lock_guard<std::mutex> lock(clients_mtx);
+			for (size_t i = 0; i < clientsVec.size(); ++i)
+			{
+				if (clientsVec[i]->getName() != woundedClientNick) { continue; }
+
+				clientsVec[i]->setHP(clientsVec[i]->getHP() - 10);
+
+				break;
+			}
+
+			for (size_t i = 0; i < clientsVec.size(); ++i)
+			{
+				if (clientsVec[i]->getName() != shooterClientNick) { continue; }
+
+				if (woundedClientDead)
+				{
+					clientsVec[i]->setNumOfKills(clientsVec[i]->getNumOfKills() + 1);
+
+				}
 
 				break;
 			}
@@ -262,25 +284,27 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		{
 			std::wstring clientNick = L"";
 			sf::Vector2f clientPos(0.f, 0.f);
+			int HP = 100;
 
-			if (!(packet >> clientNick && packet >> clientPos.x && packet >> clientPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientPos.x && packet >> clientPos.y && packet >> HP)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			clientsPool.getFromPool(clientsVec);
-			clientsVec.back()->init(gv, nm, clientNick, clientPos);
+			clientsVec.back()->init(gv, nm, clientNick, clientPos, HP);
 			clientsVec.back()->checkCollision(gv, gw, sm, nm);
-
-			if (clientsVec.back()->getIsCollision())
-			{
-				bool tempIsGhost = true;
-				ghostRequest(nm, clientsVec.back()->getName(), std::move(tempIsGhost));
-			}
 
 			if (clientsVec.back()->getName() == nm->getCurrentNickname())
 			{
+				if (clientsVec.back()->getIsCollision())
+				{
+					bool tempIsGhost = true;
+					ghostRequest(nm, std::move(tempIsGhost));
+				}
+
 				clientsVec.back()->getCollider().setFillColor(sf::Color::Green);
 				clientsVec.back()->setIconFillColor(sf::Color::Green);
 				clientsVec.back()->setNameTextFillColor(sf::Color::Cyan);
+				gw->setGameViewCenter(clientsVec.back()->getSpritePos());
 			}
 			else
 			{
@@ -290,16 +314,8 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 			clientsVec.back()->setPlayersListID(cw->addClientToPlayersList(clientNick));
 
-			for (size_t i = 0; i < clientsVec.size(); ++i)
-			{
-				if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
-
-				std::swap(clientsVec[i], clientsVec.back());
-
-				break;
-			}
-
 			addConnectedClientToChat(gw, nm, cw, std::move(clientNick));
+
 		}
 
 		else if (prefix == L"disconnected")
@@ -326,6 +342,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		{
 			std::wstring clientNick = L"";
 			sf::Vector2f clientStartPos(0.f, 0.f);
+			int HP = 100;
 
 			if (!(packet >> clientNick && packet >> clientStartPos.x && packet >> clientStartPos.y)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
@@ -334,16 +351,17 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 			{
 				if (clientsVec[i]->getName() != clientNick) { continue; }
 
-				clientsVec[i]->init(gv, nm, clientNick, clientStartPos);
+				clientsVec[i]->init(gv, nm, clientNick, clientStartPos, HP);
 				clientsVec[i]->checkCollision(gv, gw, sm, nm);
-				if (clientsVec[i]->getIsCollision())
-				{
-					bool tempIsGhost = true;
-					ghostRequest(nm, clientsVec[i]->getName(), std::move(tempIsGhost));
-				}
 
 				if (clientsVec[i]->getName() == nm->getCurrentNickname())
 				{
+					if (clientsVec[i]->getIsCollision())
+					{
+						bool tempIsGhost = true;
+						ghostRequest(nm, std::move(tempIsGhost));
+					}
+
 					clientsVec[i]->getCollider().setFillColor(sf::Color::Green);
 					clientsVec[i]->setIconFillColor(sf::Color::Green);
 					clientsVec[i]->setNameTextFillColor(sf::Color::Cyan);
@@ -385,7 +403,17 @@ void drawClients(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	std::lock_guard<std::mutex> lock(clients_mtx);
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
+		if (clientsVec[i]->getName() == nm->getCurrentNickname()) { continue; }
+
 		clientsVec[i]->draw(gv, gw, sm, nm);
+	}
+	for (size_t i = 0; i < clientsVec.size(); ++i)
+	{
+		if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
+
+		clientsVec[i]->draw(gv, gw, sm, nm);
+
+		break;
 	}
 }
 
@@ -412,10 +440,8 @@ void multiplayerGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWind
 {
 	multiplayerGameUpdate(gv, gw, nm, cw);
 	connectedToServerRequest(nm);
-
 	while (gv->getIsMultiplayer())
 	{
-		DEBUG_SET_FUNC_NAME;
 		updateGame(gv, gw, sm, nm, cw, minimap);
 		drawGame(gv, gw, sm, nm, cw, minimap);
 		updateFPS(gv);

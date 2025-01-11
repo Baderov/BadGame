@@ -15,7 +15,7 @@ NetworkManager::NetworkManager()
 	isConnected = false;
 	isMinimapView = false;
 	connectButtonPressed = false;
-	allowToSendMsg = true;
+	msgReceived = true;
 }
 
 void NetworkManager::resetVariables()
@@ -23,11 +23,11 @@ void NetworkManager::resetVariables()
 	serverClock.restart();
 	serverIsNotAvailable = false;
 	isMinimapView = false;
-	allowToSendMsg = true;
+	msgReceived = true;
 }
 
-// GETTERS.
 
+// GETTERS.
 std::wstring NetworkManager::getCurrentNickname()
 {
 	std::lock_guard<std::mutex> lock(mtx);
@@ -105,12 +105,14 @@ bool NetworkManager::getServerIsNotAvailable()
 	return serverIsNotAvailable;
 }
 
-bool NetworkManager::getAllowToSendMsg()
+bool NetworkManager::getMsgReceived()
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	bool allowToSendMsg = this->allowToSendMsg;
-	return allowToSendMsg;
+	bool msgReceived = this->msgReceived;
+	return msgReceived;
 }
+
+
 
 
 // SETTERS.
@@ -174,11 +176,14 @@ void NetworkManager::setServerIsNotAvailable(bool serverIsNotAvailable)
 	this->serverIsNotAvailable = std::move(serverIsNotAvailable);
 }
 
-void NetworkManager::setAllowToSendMsg(bool allowToSendMsg)
+void NetworkManager::setMsgReceived(bool msgReceived)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	this->allowToSendMsg = std::move(allowToSendMsg);
+	this->msgReceived = std::move(msgReceived);
 }
+
+
+
 
 void NetworkManager::restartServerClock()
 {

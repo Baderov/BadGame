@@ -4,7 +4,7 @@
 #include "Menu.h"
 #include "Minimap.h" 
 #include "SingleplayerManager.h"
-#include "ClientRequest.h"
+#include "NetworkRequest.h"
 #include "ServerIsNotAvailable.h"
 #include "CustomWidget.h"
 
@@ -12,7 +12,6 @@ enum class NetworkAction
 {
 	Nothing, ServerIsNotAvailable
 }; inline NetworkAction networkAction;
-
 
 void checkConnection(std::unique_ptr<NetworkManager>& nm);
 void startNetwork(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm);

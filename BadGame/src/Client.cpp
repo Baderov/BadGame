@@ -3,7 +3,7 @@
 
 Client::Client(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm) {}
 
-void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos)
+void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos, int HP)
 {
 	isAlive = true;
 	isMove = false;
@@ -11,30 +11,33 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	isGhost = false;
 	isCollision = false;
 	bulletHit = false;
-	clientMoved = false;
 	moveReceived = false;
+	sendMoveRequest = true;
 
 	this->startPos = std::move(startPos);
 	this->name = std::move(name);
+	this->HP = std::move(HP);
 
-	HP = 100;
 	goldCoins = 0;
-	maxHP = HP;
+	maxHP = 100;
 	magazineAmmo = 30;
 	currentAmmo = magazineAmmo;
 	maxAmmo = 500;
 	missingAmmo = 0;
 	playersListID = 0;
+	numOfKills = 0;
 
 	currentVelocity = sf::Vector2f(1.3f, 1.3f);
 	moveTargetPos = this->startPos;
 	maxSpeed = 5.f;
 	reloadTime = 0.f;
+	shootTime = 0.f;
 	speed = 1000.f;
 	stepPos = sf::Vector2f(0.f, 0.f);
 
 	ping = 0;
 	pingClock.restart();
+	shootClock.restart();
 	distance = 0.f;
 
 	texture.loadFromImage(gv->playerImage);
@@ -83,9 +86,9 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 	{
 		if (getHP() <= 0)
 		{
-			gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
-			isAlive = false;
-			this->startPos = sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000));
+			setIsAlive(false);
+			if (getName() == nm->getCurrentNickname()) { gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f)); }
+			setStartPos(sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)));
 			respawnRequest(nm, getName(), getStartPos());
 			return;
 		}
@@ -99,6 +102,11 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 		if (getName() == nm->getCurrentNickname())
 		{
 			gw->setGameViewCenter(getSpritePos());
+			calcStepPos(gv, nm);
+			if (getIsMove()) { setSendMoveRequest(true); }
+			calculateAmmo();
+			updateReload(gv);
+
 			if (gv->getGameLanguage() == GameLanguage::English)
 			{
 				gv->ammoText.setString(L"Ammo: " + std::to_wstring(getCurrentAmmo()) + L"/" + std::to_wstring(getMaxAmmo()));
@@ -109,10 +117,6 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 			}
 		}
 
-		calcStepPos(gv, nm);
-		if (getIsMove()) { setClientMoved(true); }
-		calculateAmmo();
-		updateReload(gv);
 		animateBulletHit();
 		updateHP();
 	}
@@ -120,9 +124,9 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 
 void Client::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	sprite.move(stepPos);
-	icon.move(stepPos);
-	collider.move(stepPos);
+	sprite.setPosition(getNewPos());
+	icon.setPosition(getNewPos());
+	collider.setPosition(getNewPos());
 	setNameTextPos();
 }
 
@@ -157,40 +161,26 @@ void Client::returnToPool(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Gam
 
 void Client::rotate(std::unique_ptr<GameVariable>& gv, sf::Vector2f targetPos)
 {
-	this->targetPos = std::move(targetPos);
+	setTargetPos(std::move(targetPos));
 	float dX = this->targetPos.x - sprite.getPosition().x;
 	float dY = this->targetPos.y - sprite.getPosition().y;
 	float rotation = (atan2(dY, dX)) * 180 / 3.14159265f; // get the angle in radians and convert it to degrees
 	sprite.setRotation(rotation);
 }
 
-void Client::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f&& startPos, sf::Vector2f&& aimPos, std::wstring&& creatorName)
+void Client::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm,
+	sf::Vector2f&& startPos, sf::Vector2f&& aimPos, std::wstring&& creatorName, sf::Vector2f&& currentVelocity)
 {
+	std::lock_guard<std::mutex> lock(bullets_mtx);
 	if (!isReload && bulletsPool.getFromPool(bulletsVec))
 	{
 		currentAmmo--;
-
-		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName);
-		bulletsVec.back()->setAllowToShoot(true);
+		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName, currentVelocity);
 	}
 }
 
 
-
 // GETTERS
-bool Client::getClientMoved()
-{
-	bool clientMoved = this->clientMoved;
-	return clientMoved;
-}
-
-bool Client::getMoveReceived()
-{
-	bool moveReceived = this->moveReceived;
-	return moveReceived;
-}
-
-
 size_t Client::getPlayersListID()
 {
 	size_t playersListID = this->playersListID;
@@ -209,18 +199,26 @@ sf::Int32 Client::getPingClockElapsedTime()
 	return elapsedTime;
 }
 
+sf::Vector2f Client::getNewPos()
+{
+	sf::Vector2f newPos = this->newPos;
+	return newPos;
+}
+
+bool Client::getMoveReceived()
+{
+	bool moveReceived = this->moveReceived;
+	return moveReceived;
+}
+
+bool Client::getSendMoveRequest()
+{
+	bool sendMoveRequest = this->sendMoveRequest;
+	return sendMoveRequest;
+}
+
 
 // SETTERS
-void Client::setClientMoved(bool clientMoved)
-{
-	this->clientMoved = std::move(clientMoved);
-}
-
-void Client::setMoveReceived(bool moveReceived)
-{
-	this->moveReceived = std::move(moveReceived);
-}
-
 void Client::setPlayersListID(size_t playersListID)
 {
 	this->playersListID = std::move(playersListID);
@@ -229,4 +227,19 @@ void Client::setPlayersListID(size_t playersListID)
 void Client::setPing(sf::Int32 ping)
 {
 	this->ping = std::move(ping);
+}
+
+void Client::setNewPos(sf::Vector2f newPos)
+{
+	this->newPos = std::move(newPos);
+}
+
+void Client::setMoveReceived(bool moveReceived)
+{
+	this->moveReceived = std::move(moveReceived);
+}
+
+void Client::setSendMoveRequest(bool sendMoveRequest)
+{
+	this->sendMoveRequest = std::move(sendMoveRequest);
 }

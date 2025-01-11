@@ -47,7 +47,6 @@ void errorChecking(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 
 void updateFields(std::unique_ptr<NetworkManager>& nm)
 {
-	nm->setCurrentNickname(L"Baderov");
 	nm->setServerIP(sf::IpAddress::getLocalAddress().toString());
 	nm->setTempPort("2000");
 	nm->setServerPort(2000);
@@ -58,10 +57,10 @@ void updateMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 	switch (menuType)
 	{
 	case MenuType::MainMenu:
-		menuUpdate(gv, gw, sm, cw);
+		menuUpdate(gv, gw, sm, nm, cw);
 		break;
 	case MenuType::GameMenu:
-		menuUpdate(gv, gw, sm, cw);
+		menuUpdate(gv, gw, sm, nm, cw);
 		break;
 	case MenuType::MultiplayerMenu:
 		multiplayerMenuUpdate(gv, gw, nm, cw);
@@ -78,8 +77,6 @@ void updateMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 
 void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap)
 {
-	//std::cout << "START" << std::endl;
-
 	updateFields(nm);
 	updateMenu(gv, gw, sm, nm, cw, minimap);
 
@@ -101,7 +98,7 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 		while (gw->window.pollEvent(event))
 		{
 			cw->menuGUI.handleEvent(event);
-			if (event.type == sf::Event::Closed) { gv->setIsSingleplayer(false); gv->setIsMultiplayer(false); gw->window.close(); /*std::cout << "END 1" << std::endl;*/ return; }
+			if (event.type == sf::Event::Closed) { gv->setIsSingleplayer(false); gv->setIsMultiplayer(false); gw->window.close(); return; }
 			if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape && menuType != MenuType::MainMenu)
 			{
 				switch (menuType)
@@ -136,9 +133,11 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 
 				clientsPool.returnEverythingToPool(clientsVec);
 				bulletsPool.returnEverythingToPool(bulletsVec);
-				gv->setIsSingleplayer(false);
 				nm->resetVariables();
+				gv->setIsSingleplayer(false);
 				nm->setConnectsToServer(true);
+
+				startNetwork(gv, nm);
 			}
 		}
 
@@ -149,8 +148,6 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 		cw->menuGUI.draw();
 		gw->window.display();
 	}
-
-	//std::cout << "END 3" << std::endl;
 }
 
 void menuEventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap, MenuType _menuType)
@@ -161,8 +158,6 @@ void menuEventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWin
 
 	while (gw->window.isOpen())
 	{
-		DEBUG_SET_FUNC_NAME;
-
 		sf::Event event;
 		while (gw->window.pollEvent(event)) { if (event.type == sf::Event::Closed) { gv->setIsSingleplayer(false); gv->setIsMultiplayer(false); gw->window.close(); return; } }
 
@@ -183,10 +178,6 @@ void menuEventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWin
 			gv->setGameState(GameState::ContinueGame);
 			return;
 
-		case MenuAction::ExitGame:
-			gv->setGameState(GameState::GameOver);
-			return;
-
 		case MenuAction::OpenSettingsMenu:
 			menuType = MenuType::SettingsMenu;
 			openMenu(gv, gw, sm, nm, cw, minimap);
@@ -200,10 +191,8 @@ void menuEventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWin
 		case MenuAction::OpenMainMenu:
 			if (gv->getIsSingleplayer()) { gv->setIsSingleplayer(false); }
 			else if (gv->getIsMultiplayer()) { gv->setIsMultiplayer(false); }
-			gv->setGameState(GameState::MainMenu);
-			menuType = MenuType::MainMenu;
-			openMenu(gv, gw, sm, nm, cw, minimap);
-			break;
+			nm->setIsConnected(false);
+			return;
 
 		case MenuAction::OpenGameMenu:
 			menuType = MenuType::GameMenu;

@@ -98,7 +98,6 @@ void singleplayerGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWin
 
 	while (gv->getIsSingleplayer())
 	{
-		DEBUG_SET_FUNC_NAME;
 		updateGame(gv, gw, sm, nm, cw, minimap);
 		drawGame(gv, gw, sm, nm, cw, minimap);
 		updateFPS(gv);

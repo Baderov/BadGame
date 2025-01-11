@@ -9,7 +9,7 @@ GameVariable::GameVariable()
 	gameState = GameState::MainMenu;
 	mousePos = sf::Vector2f(0.f, 0.f);
 	targetPos = sf::Vector2f(0.f, 0.f);
-	funcName = "";
+	gameVersion = "0.0.1";
 	fpsPreviousTime = 0.f;
 	fpsCurrentTime = 0.f;
 	fps = 0.f;
@@ -65,7 +65,6 @@ void GameVariable::resetVariables()
 {
 	mousePos = sf::Vector2f(0.f, 0.f);
 	targetPos = sf::Vector2f(0.f, 0.f);
-	funcName = "";
 	fpsPreviousTime = 0.f;
 	fpsCurrentTime = 0.f;
 	fps = 0.f;
@@ -129,11 +128,11 @@ sf::Vector2f GameVariable::getTargetPos()
 	return targetPos;
 }
 
-std::string GameVariable::getFuncName()
+std::string GameVariable::getGameVersion()
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	std::string funcName = this->funcName;
-	return funcName;
+	std::string gameVersion = this->gameVersion;
+	return gameVersion;
 }
 
 float GameVariable::getFPS()
@@ -251,10 +250,10 @@ void GameVariable::setTargetPos(sf::Vector2f targetPos)
 	this->targetPos = std::move(targetPos);
 }
 
-void GameVariable::setFuncName(std::string funcName)
+void GameVariable::setGameVersion(std::string gameVersion)
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	this->funcName = std::move(funcName);
+	this->gameVersion = std::move(gameVersion);
 }
 
 void GameVariable::setFPS(float fps)

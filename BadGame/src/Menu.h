@@ -17,7 +17,7 @@ enum class MultiplayerMenuErrors
 
 enum class MenuAction
 {
-	Nothing, OpenMainMenu, OpenGameMenu, OpenMultiplayerMenu, OpenSettingsMenu, OpenGraphicsSettingsMenu, StartGame, RestartGame, ContinueGame, ExitGame
+	Nothing, OpenMainMenu, OpenGameMenu, OpenMultiplayerMenu, OpenSettingsMenu, OpenGraphicsSettingsMenu, StartGame, RestartGame, ContinueGame
 }; inline MenuAction menuAction;
 
 void errorChecking(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw);

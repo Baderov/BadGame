@@ -5,21 +5,20 @@ Bullet::Bullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 
 unsigned int Bullet::bulletID = 0;
 
-void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos, sf::Vector2f aimPos, std::wstring creatorName)
+void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos, sf::Vector2f aimPos, std::wstring creatorName, sf::Vector2f currentVelocity)
 {
 	bulletID++;
 
 	isAlive = true;
 	isMove = true;
-	allowToShoot = true;
 
 	name = L"Bullet" + std::to_wstring(bulletID);
 	this->aimPos = std::move(aimPos);
 	this->creatorName = std::move(creatorName);
 	this->startPos = std::move(startPos);
+	this->currentVelocity = std::move(currentVelocity);
 
 	maxSpeed = 1000.f;
-	currentVelocity = sf::Vector2f(0.f, 0.f);
 	HP = 10;
 
 	texture.loadFromImage(gv->bulletImage);
@@ -32,7 +31,7 @@ void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	collider.setPosition(this->startPos);
 	collider.setFillColor(sf::Color::Black);
 
-	calcDirection(gv->getDT());
+	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { calcDirection(gv->getDT()); }
 }
 
 void Bullet::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
@@ -111,15 +110,4 @@ void Bullet::calcDirection(float&& deltaTime)
 	aimDir = aimPos - sprite.getPosition(); // distance from the mouse to the current position of the sprite.
 	aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
 	currentVelocity = aimDirNorm * maxSpeed * deltaTime; // vector speed = direction * linear speed * delta time.
-}
-
-bool Bullet::getAllowToShoot()
-{
-	bool allowToShoot = this->allowToShoot;
-	return allowToShoot;
-}
-
-void Bullet::setAllowToShoot(bool allowToShoot)
-{
-	this->allowToShoot = std::move(allowToShoot);
 }

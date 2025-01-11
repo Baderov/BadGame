@@ -5,8 +5,11 @@ const int ENTER_CODE = 13;
 
 void enterMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw, Minimap& minimap) // enter menu for singleplayer.
 {
-	playerPtr->restartMenuClock();
-	for (size_t i = 0; i < enemiesVec.size(); i++) { enemiesVec[i]->restartMenuClock(); }
+	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer())
+	{
+		playerPtr->restartMenuClock();
+		for (size_t i = 0; i < enemiesVec.size(); i++) { enemiesVec[i]->restartMenuClock(); }
+	}
 
 	gv->setGameState(GameState::GameMenu);
 
@@ -124,9 +127,14 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 					for (size_t i = 0; i < clientsVec.size(); ++i)
 					{
 						if (!cw->editBoxIsReadOnly() || nm->getServerIsNotAvailable()) { return; }
-						if (clientsVec[i]->getName() != nm->getCurrentNickname() || clientsVec[i]->getIsGhost() || clientsVec[i]->getCurrentAmmo() <= 0) { continue; }
+						if (clientsVec[i]->getName() != nm->getCurrentNickname() || clientsVec[i]->getIsGhost() || clientsVec[i]->getCurrentAmmo() <= 0 || clientsVec[i]->getShootTime() >= 1000) { continue; }
 
-						shootRequest(nm, clientsVec[i]->getName(), gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)), clientsVec[i]->getSpritePos());
+						float maxSpeed = 1000.f;
+						sf::Vector2f aimDir = gv->getMousePos() - clientsVec[i]->getSpritePos(); // distance from the mouse to the current position of the sprite.
+						sf::Vector2f aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
+						sf::Vector2f currentVelocity = aimDirNorm * maxSpeed * gv->getDT(); // vector speed = direction * linear speed * delta time.
+
+						shootRequest(nm, gv->getMousePos(), clientsVec[i]->getSpritePos(), std::move(currentVelocity));
 
 						break;
 					}
@@ -206,20 +214,12 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				break;
 
 			case sf::Event::TextEntered:
-				std::lock_guard<std::mutex> lock(clients_mtx);
-				for (size_t i = 0; i < clientsVec.size(); ++i)
+				if (event.text.unicode == ENTER_CODE && !cw->editBoxIsReadOnly() && cw->getEditBoxText().trim().toWideString() != L"" && nm->getMsgReceived())
 				{
-					if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
-
-					if (event.text.unicode == ENTER_CODE && !cw->editBoxIsReadOnly() && cw->getEditBoxText().trim().toWideString() != L"" && nm->getAllowToSendMsg())
-					{
-						nm->setAllowToSendMsg(false);
-						std::wstring msg = cw->getEditBoxText().trim().toWideString();
-						messageRequest(nm, std::move(msg));
-						cw->setEditBoxText("");
-					}
-
-					break;
+					std::wstring msg = cw->getEditBoxText().trim().toWideString();
+					messageRequest(nm, std::move(msg));
+					cw->setEditBoxText("");
+					nm->setMsgReceived(false);
 				}
 				break;
 			}

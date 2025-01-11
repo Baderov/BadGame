@@ -23,7 +23,7 @@ private:
 	sf::Vector2f mousePos;
 	sf::Vector2f targetPos;
 	std::mutex mtx;
-	std::string funcName;
+	std::string gameVersion;
 	float fpsPreviousTime;
 	float fpsCurrentTime;
 	float fps;
@@ -67,7 +67,7 @@ public:
 	GameState getGameState();
 	sf::Vector2f getMousePos();
 	sf::Vector2f getTargetPos();
-	std::string getFuncName();
+	std::string getGameVersion();
 	float getFPS();
 	float getDT();
 	float getGameClockElapsedTime();
@@ -87,7 +87,7 @@ public:
 	void setGameState(GameState gameState);
 	void setMousePos(sf::Vector2f mousePos);
 	void setTargetPos(sf::Vector2f targetPos);
-	void setFuncName(std::string guncName);
+	void setGameVersion(std::string gameVersion);
 	void setFPS(float fps);
 	void setFPSPreviousTime(float fpsPreviousTime);
 	void setFPSCurrentTime(float fpsCurrentTime);

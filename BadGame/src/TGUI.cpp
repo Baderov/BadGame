@@ -515,7 +515,7 @@ void multiplayerGameUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 
 }
 
-void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<CustomWidget>& cw)
+void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	float winSizeX = static_cast<float>(gw->window.getSize().x);
 	float winSizeY = static_cast<float>(gw->window.getSize().y);
@@ -594,7 +594,7 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
-		backToMenuButton->onPress([&gv] { menuAction = MenuAction::OpenMainMenu; gv->setIsSingleplayer(false); });
+		backToMenuButton->onPress([] { menuAction = MenuAction::OpenMainMenu; });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && menuType == MenuType::GameMenu)
@@ -622,7 +622,7 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
-		backToMenuButton->onPress([&gv] { menuAction = MenuAction::ExitGame; gv->setIsMultiplayer(false); });
+		backToMenuButton->onPress([&nm] { menuAction = MenuAction::OpenMainMenu; nm->setCurrentNickname(L""); });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 

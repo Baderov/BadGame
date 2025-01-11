@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "ClientRequest.h"
+#include "NetworkRequest.h"
 
-void respawnRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& name, sf::Vector2f&& startPos)
+void respawnRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, sf::Vector2f&& startPos)
 {
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"respawn";
-	packet << prefix << name << startPos.x << startPos.y;
+	packet << prefix << nickname << startPos.x << startPos.y;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -46,12 +46,21 @@ void moveRequest(std::unique_ptr<NetworkManager>& nm, sf::Vector2f&& currentClie
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
-void shootRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& creatorName, sf::Vector2f&& aimPos, sf::Vector2f&& bulletPos)
+void hitRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& woundedClientNick)
+{
+	sf::Packet packet;
+	packet.clear();
+	std::wstring prefix = L"hit";
+	packet << prefix << nm->getCurrentNickname() << woundedClientNick;
+	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
+}
+
+void shootRequest(std::unique_ptr<NetworkManager>& nm, sf::Vector2f&& aimPos, sf::Vector2f&& bulletPos, sf::Vector2f&& currentVelocity)
 {
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"shoot";
-	packet << prefix << creatorName << aimPos.x << aimPos.y << bulletPos.x << bulletPos.y;
+	packet << prefix << nm->getCurrentNickname() << aimPos.x << aimPos.y << bulletPos.x << bulletPos.y << currentVelocity.x << currentVelocity.y;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -64,12 +73,12 @@ void mousePosRequest(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkM
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
-void ghostRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname, bool&& isGhost)
+void ghostRequest(std::unique_ptr<NetworkManager>& nm, bool&& isGhost)
 {
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"ghost";
-	packet << prefix << nickname << isGhost;
+	packet << prefix << nm->getCurrentNickname() << isGhost;
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
@@ -81,7 +90,7 @@ void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameW
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
 		if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
-		if (!clientsVec[i]->getClientMoved() || clientsVec[i]->getMoveReceived() || !cw->editBoxIsReadOnly()) { return; }
+		if (!clientsVec[i]->getSendMoveRequest() || clientsVec[i]->getMoveReceived() || !cw->editBoxIsReadOnly()) { return; }
 
 		clientsVec[i]->setIsCollision(false);
 		clientsVec[i]->moveCollider();
@@ -90,30 +99,17 @@ void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameW
 
 		if (!clientsVec[i]->getIsCollision() && clientsVec[i]->getIsGhost() && clientsVec[i]->getIsMove())
 		{
-			clientsVec[i]->setClientMoved(false);
+			clientsVec[i]->setSendMoveRequest(false);
 			bool isGhost = false;
-			ghostRequest(nm, clientsVec[i]->getName(), std::move(isGhost));
+			ghostRequest(nm, std::move(isGhost));
 		}
 
 		else if (!clientsVec[i]->getIsCollision() || clientsVec[i]->getIsGhost())
 		{
-			clientsVec[i]->setClientMoved(false);
+			clientsVec[i]->setSendMoveRequest(false);
 			moveRequest(nm, clientsVec[i]->getStepPos());
 		}
 
 		break;
-	}
-}
-
-void sendBulletRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
-{
-	std::lock_guard<std::mutex> lock(bullets_mtx);
-	for (size_t i = 0; i < bulletsVec.size(); ++i)
-	{
-		if (bulletsVec[i]->getAllowToShoot() && bulletsVec[i]->getIsAlive())
-		{
-			bulletsVec[i]->setAllowToShoot(false);
-			bulletsVec[i]->move(gv, gw, sm, nm);
-		}
 	}
 }

@@ -17,7 +17,7 @@ private:
 	bool isConnected;
 	bool isMinimapView;
 	bool connectButtonPressed;
-	bool allowToSendMsg;
+	bool msgReceived;
 public:
 	NetworkManager();
 	void resetVariables();
@@ -33,7 +33,8 @@ public:
 	bool getIsConnected();
 	bool getIsMinimapView();
 	bool getConnectButtonPressed();
-	bool getAllowToSendMsg();
+	bool getMsgReceived();
+
 
 	void setCurrentNickname(std::wstring nickname);
 	void setServerIP(std::string serverIP);
@@ -45,7 +46,8 @@ public:
 	void setIsConnected(bool isConnected);
 	void setIsMinimapView(bool isMinimapView);
 	void setConnectButtonPressed(bool connectButtonPressed);
-	void setAllowToSendMsg(bool allowToSendMsg);
+	void setMsgReceived(bool msgReceived);
+
 	void restartServerClock();
 	void sockSend(sf::Packet& packet, sf::IpAddress&& serverIP, unsigned short&& serverPort);
 	bool sockNotRecv(sf::Packet& packet, sf::IpAddress&& remoteAddress, unsigned short&& remotePort);;

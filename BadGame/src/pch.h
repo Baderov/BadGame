@@ -13,6 +13,7 @@
 #include <thread>
 #include <mutex>
 #include <array>
+#include <queue>
 #include <vector>
 #include <cassert>
 #include <cmath>
@@ -23,10 +24,8 @@
 #include "RichText.hpp"
 
 #ifdef _DEBUG
-#define DEBUG_SET_FUNC_NAME gv->setFuncName(__func__);
 #define DEBUG_MSG(str) do { std::wcout << str << L"\n"; } while(false)
 #else
-#define DEBUG_SET_FUNC_NAME
 #define DEBUG_MSG(str) do { } while (false)
 #endif
 

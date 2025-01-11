@@ -21,6 +21,7 @@ void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	currentAmmo = magazineAmmo;
 	maxAmmo = 500;
 	missingAmmo = 0;
+	numOfKills = 0;
 
 	reloadTime = 0.f;
 	speed = 750.f;
@@ -152,8 +153,9 @@ void Player::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Gam
 		sf::Vector2f startPos = sprite.getPosition();
 		sf::Vector2f aimPos = gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window));
 		std::wstring creatorName = name;
+		sf::Vector2f currentVelocity(0.f, 0.f);
 
-		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName);
+		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName, currentVelocity);
 		currentAmmo--;
 		isShoot = false;
 	}

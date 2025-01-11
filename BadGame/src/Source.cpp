@@ -1,15 +1,6 @@
 ﻿#include "pch.h"
 #include "Source.h"
 
-//void logsFunc(std::unique_ptr<SingleplayerManager>& sm)
-//{
-//	while (gw->window.isOpen())
-//	{
-//		DEBUG_MSG(L"function name: " + gv->getFuncName());
-//		sf::sleep(sf::milliseconds(1));
-//	}
-//}
-
 void initObjects(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	boxesPool.init(gv, gw, sm, nm, boxesVec, 24);
@@ -64,18 +55,11 @@ int main()
 
 	initObjects(gv, gw, sm, nm);
 
-	//#ifdef _DEBUG
-		//std::thread logsThread(logsFunc, std::ref(sm));
-		//logsThread.detach();
-	//#endif
-
 	std::thread recvThread(receiveData, std::ref(gv), std::ref(gw), std::ref(sm), std::ref(nm), std::ref(cw));
 	std::thread sendThread(sendData, std::ref(gv), std::ref(gw), std::ref(sm), std::ref(nm), std::ref(cw));
-	std::thread connectionThread(startNetwork, std::ref(gv), std::ref(nm));
 
 	recvThread.detach();
 	sendThread.detach();
-	connectionThread.detach();
 
 	menuEventHandler(gv, gw, sm, nm, cw, minimap, MenuType::MainMenu);
 
@@ -87,7 +71,7 @@ int main()
 		if (gv->getGameState() == GameState::StartGame)
 		{
 			if (gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { singleplayerGame(gv, gw, sm, nm, cw, minimap); }
-			if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && !nm->getConnectsToServer()) { multiplayerGame(gv, gw, sm, nm, cw, minimap); }
+			if (!gv->getIsSingleplayer() && gv->getIsMultiplayer()) { multiplayerGame(gv, gw, sm, nm, cw, minimap); }
 		}
 		else
 		{

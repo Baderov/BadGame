@@ -1,7 +1,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 
-#include "ClientRequest.h"
+#include "NetworkRequest.h"
 #include "Wall.h"
 #include "Box.h"
 #include "Bullet.h"

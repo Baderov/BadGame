@@ -17,6 +17,7 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	shootTime = 0.f;
 	menuTime = 0.f;
 	HP = 100;
+	numOfKills = 0;
 	maxHP = HP;
 
 	isAlive = true;
@@ -178,7 +179,8 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 
 		if (distance < 750.f && bulletsPool.getFromPool(bulletsVec))
 		{
-			bulletsVec.back()->init(gv, gw, sm, nm, sprite.getPosition(), aimPos, name);
+			sf::Vector2f currentVelocity(0.f, 0.f);
+			bulletsVec.back()->init(gv, gw, sm, nm, sprite.getPosition(), aimPos, name, currentVelocity);
 		}
 
 		isShoot = false;
