@@ -11,7 +11,6 @@ void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	isGhost = false;
 	bulletHit = false;
 
-	this->startPos = std::move(startPos);
 	this->name = L"";
 
 	HP = 100;
@@ -22,11 +21,12 @@ void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	maxAmmo = 500;
 	missingAmmo = 0;
 	numOfKills = 0;
+	numOfDeaths = 0;
 
+	this->startPos = std::move(startPos);
 	reloadTime = 0.f;
 	speed = 750.f;
 	stepPos = sf::Vector2f(0.f, 0.f);
-	moveTargetPos = this->startPos;
 
 	texture.loadFromImage(gv->playerImage);
 	sprite.setTexture(texture, true);

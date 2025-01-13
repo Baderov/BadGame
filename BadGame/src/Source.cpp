@@ -46,7 +46,7 @@ void resetObjects(std::unique_ptr<SingleplayerManager>& sm)
 int main()
 {
 	auto gw = std::make_unique<GameWindow>();
-	auto gv = std::make_unique<GameVariable>();
+	auto gv = std::make_unique<GameVariable>(gw);
 	auto sm = std::make_unique<SingleplayerManager>(gv->consolasFont);
 	auto nm = std::make_unique<NetworkManager>();
 	auto cw = std::make_unique<CustomWidget>(gw);

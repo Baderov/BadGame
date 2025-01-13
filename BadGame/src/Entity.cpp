@@ -329,6 +329,12 @@ int Entity::getNumOfKills()
 	return numOfKills;
 }
 
+int Entity::getNumOfDeaths()
+{
+	int numOfDeaths = this->numOfDeaths;
+	return numOfDeaths;
+}
+
 bool Entity::getIsAlive()
 {
 	bool isAlive = this->isAlive;
@@ -483,6 +489,7 @@ void Entity::setMaxAmmo(int maxAmmo) { this->maxAmmo = std::move(maxAmmo); }
 void Entity::setMissingAmmo(int missingAmmo) { this->missingAmmo = std::move(missingAmmo); }
 void Entity::setMagazineAmmo(int magazineAmmo) { this->magazineAmmo = std::move(magazineAmmo); }
 void Entity::setNumOfKills(int numOfKills) { this->numOfKills = std::move(numOfKills); }
+void Entity::setNumOfDeaths(int numOfDeaths) { this->numOfDeaths = std::move(numOfDeaths); }
 void Entity::setIsAlive(bool isAlive) { this->isAlive = std::move(isAlive); }
 void Entity::setIsMove(bool isMove) { this->isMove = std::move(isMove); }
 void Entity::setIsShoot(bool isShoot) { this->isShoot = std::move(isShoot); }

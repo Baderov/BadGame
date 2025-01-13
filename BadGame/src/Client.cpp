@@ -1,54 +1,15 @@
 #include "pch.h"
 #include "Client.h"
 
-Client::Client(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm) {}
-
-void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos, int HP)
+Client::Client(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm)
 {
-	isAlive = true;
-	isMove = false;
-	isReload = false;
-	isGhost = false;
-	isCollision = false;
-	bulletHit = false;
-	moveReceived = false;
-	sendMoveRequest = true;
-
-	this->startPos = std::move(startPos);
-	this->name = std::move(name);
-	this->HP = std::move(HP);
-
-	goldCoins = 0;
-	maxHP = 100;
-	magazineAmmo = 30;
-	currentAmmo = magazineAmmo;
-	maxAmmo = 500;
-	missingAmmo = 0;
-	playersListID = 0;
-	numOfKills = 0;
-
-	currentVelocity = sf::Vector2f(1.3f, 1.3f);
-	moveTargetPos = this->startPos;
-	maxSpeed = 5.f;
-	reloadTime = 0.f;
-	shootTime = 0.f;
-	speed = 1000.f;
-	stepPos = sf::Vector2f(0.f, 0.f);
-
-	ping = 0;
-	pingClock.restart();
-	shootClock.restart();
-	distance = 0.f;
-
 	texture.loadFromImage(gv->playerImage);
 	sprite.setTexture(texture, true);
 	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
-	sprite.setPosition(this->startPos);
 	sprite.setColor(sf::Color::White);
 
 	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
 	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
-	collider.setPosition(this->startPos);
 	collider.setFillColor(sf::Color::Magenta);
 
 	reloadRectOuter.setFillColor(grayColor);
@@ -62,34 +23,113 @@ void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkMana
 	reloadText.setFont(gv->consolasFont);
 	reloadText.setCharacterSize(50);
 	reloadText.setFillColor(sf::Color::Black);
-	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);
 
 	nameText.setFont(gv->consolasFont);
 	nameText.setFillColor(sf::Color::Cyan);
 	nameText.setCharacterSize(40);
 	nameText.setOutlineThickness(2.f);
-	nameText.setString(this->name);
-	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
-	nameText.setPosition(sf::Vector2f(sprite.getPosition().x, sprite.getPosition().y - 110.f));
 
 	icon.setRadius(static_cast<float>(gv->playerImage.getSize().x));
 	icon.setOutlineThickness(15.f);
 	icon.setOutlineColor(sf::Color::Black);
+}
+
+void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos, int HP)
+{
+	isAlive = true;
+	isMove = false;
+	isReload = false;
+	isGhost = false;
+	isCollision = false;
+	bulletHit = false;
+	moveReceived = false;
+	sendMoveRequest = true;
+
+	this->HP = std::move(HP);
+	goldCoins = 0;
+	maxHP = 100;
+	magazineAmmo = 30;
+	currentAmmo = magazineAmmo;
+	maxAmmo = 500;
+	missingAmmo = 0;
+	playersListID = 0;
+	numOfKills = 0;
+	numOfDeaths = 0;
+
+	this->name = std::move(name);
+
+	this->startPos = std::move(startPos);
+	currentVelocity = sf::Vector2f(1.3f, 1.3f);
+	maxSpeed = 5.f;
+	reloadTime = 0.f;
+	shootTime = 0.f;
+	speed = 1000.f;
+	stepPos = sf::Vector2f(0.f, 0.f);
+
+	ping = 0;
+	pingClock.restart();
+	shootClock.restart();
+
+	sprite.setPosition(this->startPos);
+	collider.setPosition(this->startPos);
+
+	nameText.setString(this->name);
+	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
+	nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 110.f);
+
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 	icon.setPosition(this->startPos);
 }
 
+void Client::respawn(sf::Vector2f startPos)
+{
+	isAlive = true;
+	isMove = false;
+	isReload = false;
+	isGhost = false;
+	isCollision = false;
+	bulletHit = false;
+	moveReceived = false;
+	sendMoveRequest = true;
+
+	goldCoins = 0;
+	HP = 100;
+	magazineAmmo = 30;
+	currentAmmo = magazineAmmo;
+	maxAmmo = 500;
+	missingAmmo = 0;
+	numOfDeaths++;
+
+	this->startPos = std::move(startPos);
+	currentVelocity = sf::Vector2f(1.3f, 1.3f);
+	maxSpeed = 5.f;
+	reloadTime = 0.f;
+	shootTime = 0.f;
+	speed = 1000.f;
+	stepPos = sf::Vector2f(0.f, 0.f);
+
+	sprite.setColor(sf::Color::White);
+	sprite.setPosition(this->startPos);
+	icon.setPosition(this->startPos);
+	collider.setPosition(this->startPos);
+	setNameTextPos();
+
+	shootClock.restart();
+}
 
 void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
-	if (isAlive)
+	if (getIsAlive())
 	{
 		if (getHP() <= 0)
 		{
 			setIsAlive(false);
-			if (getName() == nm->getCurrentNickname()) { gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f)); }
-			setStartPos(sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)));
-			respawnRequest(nm, getName(), getStartPos());
+			if (getName() == nm->getCurrentNickname() || isBot)
+			{
+				gv->aimLaser.setSize(sf::Vector2f(0.f, 0.f));
+				setStartPos(sf::Vector2f(static_cast<float>(500 + rand() % 4000), static_cast<float>(500 + rand() % 4000)));
+				respawnRequest(nm, getName(), getStartPos());
+			}
 			return;
 		}
 
@@ -217,6 +257,12 @@ bool Client::getSendMoveRequest()
 	return sendMoveRequest;
 }
 
+bool Client::getIsBot()
+{
+	bool isBot = this->isBot;
+	return isBot;
+}
+
 
 // SETTERS
 void Client::setPlayersListID(size_t playersListID)
@@ -242,4 +288,9 @@ void Client::setMoveReceived(bool moveReceived)
 void Client::setSendMoveRequest(bool sendMoveRequest)
 {
 	this->sendMoveRequest = std::move(sendMoveRequest);
+}
+
+void Client::setIsBot(bool isBot)
+{
+	this->isBot = std::move(isBot);
 }

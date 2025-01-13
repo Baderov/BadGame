@@ -19,12 +19,12 @@ void connectedToServerRequest(std::unique_ptr<NetworkManager>& nm)
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 
-void regNickRequest(std::unique_ptr<NetworkManager>& nm)
+void regNickRequest(std::unique_ptr<NetworkManager>& nm, std::unique_ptr<GameVariable>& gv)
 {
 	sf::Packet packet;
 	packet.clear();
 	std::wstring prefix = L"regNick";
-	packet << prefix << nm->getCurrentNickname();
+	packet << prefix << nm->getCurrentNickname() << gv->getGameVersion();
 	nm->sockSend(packet, nm->getServerIP(), nm->getServerPort());
 }
 

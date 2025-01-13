@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GameVariable.h"
 
-GameVariable::GameVariable()
+GameVariable::GameVariable(std::unique_ptr<GameWindow>& gw)
 {
 	consolasFont.loadFromFile("Fonts\\consolas.ttf");
 
@@ -9,7 +9,7 @@ GameVariable::GameVariable()
 	gameState = GameState::MainMenu;
 	mousePos = sf::Vector2f(0.f, 0.f);
 	targetPos = sf::Vector2f(0.f, 0.f);
-	gameVersion = "0.0.1";
+	gameVersion = L"0.0.1";
 	fpsPreviousTime = 0.f;
 	fpsCurrentTime = 0.f;
 	fps = 0.f;
@@ -56,6 +56,17 @@ GameVariable::GameVariable()
 	ammoText.setCharacterSize(50);
 	ammoText.setFillColor(sf::Color::Green);
 	ammoText.setOutlineThickness(2.f);
+
+	if (getGameLanguage() == GameLanguage::English) { gameVersionText.setString(L"Game version: " + getGameVersion()); }
+	else if (getGameLanguage() == GameLanguage::Russian) { gameVersionText.setString(L"Версия игры: " + getGameVersion()); }
+
+	gameVersionText.setFont(consolasFont);
+	gameVersionText.setCharacterSize(static_cast<unsigned int>(round(gw->getSize().x / 50.f)));
+	gameVersionText.setFillColor(sf::Color::White);
+	gameVersionText.setOutlineThickness(1.f);
+	gameVersionText.setOrigin(gameVersionText.getGlobalBounds().getSize().x / 2.f, gameVersionText.getGlobalBounds().getSize().y / 2.f);
+	gameVersionText.setPosition(gw->getSize().x / 2.f, gw->getSize().y - 50.f);
+
 
 	fpsClock.restart();
 	gameClock.restart();
@@ -128,10 +139,10 @@ sf::Vector2f GameVariable::getTargetPos()
 	return targetPos;
 }
 
-std::string GameVariable::getGameVersion()
+std::wstring GameVariable::getGameVersion()
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	std::string gameVersion = this->gameVersion;
+	std::wstring gameVersion = this->gameVersion;
 	return gameVersion;
 }
 
@@ -250,7 +261,7 @@ void GameVariable::setTargetPos(sf::Vector2f targetPos)
 	this->targetPos = std::move(targetPos);
 }
 
-void GameVariable::setGameVersion(std::string gameVersion)
+void GameVariable::setGameVersion(std::wstring gameVersion)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	this->gameVersion = std::move(gameVersion);
@@ -325,4 +336,21 @@ void GameVariable::setFocusEvent(bool focusEvent)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	this->focusEvent = std::move(focusEvent);
+}
+
+void GameVariable::updateGameVersionText(std::unique_ptr<GameWindow>& gw)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	if (gameLanguage == GameLanguage::English) { gameVersionText.setString(L"Game version: " + gameVersion); }
+	else if (gameLanguage == GameLanguage::Russian) { gameVersionText.setString(L"Версия игры: " + gameVersion); }
+	gameVersionText.setCharacterSize(static_cast<unsigned int>(round(gw->getSize().x / 50.f)));
+	gameVersionText.setOrigin(gameVersionText.getGlobalBounds().getSize().x / 2.f, gameVersionText.getGlobalBounds().getSize().y / 2.f);
+	gameVersionText.setPosition(gw->getSize().x / 2.f, gw->getSize().y - 100.f);
+
+}
+
+void GameVariable::drawGameVersionText(std::unique_ptr<GameWindow>& gw)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	gw->window.draw(gameVersionText);
 }

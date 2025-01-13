@@ -20,7 +20,7 @@ class Entity // common class for all entities.
 {
 protected:
 	float DTMultiplier, speed, maxSpeed, distance, spawnTime, reloadTime, shootTime, shootDelay, shootOffset, menuTime;
-	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo, numOfKills;
+	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo, numOfKills, numOfDeaths;
 	bool isAlive, isMove, isShoot, isReload, isCollision, isGhost, bulletHit;
 	sf::Clock reloadClock, shootClock, menuClock, bulletHitClock;
 	sf::Int32 bulletHitTime;
@@ -58,7 +58,6 @@ public:
 	void animateBulletHit();
 	void restartBulletHitClock();
 
-
 	float getShootTime();
 	float getSpawnTime();
 	float getReloadTime();
@@ -74,6 +73,7 @@ public:
 	int getMissingAmmo();
 	int getMagazineAmmo();
 	int getNumOfKills();
+	int getNumOfDeaths();
 	bool getIsAlive();
 	bool getIsMove();
 	bool getIsShoot();
@@ -115,6 +115,7 @@ public:
 	void setMissingAmmo(int missingAmmo);
 	void setMagazineAmmo(int magazineAmmo);
 	void setNumOfKills(int numOfKills);
+	void setNumOfDeaths(int numOfDeaths);
 	void setIsAlive(bool isAlive);
 	void setIsMove(bool isMove);
 	void setIsShoot(bool isShoot);

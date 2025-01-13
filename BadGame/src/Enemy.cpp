@@ -18,6 +18,7 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	menuTime = 0.f;
 	HP = 100;
 	numOfKills = 0;
+	numOfDeaths = 0;
 	maxHP = HP;
 
 	isAlive = true;

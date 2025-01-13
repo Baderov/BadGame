@@ -43,7 +43,18 @@ public:
 	// Label.
 	void setErrorLabelText(tgui::String&& text);
 
-	// EditBox.
+	// KillList
+	void createKillList(std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw);
+	void updateKillList(std::unique_ptr<GameWindow>& gw);
+	void addKillText(std::wstring& shooterClientNick, std::wstring& deadClientNick);
+
+	// Chat
+	void createChat(std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw);
+	void updateChat(std::unique_ptr<GameWindow>& gw);
+	void addLineToChatBox(tgui::String&& text, tgui::Color&& color);
+	void setChatBoxVisible(bool&& isVisible);
+	void setChatBoxEnabled(bool&& isEnabled);
+	bool chatBoxIsVisible();
 	void updateEditBox();
 	void setEditBoxVisible(bool&& isVisible);
 	void setEditBoxEnabled(bool&& isEnabled);
@@ -52,18 +63,13 @@ public:
 	bool editBoxIsVisible();
 	const tgui::String& getEditBoxText();
 
-	// ListView.
+	// PlayersList.
+	void createPlayersList(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw);
 	size_t addClientToPlayersList(std::wstring& clientNick);
 	void removeClientFromPlayersList(size_t&& clientID);
-	void changeItemInPlayersList(size_t&& clientID, std::wstring&& clientNick, std::wstring&& ping);
-	void updatePlayersList(GameLanguage&& gameLanguage);
+	void changeItemInPlayersList(size_t&& clientID, std::wstring&& clientNick, std::wstring&& numOfKills, std::wstring&& numOfDeaths, std::wstring&& ping);
+	void updatePlayersList(std::unique_ptr<GameWindow>& gw, std::unique_ptr<GameVariable>& gv);
 	void setPlayersListVisible(bool&& isVisible);
-
-	// ChatBox.
-	void addLineToChatBox(tgui::String&& text, tgui::Color&& color);
-	void setChatBoxVisible(bool&& isVisible);
-	void setChatBoxEnabled(bool&& isEnabled);
-	bool chatBoxIsVisible();
 
 	// GUI.
 	void handleGameGUIEvent(sf::Event& event);

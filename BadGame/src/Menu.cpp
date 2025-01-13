@@ -19,6 +19,10 @@ void errorChecking(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 
 	switch (multiplayerMenuError)
 	{
+	case MultiplayerMenuErrors::GameVersionError:
+		if (gv->getGameLanguage() == GameLanguage::English) { cw->setErrorLabelText(L"Version mismatch!"); }
+		else if (gv->getGameLanguage() == GameLanguage::Russian) { cw->setErrorLabelText(L"Несоответствие версий!"); }
+		break;
 	case MultiplayerMenuErrors::NickMustContainMoreChars:
 		if (gv->getGameLanguage() == GameLanguage::English) { cw->setErrorLabelText(L"Nickname must contain more than 2 characters!"); }
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { cw->setErrorLabelText(L"Никнейм должен содержать более 2 символов!"); }
@@ -146,6 +150,7 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 		gw->window.clear(sf::Color::Black);
 		menuBackground.draw(gw);
 		cw->menuGUI.draw();
+		if (menuType == MenuType::MainMenu) { gv->drawGameVersionText(gw); }
 		gw->window.display();
 	}
 }
@@ -192,6 +197,8 @@ void menuEventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWin
 			if (gv->getIsSingleplayer()) { gv->setIsSingleplayer(false); }
 			else if (gv->getIsMultiplayer()) { gv->setIsMultiplayer(false); }
 			nm->setIsConnected(false);
+			gv->setGameState(GameState::MainMenu);
+			menuType = MenuType::MainMenu;
 			return;
 
 		case MenuAction::OpenGameMenu:

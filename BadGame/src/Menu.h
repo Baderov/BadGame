@@ -12,7 +12,7 @@ inline MenuBackground menuBackground;
 
 enum class MultiplayerMenuErrors
 {
-	NoErrors, ServerIsNotAvailable, NicknameIsAlreadyTaken, NickMustContainMoreChars, WrongIP, WrongPort
+	NoErrors, ServerIsNotAvailable, NicknameIsAlreadyTaken, NickMustContainMoreChars, WrongIP, WrongPort, GameVersionError
 }; inline MultiplayerMenuErrors multiplayerMenuError;
 
 enum class MenuAction

@@ -57,12 +57,20 @@ void menuApplyButtonPressed(std::unique_ptr<GameVariable>& gv, std::unique_ptr<G
 
 	gw->createWindow(gw->getSize(), gw->getIsFullscreen(), gw->getIsVsync(), gw->getFPSLimiter());
 
+	cw->updateGUI(gw);
+
 	menuBackground.init(gv, gw);
 
 	minimap.create();
 
-	cw->updateGUI(gw);
-	if (gv->getIsMultiplayer()) { cw->updatePlayersList(gv->getGameLanguage()); }
+	gv->updateGameVersionText(gw);
+
+	if (gv->getIsMultiplayer())
+	{
+		cw->updateKillList(gw);
+		cw->updateChat(gw);
+		cw->updatePlayersList(gw, gv);
+	}
 
 	graphicsSettingsMenuUpdate(gv, gw, nm, cw, minimap);
 }
@@ -422,97 +430,17 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(backButton, "backButton");
 }
 
-void multiplayerGameUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
+void multiplayerGameUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw)
 {
-	float winSizeX = static_cast<float>(gw->window.getSize().x);
-	float winSizeY = static_cast<float>(gw->window.getSize().y);
-	float halfWinSizeX = static_cast<float>(gw->window.getSize().x) / 2.f;
-	float halfWinSizeY = static_cast<float>(gw->window.getSize().y) / 2.f;
-	float columnWidth = gw->window.getSize().x / 5.5f;
-	unsigned int itemHeight = static_cast<unsigned int>(round(winSizeX / 35.f));
 	cw->gameGUI.removeAllWidgets();
 
 	auto theme = tgui::Theme::getDefault();
 	tgui::ScrollbarRenderer(theme->getRenderer("Scrollbar")).setThumbColor(tgui::Color(102, 0, 204));
 	tgui::ScrollbarRenderer(theme->getRenderer("Scrollbar")).setThumbColorHover(tgui::Color(102, 0, 204));
 
-	tgui::ChatBox::Ptr chatBox = tgui::ChatBox::create();
-	chatBox->getRenderer()->setBackgroundColor(tgui::Color(0, 51, 102));
-	chatBox->getRenderer()->setBorders(tgui::Borders(4.f, 4.f, 4.f, 4.f));
-	chatBox->getRenderer()->setBorderColor(tgui::Color::Black);
-	chatBox->getRenderer()->setScrollbarWidth(24.f);
-	chatBox->setScrollbarValue(2000);
-	chatBox->setSize("30%", "30%");
-	chatBox->setOrigin(0.5f, 0.5f);
-	chatBox->setPosition("20%", "70%");
-	chatBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 75.f)));
-	cw->gameGUI.add(chatBox, "chatBox");
-
-	tgui::EditBox::Ptr editBox = tgui::EditBox::create();
-	editBox->getRenderer()->setBackgroundColor(tgui::Color(0, 51, 102));
-	editBox->getRenderer()->setBackgroundColorHover(tgui::Color(0, 51, 102));
-	editBox->getRenderer()->setBorderColor(tgui::Color::Black);
-	editBox->getRenderer()->setTextColor(tgui::Color::Black);
-	editBox->getRenderer()->setSelectedTextColor(tgui::Color::Black);
-	editBox->getRenderer()->setTextColorDisabled(tgui::Color::Black);
-	editBox->getRenderer()->setTextColorFocused(tgui::Color::Black);
-	editBox->getRenderer()->setBorders(tgui::Borders(4.f, 3.f, 4.f, 4.f));
-	editBox->setMaximumCharacters(200);
-	editBox->setSize("30%", "7%");
-	editBox->setOrigin(0.5f, 0.5f);
-	editBox->setPosition("20%", "88%");
-	editBox->setTextSize(static_cast<unsigned int>(round(winSizeX / 75.f)));
-	editBox->setReadOnly(true);
-	editBox->onMousePress([editBox]
-		{
-			editBox->setReadOnly(false);
-			editBox->getRenderer()->setBackgroundColor(tgui::Color::White);
-			editBox->getRenderer()->setBackgroundColorHover(tgui::Color::White);
-			editBox->getRenderer()->setOpacity(1.f);
-		});
-
-	cw->gameGUI.add(editBox, "editBox");
-
-	tgui::ListView::Ptr playersList = tgui::ListView::create();
-	playersList->getRenderer()->setScrollbarWidth(24.f);
-	playersList->getRenderer()->setBorders(tgui::Borders(4.f, 4.f, 4.f, 4.f));
-	playersList->getRenderer()->setHeaderTextColor(tgui::Color::Black);
-	playersList->getRenderer()->setHeaderBackgroundColor(tgui::Color::White);
-	playersList->getRenderer()->setBackgroundColor(tgui::Color(102, 0, 51));
-	playersList->getRenderer()->setBackgroundColorHover(tgui::Color(102, 0, 51));
-	playersList->getRenderer()->setBorderColor(tgui::Color::Black);
-	playersList->getRenderer()->setTextColor(tgui::Color::Cyan);
-	playersList->getRenderer()->setTextColorHover(tgui::Color::Cyan);
-	playersList->getRenderer()->setSeparatorColor(tgui::Color::Black);
-	playersList->setHorizontalScrollbarPolicy(tgui::Scrollbar::Policy::Never);
-	playersList->setSeparatorWidth(3);
-	playersList->setHeaderSeparatorHeight(3);
-	playersList->setGridLinesWidth(3);
-	playersList->setShowVerticalGridLines(true);
-	playersList->setShowHorizontalGridLines(true);
-	playersList->setItemHeight(itemHeight);
-	playersList->setHeaderHeight(round(winSizeX / 35.f));
-	playersList->setSize(static_cast<unsigned int>(round(winSizeX / 2.64f)), itemHeight * 13);
-	playersList->setTextSize(static_cast<unsigned int>(round(winSizeX / 40.f)));
-	playersList->setOrigin(0.5f, 0.5f);
-	playersList->setPosition("50%", "50%");
-	playersList->setVisible(false);
-	playersList->onItemSelect([playersList]()
-		{
-			playersList->deselectItems();
-		});
-	if (gv->getGameLanguage() == GameLanguage::English)
-	{
-		playersList->addColumn(L"Nickname", columnWidth * 1.43f, tgui::ListView::ColumnAlignment::Center);
-		playersList->addColumn(L"Ping", columnWidth / 2.f, tgui::ListView::ColumnAlignment::Center);
-	}
-	else if (gv->getGameLanguage() == GameLanguage::Russian)
-	{
-		playersList->addColumn(L"Íèêíåéì", columnWidth * 1.43f, tgui::ListView::ColumnAlignment::Center);
-		playersList->addColumn(L"Ïèíã", columnWidth / 2.f, tgui::ListView::ColumnAlignment::Center);
-	}
-	cw->gameGUI.add(playersList, "playersList");
-
+	cw->createKillList(gw, cw);
+	cw->createChat(gw, cw);
+	cw->createPlayersList(gv, gw, cw);
 }
 
 void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
@@ -594,7 +522,7 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
-		backToMenuButton->onPress([] { menuAction = MenuAction::OpenMainMenu; });
+		backToMenuButton->onPress([] { menuType = MenuType::MainMenu; menuAction = MenuAction::OpenMainMenu; });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && menuType == MenuType::GameMenu)
@@ -622,7 +550,7 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
-		backToMenuButton->onPress([&nm] { menuAction = MenuAction::OpenMainMenu; nm->setCurrentNickname(L""); });
+		backToMenuButton->onPress([&nm] { menuType = MenuType::MainMenu; menuAction = MenuAction::OpenMainMenu; nm->setCurrentNickname(L""); });
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 

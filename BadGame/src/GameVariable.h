@@ -23,7 +23,8 @@ private:
 	sf::Vector2f mousePos;
 	sf::Vector2f targetPos;
 	std::mutex mtx;
-	std::string gameVersion;
+	std::wstring gameVersion;
+	sf::Text gameVersionText;
 	float fpsPreviousTime;
 	float fpsCurrentTime;
 	float fps;
@@ -56,7 +57,7 @@ public:
 	sf::Color backgroundColor;
 	sf::Color greyColor;
 
-	GameVariable();
+	GameVariable(std::unique_ptr<GameWindow>& gw);
 	void resetVariables();
 
 	void updateLaser(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw);
@@ -67,7 +68,7 @@ public:
 	GameState getGameState();
 	sf::Vector2f getMousePos();
 	sf::Vector2f getTargetPos();
-	std::string getGameVersion();
+	std::wstring getGameVersion();
 	float getFPS();
 	float getDT();
 	float getGameClockElapsedTime();
@@ -87,7 +88,7 @@ public:
 	void setGameState(GameState gameState);
 	void setMousePos(sf::Vector2f mousePos);
 	void setTargetPos(sf::Vector2f targetPos);
-	void setGameVersion(std::string gameVersion);
+	void setGameVersion(std::wstring gameVersion);
 	void setFPS(float fps);
 	void setFPSPreviousTime(float fpsPreviousTime);
 	void setFPSCurrentTime(float fpsCurrentTime);
@@ -100,5 +101,8 @@ public:
 	void setIsSingleplayer(bool isSingleplayer);
 	void setIsMultiplayer(bool isMultiplayer);
 	void setFocusEvent(bool focusEvent);
+
+	void updateGameVersionText(std::unique_ptr<GameWindow>& gw);
+	void drawGameVersionText(std::unique_ptr<GameWindow>& gw);
 };
 #endif

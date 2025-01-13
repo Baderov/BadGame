@@ -11,7 +11,7 @@ void respawnRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& nickname
 
 void connectedToServerRequest(std::unique_ptr<NetworkManager>& nm);
 
-void regNickRequest(std::unique_ptr<NetworkManager>& nm);
+void regNickRequest(std::unique_ptr<NetworkManager>& nm, std::unique_ptr<GameVariable>& gv);
 
 void messageRequest(std::unique_ptr<NetworkManager>& nm, std::wstring&& msg);
 
