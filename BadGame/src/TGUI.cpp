@@ -323,6 +323,7 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(enterNicknameLabel, "enterNicknameLabel");
 
 	tgui::EditBox::Ptr nicknameEditBox = tgui::EditBox::create();
+	nicknameEditBox->getRenderer()->setTextColorDisabled(tgui::Color::Black);
 	nicknameEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	nicknameEditBox->getRenderer()->setTextColor(tgui::Color::Black);
 	nicknameEditBox->setSize("25%", "7%");
@@ -349,6 +350,7 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(enterIPLabel, "enterIPLabel");
 
 	tgui::EditBox::Ptr IPEditBox = tgui::EditBox::create();
+	IPEditBox->getRenderer()->setTextColorDisabled(tgui::Color::Black);
 	IPEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	IPEditBox->getRenderer()->setTextColor(tgui::Color::Black);
 	IPEditBox->setSize("25%", "7%");
@@ -375,6 +377,7 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(enterPortLabel, "enterPortLabel");
 
 	tgui::EditBox::Ptr portEditBox = tgui::EditBox::create();
+	portEditBox->getRenderer()->setTextColorDisabled(tgui::Color::Black);
 	portEditBox->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	portEditBox->getRenderer()->setTextColor(tgui::Color::Black);
 	portEditBox->setSize("25%", "7%");
@@ -402,6 +405,7 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(errorLabel, "errorLabel");
 
 	tgui::Button::Ptr connectButton = tgui::Button::create();
+	connectButton->getRenderer()->setTextColorDisabled(tgui::Color::Black);
 	connectButton->getRenderer()->setRoundedBorderRadius(40);
 	connectButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	connectButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
@@ -416,6 +420,7 @@ void multiplayerMenuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Ga
 	cw->menuGUI.add(connectButton, "connectButton");
 
 	tgui::Button::Ptr backButton = tgui::Button::create();
+	backButton->getRenderer()->setTextColorDisabled(tgui::Color::Black);
 	backButton->getRenderer()->setRoundedBorderRadius(40);
 	backButton->getRenderer()->setBackgroundColorDisabled(gv->greyColor);
 	backButton->getRenderer()->setBackgroundColorHover(tgui::Color::Green);
@@ -550,7 +555,14 @@ void menuUpdate(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 		else if (gv->getGameLanguage() == GameLanguage::Russian) { backToMenuButton->setText(L"ÍÀÇÀÄ Â ÌÅÍÞ"); }
 		backToMenuButton->setTextSize(static_cast<unsigned int>(round(winSizeX / 45.f)));
 		backToMenuButton->setPosition(halfWinSizeX, halfWinSizeY - 30.f);
-		backToMenuButton->onPress([&nm] { menuType = MenuType::MainMenu; menuAction = MenuAction::OpenMainMenu; nm->setCurrentNickname(L""); });
+		backToMenuButton->onPress([&nm]
+			{
+				menuType = MenuType::MainMenu;
+				menuAction = MenuAction::OpenMainMenu;
+				nm->setCurrentNickname(L"");
+				nm->setIsConnected(false);
+				nm->setNumOfConnectedClients(0);
+			});
 		cw->menuGUI.add(backToMenuButton, "backToMenuButton");
 	}
 

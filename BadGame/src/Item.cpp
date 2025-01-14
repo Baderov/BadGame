@@ -28,7 +28,7 @@ void Item::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, ItemTy
 	collider.setPosition(this->startPos);
 }
 
-void Item::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Item::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	if (!isAlive) { returnToPool(gv, gw, sm, nm); }
 }

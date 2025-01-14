@@ -13,9 +13,10 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 	currentVelocity = sf::Vector2f(0.6f, 0.6f);
 	maxSpeed = 5.f;
-	shootDelay = 2.f;
-	shootTime = 0.f;
-	menuTime = 0.f;
+
+	shootDelay = 2000;
+	shootTime = 0;
+	menuTime = 0;
 	HP = 100;
 	numOfKills = 0;
 	numOfDeaths = 0;
@@ -29,7 +30,7 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 	name = L"Enemy" + std::to_wstring(enemyID);
 
-	shootOffset = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // random number generation from 0.0 to 1.0.
+	shootOffset = 0 + rand() % 1000; // random number generation from 0.0 to 1.0.
 	moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
 	moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 
@@ -57,7 +58,7 @@ void Enemy::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	if (isCollision) { isGhost = true; setGhostSprite(); }
 }
 
-void Enemy::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Enemy::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	if (isAlive)
 	{
@@ -163,7 +164,7 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 {
 	aimPos = playerPtr->getSpritePos();
 
-	shootTime = (shootClock.getElapsedTime().asSeconds() + shootOffset) - menuTime;
+	shootTime = (shootClock.getElapsedTime().asMilliseconds() + shootOffset) - menuTime;
 	if (shootTime >= shootDelay)
 	{
 		isShoot = true;
@@ -171,7 +172,7 @@ void Enemy::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 		moveTargetPos.x = static_cast<float>(0 + rand() % 5000);
 		moveTargetPos.y = static_cast<float>(0 + rand() % 5000);
 		shootClock.restart();
-		menuTime = 0.f;
+		menuTime = 0;
 	}
 
 	if (isShoot)

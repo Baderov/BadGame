@@ -24,7 +24,7 @@ void initObjects(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 	std::cout << "\n";
 }
 
-void resetObjects(std::unique_ptr<SingleplayerManager>& sm)
+void resetObjects(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	boxesVec.clear();
 	bulletsVec.clear();
@@ -41,6 +41,12 @@ void resetObjects(std::unique_ptr<SingleplayerManager>& sm)
 	clientsPool.clear();
 
 	playerPtr.reset();
+
+	gv.reset();
+	gw.reset();
+	sm.reset();
+	nm.reset();
+	cw.reset();
 }
 
 int main()
@@ -55,9 +61,11 @@ int main()
 
 	initObjects(gv, gw, sm, nm);
 
+	std::thread connectionThread(startNetwork, std::ref(gv), std::ref(nm));
 	std::thread recvThread(receiveData, std::ref(gv), std::ref(gw), std::ref(sm), std::ref(nm), std::ref(cw));
 	std::thread sendThread(sendData, std::ref(gv), std::ref(gw), std::ref(sm), std::ref(nm), std::ref(cw));
 
+	connectionThread.detach();
 	recvThread.detach();
 	sendThread.detach();
 
@@ -79,7 +87,7 @@ int main()
 		}
 	}
 
-	resetObjects(sm);
+	resetObjects(gv, gw, sm, nm, cw);
 
 	return 1;
 }

@@ -32,53 +32,28 @@ Client::Client(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	icon.setRadius(static_cast<float>(gv->playerImage.getSize().x));
 	icon.setOutlineThickness(15.f);
 	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 }
 
 void Client::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::wstring name, sf::Vector2f startPos, int HP)
 {
-	isAlive = true;
-	isMove = false;
-	isReload = false;
-	isGhost = false;
-	isCollision = false;
-	bulletHit = false;
-	moveReceived = false;
-	sendMoveRequest = true;
+	this->startPos = std::move(startPos);
+	this->name = std::move(name);
+
+	respawn(this->startPos);
 
 	this->HP = std::move(HP);
-	goldCoins = 0;
 	maxHP = 100;
-	magazineAmmo = 30;
-	currentAmmo = magazineAmmo;
-	maxAmmo = 500;
-	missingAmmo = 0;
 	playersListID = 0;
 	numOfKills = 0;
 	numOfDeaths = 0;
 
-	this->name = std::move(name);
-
-	this->startPos = std::move(startPos);
-	currentVelocity = sf::Vector2f(1.3f, 1.3f);
-	maxSpeed = 5.f;
-	reloadTime = 0.f;
-	shootTime = 0.f;
-	speed = 1000.f;
-	stepPos = sf::Vector2f(0.f, 0.f);
-
 	ping = 0;
 	pingClock.restart();
-	shootClock.restart();
-
-	sprite.setPosition(this->startPos);
-	collider.setPosition(this->startPos);
 
 	nameText.setString(this->name);
 	nameText.setOrigin(round(nameText.getLocalBounds().left + (nameText.getLocalBounds().width / 2.f)), round(nameText.getLocalBounds().top + (nameText.getLocalBounds().height / 2.f)));
 	nameText.setPosition(sprite.getPosition().x, sprite.getPosition().y - 110.f);
-
-	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
-	icon.setPosition(this->startPos);
 }
 
 void Client::respawn(sf::Vector2f startPos)
@@ -98,13 +73,13 @@ void Client::respawn(sf::Vector2f startPos)
 	currentAmmo = magazineAmmo;
 	maxAmmo = 500;
 	missingAmmo = 0;
+	reloadTime = 0;
+	shootTime = 0;
 	numOfDeaths++;
 
 	this->startPos = std::move(startPos);
 	currentVelocity = sf::Vector2f(1.3f, 1.3f);
 	maxSpeed = 5.f;
-	reloadTime = 0.f;
-	shootTime = 0.f;
 	speed = 1000.f;
 	stepPos = sf::Vector2f(0.f, 0.f);
 
@@ -117,7 +92,7 @@ void Client::respawn(sf::Vector2f startPos)
 	shootClock.restart();
 }
 
-void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	if (getIsAlive())
 	{
@@ -141,6 +116,13 @@ void Client::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindo
 
 		if (getName() == nm->getCurrentNickname())
 		{
+			shootTime = shootClock.getElapsedTime().asMilliseconds() * gv->getDT();
+			if (gv->getFocusEvent())
+			{
+				rotate(gv, gv->getMousePos());
+				shoot(gv, nm, cw);
+			}
+
 			gw->setGameViewCenter(getSpritePos());
 			calcStepPos(gv, nm);
 			if (getIsMove()) { setSendMoveRequest(true); }
@@ -216,6 +198,28 @@ void Client::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Gam
 	{
 		currentAmmo--;
 		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName, currentVelocity);
+	}
+}
+
+void Client::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
+{
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		cw->updateEditBox();
+
+		if (!cw->editBoxIsReadOnly() || nm->getServerIsNotAvailable() || getIsGhost() ||
+			getCurrentAmmo() <= 0 || getShootTime() < 2 || getIsReload()) {
+			return;
+		}
+
+		float maxSpeed = 1000.f;
+		sf::Vector2f aimDir = gv->getMousePos() - getSpritePos(); // distance from the mouse to the current position of the sprite.
+		sf::Vector2f aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
+		sf::Vector2f currentVelocity = aimDirNorm * maxSpeed * gv->getDT(); // vector speed = direction * linear speed * delta time.
+
+		shootRequest(nm, gv->getMousePos(), getSpritePos(), std::move(currentVelocity));
+
+		restartShootClock();
 	}
 }
 

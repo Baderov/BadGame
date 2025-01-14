@@ -41,14 +41,6 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				gv->setIsSingleplayer(false);
 				gw->window.close();
 				break;
-			case sf::Event::MouseButtonPressed:
-				switch (event.mouseButton.button)
-				{
-				case sf::Mouse::Left:
-					if (!playerPtr->getIsReload() && playerPtr->getIsAlive()) { playerPtr->setIsShoot(true); }
-					break;
-				}
-				break;
 			case sf::Event::KeyReleased:
 				switch (event.key.code)
 				{
@@ -73,8 +65,8 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 					{
 						playerPtr->setIsReload(true);
 						playerPtr->restartReloadClock();
-						playerPtr->setReloadTime(0.f);
-						playerPtr->setMenuTime(0.f);
+						playerPtr->setReloadTime(0);
+						playerPtr->setMenuTime(0);
 						break;
 					}
 					break;
@@ -113,32 +105,18 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 				{
 				case sf::Mouse::Left:
 
-					cw->updateEditBox();
-
 					if (networkAction == NetworkAction::ServerIsNotAvailable)
 					{
+						nm->setCurrentNickname(L"");
+						nm->setNumOfConnectedClients(0);
+						nm->setIsConnected(false);
 						gv->setIsMultiplayer(false);
 						gv->setGameState(GameState::MainMenu);
+						menuType = MenuType::MainMenu;
+						menuAction = MenuAction::OpenMainMenu;
 						networkAction = NetworkAction::Nothing;
 						return;
 					}
-
-					std::lock_guard<std::mutex> lock(clients_mtx);
-					for (size_t i = 0; i < clientsVec.size(); ++i)
-					{
-						if (!cw->editBoxIsReadOnly() || nm->getServerIsNotAvailable()) { return; }
-						if (clientsVec[i]->getName() != nm->getCurrentNickname() || clientsVec[i]->getIsGhost() || clientsVec[i]->getCurrentAmmo() <= 0 || clientsVec[i]->getShootTime() >= 1000) { continue; }
-
-						float maxSpeed = 1000.f;
-						sf::Vector2f aimDir = gv->getMousePos() - clientsVec[i]->getSpritePos(); // distance from the mouse to the current position of the sprite.
-						sf::Vector2f aimDirNorm = aimDir / sqrt((aimDir.x * aimDir.x) + (aimDir.y * aimDir.y)); // direction.
-						sf::Vector2f currentVelocity = aimDirNorm * maxSpeed * gv->getDT(); // vector speed = direction * linear speed * delta time.
-
-						shootRequest(nm, gv->getMousePos(), clientsVec[i]->getSpritePos(), std::move(currentVelocity));
-
-						break;
-					}
-					break;
 				}
 
 			case sf::Event::KeyPressed:
@@ -198,8 +176,8 @@ void eventHandler(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 							{
 								clientsVec[i]->setIsReload(true);
 								clientsVec[i]->restartReloadClock();
-								clientsVec[i]->setReloadTime(0.f);
-								clientsVec[i]->setMenuTime(0.f);
+								clientsVec[i]->setReloadTime(0);
+								clientsVec[i]->setMenuTime(0);
 
 								break;
 							}
@@ -242,29 +220,32 @@ void updateGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& 
 			return;
 		}
 
-		playerPtr->update(gv, gw, sm, nm);
+		playerPtr->update(gv, gw, sm, nm, cw);
 
 		if (playerPtr->getIsAlive())
 		{
-			for (size_t i = 0; i < enemiesVec.size(); ++i) { enemiesVec[i]->update(gv, gw, sm, nm); }
-			for (size_t i = 0; i < boxesVec.size(); ++i) { boxesVec[i]->update(gv, gw, sm, nm); }
-			for (size_t i = 0; i < itemsVec.size(); ++i) { itemsVec[i]->update(gv, gw, sm, nm); }
-			for (size_t i = 0; i < bulletsVec.size(); ++i) { bulletsVec[i]->update(gv, gw, sm, nm); }
+			for (size_t i = 0; i < enemiesVec.size(); ++i) { enemiesVec[i]->update(gv, gw, sm, nm, cw); }
+			for (size_t i = 0; i < boxesVec.size(); ++i) { boxesVec[i]->update(gv, gw, sm, nm, cw); }
+			for (size_t i = 0; i < itemsVec.size(); ++i) { itemsVec[i]->update(gv, gw, sm, nm, cw); }
+			for (size_t i = 0; i < bulletsVec.size(); ++i) { bulletsVec[i]->update(gv, gw, sm, nm, cw); }
 		}
 		else
 		{
 			for (size_t i = 0; i < enemiesVec.size(); ++i) { enemiesPool.returnToPool(enemiesVec, enemiesVec[i]); }
 		}
+
+		gv->updateLaser(gv, gw);
 	}
 	else if (!gv->getIsSingleplayer() && gv->getIsMultiplayer() && nm->getIsConnected())
 	{
 		updateClients(gv, gw, sm, nm, cw, minimap);
-		updateBullets(gv, gw, sm, nm);
+		updateBullets(gv, gw, sm, nm, cw);
 		updateServerIsNotAvailable(gv, gw, nm, cw);
+		cw->updateKillListTime();
+		if (cw->editBoxIsReadOnly()) { gv->updateLaser(gv, gw); }
 	}
 	else if (!gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { return; }
 
-	gv->updateLaser(gv, gw);
 	updateGameInfo(gv, gw, sm, nm);
 	minimap.update(gv, gw);
 }

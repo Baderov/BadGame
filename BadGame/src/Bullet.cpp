@@ -34,7 +34,7 @@ void Bullet::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	if (gv->getIsSingleplayer() && !gv->getIsMultiplayer()) { calcDirection(gv->getDT()); }
 }
 
-void Bullet::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Bullet::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	move(gv, gw, sm, nm);
 }

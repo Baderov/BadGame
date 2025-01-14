@@ -33,48 +33,52 @@ void checkConnection(std::unique_ptr<NetworkManager>& nm)
 
 void startNetwork(std::unique_ptr<GameVariable>& gv, std::unique_ptr<NetworkManager>& nm)
 {
-	sf::Clock connectionClock;
-	float connectionTime;
-
-	regNickRequest(nm, gv);
-	connectionClock.restart();
-
 	while (true)
 	{
-		checkConnection(nm);
+		if (!nm->getConnectsToServer()) { sf::sleep(sf::milliseconds(1)); continue; }
 
-		if (multiplayerMenuError == MultiplayerMenuErrors::NoErrors && !nm->getConnectsToServer())
-		{
-			DEBUG_MSG(L"You are connected!");
-			gv->setIsMultiplayer(true);
-			nm->setIsConnected(true);
-			break;
-		}
-		else if (multiplayerMenuError == MultiplayerMenuErrors::GameVersionError)
-		{
-			DEBUG_MSG(L"Error: Version mismatch!");
-			gv->setIsMultiplayer(false);
-			nm->setConnectsToServer(false);
-			break;
-		}
-		else if (multiplayerMenuError == MultiplayerMenuErrors::NicknameIsAlreadyTaken)
-		{
-			DEBUG_MSG(L"Error: NicknameIsAlreadyTaken!");
-			gv->setIsMultiplayer(false);
-			nm->setConnectsToServer(false);
-			break;
-		}
+		sf::Clock connectionClock;
+		sf::Int32 connectionTime;
 
-		connectionTime = connectionClock.getElapsedTime().asSeconds();
-		if (connectionTime >= 3)
-		{
-			multiplayerMenuError = MultiplayerMenuErrors::ServerIsNotAvailable;
-			DEBUG_MSG(L"Error: ServerIsNotAvailable!");
-			gv->setIsMultiplayer(false);
-			nm->setConnectsToServer(false);
-			break;
-		}
+		regNickRequest(nm, gv);
+		connectionClock.restart();
 
+		while (true)
+		{
+			checkConnection(nm);
+
+			if (multiplayerMenuError == MultiplayerMenuErrors::NoErrors && !nm->getConnectsToServer())
+			{
+				DEBUG_MSG(L"You are connected!");
+				gv->setIsMultiplayer(true);
+				break;
+			}
+			else if (multiplayerMenuError == MultiplayerMenuErrors::GameVersionError)
+			{
+				DEBUG_MSG(L"Error: Version mismatch!");
+				gv->setIsMultiplayer(false);
+				nm->setConnectsToServer(false);
+				break;
+			}
+			else if (multiplayerMenuError == MultiplayerMenuErrors::NicknameIsAlreadyTaken)
+			{
+				DEBUG_MSG(L"Error: NicknameIsAlreadyTaken!");
+				gv->setIsMultiplayer(false);
+				nm->setConnectsToServer(false);
+				break;
+			}
+
+			connectionTime = connectionClock.getElapsedTime().asMilliseconds();
+			if (connectionTime >= 3000)
+			{
+				multiplayerMenuError = MultiplayerMenuErrors::ServerIsNotAvailable;
+				DEBUG_MSG(L"Error: ServerIsNotAvailable!");
+				gv->setIsMultiplayer(false);
+				nm->setConnectsToServer(false);
+				break;
+			}
+			sf::sleep(sf::milliseconds(1));
+		}
 		nm->restartServerClock();
 	}
 }
@@ -111,7 +115,7 @@ void sendData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 {
 	while (true)
 	{
-		if (!gv->getIsMultiplayer() || gv->getGameState() == GameState::GameMenu || !gv->getFocusEvent() || !nm->getIsConnected()) { sf::sleep(sf::milliseconds(1)); continue; }
+		if (!gv->getIsMultiplayer() || gv->getGameState() == GameState::GameMenu || !gv->getFocusEvent() || !nm->getIsConnected() || !cw->editBoxIsReadOnly()) { sf::sleep(sf::milliseconds(1)); continue; }
 
 		sendClientRequests(gv, gw, sm, nm, cw);
 
@@ -131,7 +135,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		packet.clear();
 		prefix = L"";
 
-		if (nm->getServerClockElapsedTime() >= 5.f)
+		if (nm->getServerClockElapsedTime() >= 5000)
 		{
 			DEBUG_MSG(L"SERVER IS NOT AVAILABLE!");
 			nm->setServerIsNotAvailable(true);
@@ -158,7 +162,10 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 				if (clientsVec[i]->getPing() < 0) { clientsVec[i]->setPing(0); }
 
-				cw->changeItemInPlayersList(clientsVec[i]->getPlayersListID(), clientsVec[i]->getName(), std::to_wstring(clientsVec[i]->getNumOfKills()), std::to_wstring(clientsVec[i]->getNumOfDeaths()), std::to_wstring(clientsVec[i]->getPing()));
+				if (gv->getGameState() != GameState::GameMenu)
+				{
+					cw->changeItemInPlayersList(clientsVec[i]->getPlayersListID(), clientsVec[i]->getName(), std::to_wstring(clientsVec[i]->getNumOfKills()), std::to_wstring(clientsVec[i]->getNumOfDeaths()), std::to_wstring(clientsVec[i]->getPing()));
+				}
 
 				if (clientsVec[i]->getName() == nm->getCurrentNickname())
 				{
@@ -193,7 +200,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			for (size_t i = 0; i < clientsVec.size(); ++i)
 			{
-				if (!cw->editBoxIsReadOnly()) { break; }
+				if (nm->getCurrentNickname() == clientNick) { break; }
 				if (clientsVec[i]->getName() != clientNick) { continue; }
 
 				clientsVec[i]->rotate(gv, std::move(clientMousePos));
@@ -306,8 +313,9 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 			bool isBot = false;
 			int numOfKills = 0;
 			int numOfDeaths = 0;
+			int numOfConnectedClients = 0;
 
-			if (!(packet >> clientNick && packet >> clientPos.x && packet >> clientPos.y && packet >> HP && packet >> isBot && packet >> numOfKills && packet >> numOfDeaths)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
+			if (!(packet >> clientNick && packet >> clientPos.x && packet >> clientPos.y && packet >> HP && packet >> isBot && packet >> numOfKills && packet >> numOfDeaths && packet >> numOfConnectedClients)) { DEBUG_MSG(L"prefix_" << prefix << "_error!"); continue; }
 
 			std::lock_guard<std::mutex> lock(clients_mtx);
 			clientsPool.getFromPool(clientsVec);
@@ -316,6 +324,7 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 			clientsVec.back()->setIsBot(isBot);
 			clientsVec.back()->setNumOfKills(numOfKills);
 			clientsVec.back()->setNumOfDeaths(numOfDeaths);
+			clientsVec.back()->setPlayersListID(cw->addClientToPlayersList(clientNick));
 
 			if (clientsVec.back()->getName() == nm->getCurrentNickname())
 			{
@@ -329,16 +338,20 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 				clientsVec.back()->setIconFillColor(sf::Color::Green);
 				clientsVec.back()->setNameTextFillColor(sf::Color::Cyan);
 				gw->setGameViewCenter(clientsVec.back()->getSpritePos());
+				addConnectedClientToChat(gw, nm, cw, std::move(clientNick));
 			}
 			else
 			{
 				clientsVec.back()->setIconFillColor(sf::Color::Magenta);
 				clientsVec.back()->setNameTextFillColor(sf::Color::Red);
+				if (nm->getIsConnected()) { addConnectedClientToChat(gw, nm, cw, std::move(clientNick)); }
 			}
 
-			clientsVec.back()->setPlayersListID(cw->addClientToPlayersList(clientNick));
-
-			addConnectedClientToChat(gw, nm, cw, std::move(clientNick));
+			nm->setNumOfConnectedClients(nm->getNumOfConnectedClients() + 1);
+			if (nm->getNumOfConnectedClients() >= numOfConnectedClients)
+			{
+				nm->setIsConnected(true);
+			}
 		}
 
 		else if (prefix == L"disconnected")
@@ -364,8 +377,6 @@ void receiveData(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 
 				break;
 			}
-
-
 
 			addDisconnectedClientToChat(gw, nm, cw, std::move(clientNick));
 		}
@@ -415,16 +426,16 @@ void updateClients(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow
 	std::lock_guard<std::mutex> lock(clients_mtx);
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
-		clientsVec[i]->update(gv, gw, sm, nm);
+		clientsVec[i]->update(gv, gw, sm, nm, cw);
 	}
 }
 
-void updateBullets(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void updateBullets(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	std::lock_guard<std::mutex> lock(bullets_mtx);
 	for (size_t i = 0; i < bulletsVec.size(); ++i)
 	{
-		bulletsVec[i]->update(gv, gw, sm, nm);
+		bulletsVec[i]->update(gv, gw, sm, nm, cw);
 	}
 }
 

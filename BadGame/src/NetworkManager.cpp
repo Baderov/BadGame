@@ -4,26 +4,28 @@
 NetworkManager::NetworkManager()
 {
 	sock.setBlocking(false);
-	serverClock.restart();
 	currentNickname = L"";
 	serverIP = "";
 	tempPort = "";
 	serverPort = 0;
 	countOfDotsInIP = 0;
+	numOfConnectedClients = 0;
 	connectsToServer = false;
 	serverIsNotAvailable = false;
 	isConnected = false;
 	isMinimapView = false;
 	connectButtonPressed = false;
 	msgReceived = true;
+	serverClock.restart();
 }
 
 void NetworkManager::resetVariables()
 {
-	serverClock.restart();
+	isConnected = false;
 	serverIsNotAvailable = false;
 	isMinimapView = false;
 	msgReceived = true;
+	serverClock.restart();
 }
 
 
@@ -63,10 +65,17 @@ int NetworkManager::getCountOfDotsInIP()
 	return countOfDotsInIP;
 }
 
-float NetworkManager::getServerClockElapsedTime()
+int NetworkManager::getNumOfConnectedClients()
 {
 	std::lock_guard<std::mutex> lock(mtx);
-	float elapsedTime = this->serverClock.getElapsedTime().asSeconds();
+	int numOfConnectedClients = this->numOfConnectedClients;
+	return numOfConnectedClients;
+}
+
+sf::Int32 NetworkManager::getServerClockElapsedTime()
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	sf::Int32 elapsedTime = this->serverClock.getElapsedTime().asMilliseconds();
 	return elapsedTime;
 }
 
@@ -144,6 +153,12 @@ void NetworkManager::setCountOfDotsInIP(int countOfDotsInIP)
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	this->countOfDotsInIP = std::move(countOfDotsInIP);
+}
+
+void NetworkManager::setNumOfConnectedClients(int numOfConnectedClients)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	this->numOfConnectedClients = std::move(numOfConnectedClients);
 }
 
 void NetworkManager::setIsConnected(bool isConnected)

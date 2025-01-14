@@ -90,7 +90,7 @@ void sendClientRequests(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameW
 	for (size_t i = 0; i < clientsVec.size(); ++i)
 	{
 		if (clientsVec[i]->getName() != nm->getCurrentNickname()) { continue; }
-		if (!clientsVec[i]->getSendMoveRequest() || clientsVec[i]->getMoveReceived() || !cw->editBoxIsReadOnly()) { return; }
+		if (!clientsVec[i]->getSendMoveRequest() || clientsVec[i]->getMoveReceived()) { return; }
 
 		clientsVec[i]->setIsCollision(false);
 		clientsVec[i]->moveCollider();

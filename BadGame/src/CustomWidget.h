@@ -10,6 +10,8 @@ private:
 	std::mutex mtx;
 	tgui::Font tguiFont;
 	GameLanguage tempGameLanguage;
+	sf::Clock killListClock;
+	sf::Int32 killListTime;
 	sf::Vector2u tempWindowSize;
 	unsigned int tempFPSLimiter;
 	bool tempIsFullscreen;
@@ -28,6 +30,7 @@ public:
 	bool getTempIsVsync();
 
 	void setTempGameLanguage(GameLanguage tempGameLanguage);
+
 	void setTempWindowSize(sf::Vector2u tempWindowSize);
 	void setTempFPSLimiter(unsigned int tempFPSLimiter);
 	void setTempIsFullscreen(bool tempIsFullscreen);
@@ -44,6 +47,7 @@ public:
 	void setErrorLabelText(tgui::String&& text);
 
 	// KillList
+	void updateKillListTime();
 	void createKillList(std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw);
 	void updateKillList(std::unique_ptr<GameWindow>& gw);
 	void addKillText(std::wstring& shooterClientNick, std::wstring& deadClientNick);

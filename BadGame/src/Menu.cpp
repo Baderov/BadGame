@@ -140,8 +140,6 @@ void openMenu(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw
 				nm->resetVariables();
 				gv->setIsSingleplayer(false);
 				nm->setConnectsToServer(true);
-
-				startNetwork(gv, nm);
 			}
 		}
 

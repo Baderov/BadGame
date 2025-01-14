@@ -5,6 +5,7 @@
 #include "GameWindow.h"
 #include "SingleplayerManager.h"
 #include "NetworkManager.h"
+#include "CustomWidget.h"
 
 enum class ItemType
 {
@@ -19,11 +20,11 @@ enum class WallType
 class Entity // common class for all entities.
 {
 protected:
-	float DTMultiplier, speed, maxSpeed, distance, spawnTime, reloadTime, shootTime, shootDelay, shootOffset, menuTime;
+	float DTMultiplier, speed, maxSpeed, distance;
 	int HP, maxHP, goldCoins, currentAmmo, maxAmmo, missingAmmo, magazineAmmo, numOfKills, numOfDeaths;
 	bool isAlive, isMove, isShoot, isReload, isCollision, isGhost, bulletHit;
 	sf::Clock reloadClock, shootClock, menuClock, bulletHitClock;
-	sf::Int32 bulletHitTime;
+	sf::Int32 bulletHitTime, shootTime, shootDelay, shootOffset, spawnTime, reloadTime, menuTime;
 	sf::Text HPText, nameText, reloadText;
 	sf::Color grayColor;
 	sf::CircleShape icon;
@@ -36,7 +37,7 @@ protected:
 	WallType wallType;
 public:
 	explicit Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm);
-	virtual void update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) = 0;
+	virtual void update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw) = 0;
 	virtual void move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) = 0;
 	virtual void draw(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) = 0;
 	virtual void checkCollision(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) = 0;
@@ -58,13 +59,13 @@ public:
 	void animateBulletHit();
 	void restartBulletHitClock();
 
-	float getShootTime();
-	float getSpawnTime();
-	float getReloadTime();
-	float getShootDelay();
-	float getShootOffset();
-	float getMenuTime();
-	float getMenuClockElapsedTime();
+	sf::Int32 getShootTime();
+	sf::Int32 getSpawnTime();
+	sf::Int32 getReloadTime();
+	sf::Int32 getShootDelay();
+	sf::Int32 getShootOffset();
+	sf::Int32 getMenuTime();
+	sf::Int32 getMenuClockElapsedTime();
 	int getHP();
 	int getMaxHP();
 	int getGoldCoins();
@@ -101,12 +102,12 @@ public:
 	void moveSprite(sf::Vector2f& stepPos);
 	void setGhostSprite();
 	void setRegularSprite(std::wstring&& currentNickname);
-	void setShootTime(float shootTime);
-	void setSpawnTime(float spawnTime);
-	void setReloadTime(float reloadTime);
-	void setShootDelay(float shootDelay);
-	void setShootOffset(float shootOffset);
-	void setMenuTime(float menuTime);
+	void setShootTime(sf::Int32 shootTime);
+	void setSpawnTime(sf::Int32 spawnTime);
+	void setReloadTime(sf::Int32 reloadTime);
+	void setShootDelay(sf::Int32 shootDelay);
+	void setShootOffset(sf::Int32 shootOffset);
+	void setMenuTime(sf::Int32 menuTime);
 	void setHP(int HP);
 	void setMaxHP(int maxHP);
 	void setGoldCoins(int goldCoins);

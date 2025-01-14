@@ -5,15 +5,13 @@ GameVariable::GameVariable(std::unique_ptr<GameWindow>& gw)
 {
 	consolasFont.loadFromFile("Fonts\\consolas.ttf");
 
+	gameVersion = L"0.0.2";
+
 	gameLanguage = GameLanguage::English;
 	gameState = GameState::MainMenu;
-	mousePos = sf::Vector2f(0.f, 0.f);
-	targetPos = sf::Vector2f(0.f, 0.f);
-	gameVersion = L"0.0.1";
-	fpsPreviousTime = 0.f;
-	fpsCurrentTime = 0.f;
-	fps = 0.f;
-	dt = 0.f;
+
+	isSingleplayer = false;
+	isMultiplayer = false;
 
 	backgroundColor.r = 204;
 	backgroundColor.g = 153;
@@ -22,14 +20,6 @@ GameVariable::GameVariable(std::unique_ptr<GameWindow>& gw)
 	greyColor.r = 120;
 	greyColor.g = 120;
 	greyColor.b = 120;
-
-	showAimLaser = false;
-	showLogs = false;
-	showMinimap = true;
-	showCollisionRect = false;
-	isSingleplayer = false;
-	isMultiplayer = false;
-	focusEvent = true;
 
 	bulletImage.loadFromFile("Images/bullet.png");
 	bulletImage.createMaskFromColor(sf::Color(0, 0, 0));
@@ -45,13 +35,8 @@ GameVariable::GameVariable(std::unique_ptr<GameWindow>& gw)
 	goldCoinImage.loadFromFile("Images/goldCoin.png");
 	hpBonusImage.loadFromFile("Images/hpBonus.png");
 
-	aimLaser.setSize(sf::Vector2f(2.25f, 100.f));
 	aimLaser.setFillColor(sf::Color::Red);
 
-	connectionErrorText.setString("");
-	OKButtonText.setString("");
-
-	ammoText.setString("");
 	ammoText.setFont(consolasFont);
 	ammoText.setCharacterSize(50);
 	ammoText.setFillColor(sf::Color::Green);
@@ -67,9 +52,7 @@ GameVariable::GameVariable(std::unique_ptr<GameWindow>& gw)
 	gameVersionText.setOrigin(gameVersionText.getGlobalBounds().getSize().x / 2.f, gameVersionText.getGlobalBounds().getSize().y / 2.f);
 	gameVersionText.setPosition(gw->getSize().x / 2.f, gw->getSize().y - 50.f);
 
-
-	fpsClock.restart();
-	gameClock.restart();
+	resetVariables();
 }
 
 void GameVariable::resetVariables()
@@ -80,15 +63,19 @@ void GameVariable::resetVariables()
 	fpsCurrentTime = 0.f;
 	fps = 0.f;
 	dt = 0.f;
+
 	showAimLaser = false;
 	showLogs = false;
 	showMinimap = true;
 	showCollisionRect = false;
 	focusEvent = true;
+
 	aimLaser.setSize(sf::Vector2f(2.25f, 100.f));
+
 	connectionErrorText.setString("");
 	OKButtonText.setString("");
 	ammoText.setString("");
+
 	fpsClock.restart();
 	gameClock.restart();
 }

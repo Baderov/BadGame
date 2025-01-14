@@ -12,6 +12,7 @@ private:
 	std::string tempPort;
 	unsigned short serverPort;
 	int countOfDotsInIP;
+	int numOfConnectedClients;
 	bool connectsToServer;
 	bool serverIsNotAvailable;
 	bool isConnected;
@@ -27,7 +28,8 @@ public:
 	std::string getTempPort();
 	unsigned short getServerPort();
 	int getCountOfDotsInIP();
-	float getServerClockElapsedTime();
+	int getNumOfConnectedClients();
+	sf::Int32 getServerClockElapsedTime();
 	bool getConnectsToServer();
 	bool getServerIsNotAvailable();
 	bool getIsConnected();
@@ -41,6 +43,7 @@ public:
 	void setTempPort(std::string tempPort);
 	void setServerPort(unsigned short serverPort);
 	void setCountOfDotsInIP(int countOfDotsInIP);
+	void setNumOfConnectedClients(int numOfConnectedClients);
 	void setConnectsToServer(bool connectsToServer);
 	void setServerIsNotAvailable(bool serverIsNotAvailable);
 	void setIsConnected(bool isConnected);

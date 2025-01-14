@@ -138,6 +138,20 @@ void CustomWidget::setErrorLabelText(tgui::String&& text)
 
 
 // KillList
+void CustomWidget::updateKillListTime()
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	auto killList = gameGUI.get<tgui::ChatBox>("killList");
+
+	this->killListTime = killListClock.getElapsedTime().asMilliseconds();
+
+	if (this->killListTime >= 10000)
+	{
+		killList->removeAllLines();
+		killListClock.restart();
+	}
+}
+
 void CustomWidget::createKillList(std::unique_ptr<GameWindow>& gw, std::unique_ptr<CustomWidget>& cw)
 {
 	std::lock_guard<std::mutex> lock(mtx);
@@ -180,6 +194,7 @@ void CustomWidget::addKillText(std::wstring& shooterClientNick, std::wstring& de
 		killList->removeLine(0);
 		killList->addLine(shooterClientNick + L" kills " + deadClientNick, tgui::Color::Blue);
 	}
+	killListClock.restart();
 }
 
 
@@ -313,7 +328,8 @@ bool CustomWidget::editBoxIsReadOnly()
 {
 	std::lock_guard<std::mutex> lock(mtx);
 	auto editBox = gameGUI.get<tgui::EditBox>("editBox");
-	return editBox->isReadOnly();
+	if (editBox != nullptr) { return editBox->isReadOnly(); }
+	else { return false; }
 }
 
 bool CustomWidget::editBoxIsVisible()

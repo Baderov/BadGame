@@ -11,12 +11,13 @@ Entity::Entity(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& g
 	DTMultiplier = 1000.f;
 	speed = 0.f;
 	maxSpeed = 0.f;
-	spawnTime = 0.f;
-	reloadTime = 0.f;
-	shootTime = 0.f;
-	shootDelay = 1.f;
-	shootOffset = 0.f;
-	menuTime = 0.f;
+
+	spawnTime = 0;
+	reloadTime = 0;
+	shootTime = 0;
+	shootDelay = 1;
+	shootOffset = 0;
+	menuTime = 0;
 	HP = 100;
 	maxHP = 100;
 	goldCoins = 0;
@@ -148,7 +149,7 @@ void Entity::updateHP()
 
 void Entity::calculateAmmo()
 {
-	if (currentAmmo < 30 && isReload && reloadTime >= 2.f)
+	if (currentAmmo < 30 && isReload && reloadTime >= 2000)
 	{
 		missingAmmo = magazineAmmo - currentAmmo;
 		if (maxAmmo < magazineAmmo)
@@ -179,8 +180,8 @@ void Entity::updateReload(std::unique_ptr<GameVariable>& gv)
 {
 	if (isReload)
 	{
-		reloadTime = reloadClock.getElapsedTime().asSeconds() - menuTime;
-		if (reloadTime < 0.f) { reloadTime = 0.f; }
+		reloadTime = reloadClock.getElapsedTime().asMilliseconds() - menuTime;
+		if (reloadTime < 0) { reloadTime = 0; }
 		updateReloadRect(gv);
 	}
 }
@@ -189,10 +190,10 @@ void Entity::updateReloadRect(std::unique_ptr<GameVariable>& gv)
 {
 	reloadRectOuter.setSize(sf::Vector2f(200.f, 20.f));
 	reloadRectOuter.setOrigin(reloadRectOuter.getSize() / 2.f);
-	float tempReloadTime = 0.f;
-	if (reloadTime > 0.f) { tempReloadTime = (reloadTime * 1000.f) / 10.f; }
+	sf::Int32 tempReloadTime = 0;
+	if (reloadTime > 0) { tempReloadTime = reloadTime / 10; }
 	float reloadRectOuterSizeX = reloadRectOuter.getSize().x;
-	if (tempReloadTime < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(tempReloadTime, reloadRectOuter.getSize().y)); }
+	if (static_cast<float>(tempReloadTime) < reloadRectOuterSizeX) { reloadRectInner.setSize(sf::Vector2f(static_cast<float>(tempReloadTime), reloadRectOuter.getSize().y)); }
 	else { reloadRectInner.setSize(sf::Vector2f(0.f, reloadRectOuter.getSize().y)); }
 	reloadRectOuter.setPosition(sprite.getPosition().x, sprite.getPosition().y + 400.f);
 	reloadRectInner.setPosition(reloadRectOuter.getPosition().x - (reloadRectOuter.getSize().x / 2.f), reloadRectOuter.getPosition().y - (reloadRectOuter.getSize().y / 2.f));
@@ -241,44 +242,44 @@ void Entity::restartBulletHitClock()
 	bulletHitClock.restart();
 }
 
-float Entity::getShootTime()
+sf::Int32 Entity::getShootTime()
 {
-	float shootTime = this->shootTime;
+	sf::Int32 shootTime = this->shootTime;
 	return shootTime;
 }
 
-float Entity::getSpawnTime()
+sf::Int32 Entity::getSpawnTime()
 {
-	float spawnTime = this->spawnTime;
+	sf::Int32 spawnTime = this->spawnTime;
 	return spawnTime;
 }
 
-float Entity::getReloadTime()
+sf::Int32 Entity::getReloadTime()
 {
-	float reloadTime = this->reloadTime;
+	sf::Int32 reloadTime = this->reloadTime;
 	return reloadTime;
 }
 
-float Entity::getShootDelay()
+sf::Int32 Entity::getShootDelay()
 {
-	float shootDelay = this->shootDelay;
+	sf::Int32 shootDelay = this->shootDelay;
 	return shootDelay;
 }
 
-float Entity::getShootOffset()
+sf::Int32 Entity::getShootOffset()
 {
-	float shootOffset = this->shootOffset;
+	sf::Int32 shootOffset = this->shootOffset;
 	return shootOffset;
 }
 
-float Entity::getMenuTime()
+sf::Int32 Entity::getMenuTime()
 {
-	float menuTime = this->menuTime;
+	sf::Int32 menuTime = this->menuTime;
 	return menuTime;
 }
-float Entity::getMenuClockElapsedTime()
+sf::Int32 Entity::getMenuClockElapsedTime()
 {
-	return this->menuClock.getElapsedTime().asSeconds();
+	return this->menuClock.getElapsedTime().asMilliseconds();
 }
 
 int Entity::getHP()
@@ -474,12 +475,12 @@ void Entity::setRegularSprite(std::wstring&& currentNickname)
 	else { nameText.setFillColor(sf::Color::Red); }
 	nameText.setOutlineColor(sf::Color::Black);
 }
-void Entity::setSpawnTime(float spawnTime) { this->spawnTime = std::move(spawnTime); }
-void Entity::setReloadTime(float reloadTime) { this->reloadTime = std::move(reloadTime); }
-void Entity::setShootTime(float shootTime) { this->shootTime = std::move(shootTime); }
-void Entity::setShootDelay(float shootDelay) { this->shootDelay = std::move(shootDelay); }
-void Entity::setShootOffset(float shootOffset) { this->shootOffset = std::move(shootOffset); }
-void Entity::setMenuTime(float menuTime) { this->menuTime = std::move(menuTime); }
+void Entity::setSpawnTime(sf::Int32 spawnTime) { this->spawnTime = std::move(spawnTime); }
+void Entity::setReloadTime(sf::Int32 reloadTime) { this->reloadTime = std::move(reloadTime); }
+void Entity::setShootTime(sf::Int32 shootTime) { this->shootTime = std::move(shootTime); }
+void Entity::setShootDelay(sf::Int32 shootDelay) { this->shootDelay = std::move(shootDelay); }
+void Entity::setShootOffset(sf::Int32 shootOffset) { this->shootOffset = std::move(shootOffset); }
+void Entity::setMenuTime(sf::Int32 menuTime) { this->menuTime = std::move(menuTime); }
 void Entity::restartMenuClock() { this->menuClock.restart(); }
 void Entity::setHP(int HP) { this->HP = std::move(HP); }
 void Entity::setMaxHP(int maxHP) { this->maxHP = std::move(maxHP); }

@@ -29,7 +29,7 @@ void Wall::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos, WallTy
 	if (wallType == WallType::LeftWall || wallType == WallType::RightWall) { sprite.setRotation(90); collider.setRotation(90); }
 }
 
-void Wall::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
+void Wall::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw) {}
 
 void Wall::move(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) {}
 

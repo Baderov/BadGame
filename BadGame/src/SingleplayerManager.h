@@ -23,6 +23,7 @@ public:
 	// SETTERS.
 	void setPlayerStartPos(sf::Vector2f playerStartPos);
 	void setGameResultGoldCoins(int gameResultGoldCoins);
+	void setBoxStartPos();
 };
 
 #endif

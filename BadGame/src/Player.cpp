@@ -1,7 +1,35 @@
 #include "pch.h"
 #include "Player.h"
 
-Player::Player(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm) {}
+Player::Player(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm) : Entity(gv, gw, sm, nm)
+{
+	texture.loadFromImage(gv->playerImage);
+	sprite.setTexture(texture, true);
+	sprite.setColor(sf::Color::White);
+	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
+
+	collider.setFillColor(sf::Color::Green);
+	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
+	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
+
+	reloadRectOuter.setFillColor(grayColor);
+	reloadRectOuter.setOutlineThickness(2.f);
+	reloadRectOuter.setOutlineColor(sf::Color::Black);
+
+	reloadRectInner.setFillColor(sf::Color::Black);
+	reloadRectInner.setOutlineThickness(2.f);
+	reloadRectInner.setOutlineColor(sf::Color::Black);
+
+	reloadText.setFont(gv->consolasFont);
+	reloadText.setCharacterSize(50);
+	reloadText.setFillColor(sf::Color::Black);
+
+	icon.setFillColor(sf::Color::Green);
+	icon.setRadius(static_cast<float>(gv->playerImage.getSize().x));
+	icon.setOutlineThickness(15.f);
+	icon.setOutlineColor(sf::Color::Black);
+	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
+}
 
 void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, sf::Vector2f startPos)
 {
@@ -22,51 +50,28 @@ void Player::init(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>
 	missingAmmo = 0;
 	numOfKills = 0;
 	numOfDeaths = 0;
+	reloadTime = 0;
+	shootTime = 0;
 
 	this->startPos = std::move(startPos);
-	reloadTime = 0.f;
-	speed = 750.f;
 	stepPos = sf::Vector2f(0.f, 0.f);
+	speed = 750.f;
 
-	texture.loadFromImage(gv->playerImage);
-	sprite.setTexture(texture, true);
-	sprite.setOrigin(texture.getSize().x / 2.f, texture.getSize().y / 2.f);
 	sprite.setPosition(this->startPos);
-	sprite.setColor(sf::Color::White);
-
-	collider.setSize(static_cast<sf::Vector2f>(sf::Vector2u(texture.getSize().y, texture.getSize().y)));
-	collider.setOrigin(collider.getSize().x / 2.f, collider.getSize().y / 2.f);
 	collider.setPosition(this->startPos);
-	collider.setFillColor(sf::Color::Green);
-
-	reloadRectOuter.setFillColor(grayColor);
-	reloadRectOuter.setOutlineThickness(2.f);
-	reloadRectOuter.setOutlineColor(sf::Color::Black);
-
-	reloadRectInner.setFillColor(sf::Color::Black);
-	reloadRectInner.setOutlineThickness(2.f);
-	reloadRectInner.setOutlineColor(sf::Color::Black);
-
-	reloadText.setFont(gv->consolasFont);
-	reloadText.setCharacterSize(50);
-	reloadText.setFillColor(sf::Color::Black);
 	reloadText.setPosition(reloadRectOuter.getPosition().x + 15.f, reloadRectOuter.getPosition().y - 100.f);
-
-	icon.setFillColor(sf::Color::Green);
-	icon.setRadius(static_cast<float>(gv->playerImage.getSize().x));
-	icon.setOutlineThickness(15.f);
-	icon.setOutlineColor(sf::Color::Black);
-	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 
 	checkCollision(gv, gw, sm, nm);
 	if (isCollision) { isGhost = true; setGhostSprite(); }
 }
 
-void Player::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Player::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	if (isAlive)
 	{
 		gv->setMousePos(gw->window.mapPixelToCoords(sf::Mouse::getPosition(gw->window)));
+		shootTime = shootClock.getElapsedTime().asMilliseconds() * gv->getDT();
+
 		rotate(gv, gv->getMousePos());
 		move(gv, gw, sm, nm);
 		shoot(gv, gw, sm, nm);
@@ -158,12 +163,15 @@ void Player::createBullet(std::unique_ptr<GameVariable>& gv, std::unique_ptr<Gam
 		bulletsVec.back()->init(gv, gw, sm, nm, startPos, aimPos, creatorName, currentVelocity);
 		currentAmmo--;
 		isShoot = false;
+
+		restartShootClock();
 	}
 }
 
 void Player::shoot(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
 {
 	calculateAmmo();
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && getShootTime() > 1) { setIsShoot(true); }
 	createBullet(gv, gw, sm, nm);
 	updateReload(gv);
 }

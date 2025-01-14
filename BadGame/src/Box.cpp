@@ -32,7 +32,7 @@ void Box::init(std::unique_ptr<GameVariable>& gv, sf::Vector2f startPos)
 	icon.setOrigin(icon.getRadius() / 2.f, icon.getRadius() / 2.f);
 }
 
-void Box::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm)
+void Box::update(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>& gw, std::unique_ptr<SingleplayerManager>& sm, std::unique_ptr<NetworkManager>& nm, std::unique_ptr<CustomWidget>& cw)
 {
 	if (isAlive)
 	{

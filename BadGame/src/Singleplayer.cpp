@@ -56,8 +56,8 @@ void restartGame(std::unique_ptr<GameVariable>& gv, std::unique_ptr<GameWindow>&
 		playerPtr->setColliderPos(sm->getPlayerStartPos());
 		playerPtr->setMoveTargetPos(sm->getPlayerStartPos());
 		playerPtr->setStepPos(sf::Vector2f(0.f, 0.f));
-		playerPtr->setMenuTime(0.f);
-		playerPtr->setReloadTime(0.f);
+		playerPtr->setMenuTime(0);
+		playerPtr->setReloadTime(0);
 		playerPtr->setIsMove(false);
 		playerPtr->setIsReload(false);
 		playerPtr->setIsShoot(false);
